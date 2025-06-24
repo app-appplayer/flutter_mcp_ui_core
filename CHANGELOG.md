@@ -1,4 +1,12 @@
 
+## 0.2.0
+
+### Refactoring
+- Major internal refactoring for improved maintainability
+- Enhanced code organization and structure
+- Improved type safety and validation
+- Better separation of concerns
+
 ## 0.1.0
 
 ### Initial Release

@@ -83,12 +83,12 @@ class ActionConfig {
   }
 
   /// Create a tool action
-  factory ActionConfig.tool(String tool, [Map<String, dynamic>? args]) {
+  factory ActionConfig.tool(String tool, [Map<String, dynamic>? params]) {
     return ActionConfig(
       type: 'tool',
       parameters: {
         'tool': tool,
-        if (args != null) 'args': args,
+        if (params != null) 'params': params,
       },
     );
   }
@@ -191,8 +191,8 @@ class ActionConfig {
   /// Get the tool name (for tool actions)
   String? get toolName => getParameter<String>('tool');
 
-  /// Get the tool arguments (for tool actions)
-  Map<String, dynamic>? get toolArgs => getParameter<Map<String, dynamic>>('args');
+  /// Get the tool parameters (for tool actions)
+  Map<String, dynamic>? get toolParams => getParameter<Map<String, dynamic>>('params');
 
   /// Get the state action type (for state actions)
   String? get stateAction => getParameter<String>('action');
@@ -229,9 +229,11 @@ class ActionConfig {
       case 'tool':
         return toolName != null && toolName!.isNotEmpty;
       case 'state':
-        return stateAction != null && stateBinding != null;
+        return stateAction != null && stateAction!.isNotEmpty && 
+               stateBinding != null && stateBinding!.isNotEmpty;
       case 'navigation':
-        return navigationAction != null && navigationRoute != null;
+        return navigationAction != null && navigationAction!.isNotEmpty && 
+               navigationRoute != null && navigationRoute!.isNotEmpty;
       case 'resource':
         return resourceAction != null && resourceUri != null && 
                (resourceAction == 'unsubscribe' || resourceBinding != null);

@@ -217,7 +217,7 @@ void main() async {
         "onChange": {
           "type": "tool",
           "tool": "submitRating",
-          "args": {
+          "params": {
             "productId": "{{productId}}",
             "rating": "{{productRating}}"
           }

@@ -229,7 +229,7 @@ server.addResource(
                     {
                       "type": "button",
                       "label": "-",
-                      "onTap": {
+                      "click": {
                         "type": "tool",
                         "tool": "decrement"
                       }
@@ -237,7 +237,7 @@ server.addResource(
                     {
                       "type": "button",
                       "label": "+",
-                      "onTap": {
+                      "click": {
                         "type": "tool",
                         "tool": "increment"
                       }
@@ -262,7 +262,7 @@ server.addResource(
 // Add tools
 server.addTool(
   name: 'increment',
-  handler: (args) async {
+  handler: (params) async {
     // In real app, update server state
     return CallToolResult(
       content: [TextContent(text: '{"count": 1}')],
@@ -278,9 +278,9 @@ Update your client to handle tool calls:
 ```dart
 // In _connectAndLoad method, update buildUI call:
 return _runtime!.buildUI(
-  onToolCall: (tool, args) async {
+  onToolCall: (tool, params) async {
     // Call the tool on the server
-    final result = await _mcpClient!.callTool(tool, args);
+    final result = await _mcpClient!.callTool(tool, params);
     
     // Parse response and update state
     if (result.content.isNotEmpty) {
@@ -355,7 +355,7 @@ Create a UI that subscribes to the temperature:
       {
         "type": "button",
         "label": "Subscribe",
-        "onTap": {
+        "click": {
           "type": "resource",
           "action": "subscribe",
           "uri": "data://temperature",
@@ -454,7 +454,7 @@ Always wrap MCP operations in try-catch:
 
 ```dart
 try {
-  final result = await _mcpClient!.callTool(tool, args);
+  final result = await _mcpClient!.callTool(tool, params);
   // Handle result
 } catch (e) {
   // Show error to user

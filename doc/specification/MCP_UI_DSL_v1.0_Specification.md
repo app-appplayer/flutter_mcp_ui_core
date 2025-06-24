@@ -1,8 +1,58 @@
 # MCP UI DSL v1.0 Specification
 
+## Table of Contents
+
+1. [Overview](#overview)
+2. [Architecture](#architecture)
+3. [Core Concepts](#core-concepts)
+   - 3.1 [UI Definition in Resources](#1-ui-definition-in-resources)
+   - 3.2 [Data Binding](#2-data-binding)
+   - 3.3 [Tool Integration](#3-tool-integration)
+4. [Platform Abstraction](#platform-abstraction)
+   - 4.1 [Widget Naming Convention](#widget-naming-convention)
+   - 4.2 [Layout System](#layout-system)
+   - 4.3 [Event System](#event-system)
+   - 4.4 [Size Units](#size-units)
+5. [Widget Catalog](#widget-catalog)
+   - 5.1 [Layout Widgets](#layout-widgets)
+   - 5.2 [Display Widgets](#display-widgets)
+   - 5.3 [Input Widgets](#input-widgets)
+   - 5.4 [List Widgets](#list-widgets)
+6. [Data Binding & State Management](#data-binding--state-management)
+7. [Actions](#actions)
+8. [MCP Protocol Integration](#mcp-protocol-integration)
+9. [Theme System](#theme-system)
+10. [Platform Considerations](#platform-considerations)
+11. [Security](#security)
+12. [Versioning](#versioning)
+13. [Accessibility](#accessibility)
+14. [Internationalization](#internationalization)
+15. [Advanced Widgets](#advanced-widgets)
+    - 15.1 [Chart](#chart)
+    - 15.2 [Table](#table)
+    - 15.3 [Scroll View](#scroll-view)
+    - 15.4 [Draggable & DragTarget](#draggable--dragtarget)
+16. [Dialog Widgets](#dialog-widgets)
+    - 16.1 [AlertDialog](#alertdialog)
+    - 16.2 [SimpleDialog](#simpledialog)
+    - 16.3 [BottomSheet](#bottomsheet)
+17. [Validation System](#validation-system)
+18. [Error Handling](#error-handling)
+19. [Performance Optimization](#performance-optimization)
+20. [Complete Example](#complete-example)
+21. [Lifecycle Management](#lifecycle-management)
+22. [Background Services](#background-services)
+23. [Service Architecture](#service-architecture)
+24. [Cache Management](#cache-management)
+25. [Runtime Configuration](#runtime-configuration)
+26. [Future Extensions](#future-extensions)
+27. [Testing Support](#testing-support)
+28. [Conformance Requirements](#conformance-requirements)
+29. [Glossary](#glossary)
+
 ## Overview
 
-MCP UI DSL (Domain Specific Language) is a JSON-based language for defining and rendering dynamic UIs in the MCP (Model Context Protocol) environment. This specification is platform-agnostic and can be implemented in Flutter, React, Python, and various other environments.
+MCP UI DSL (Domain Specific Language) is a JSON-based language for defining and rendering dynamic UIs in the MCP (Model Context Protocol) environment. This specification is platform-agnostic and can be implemented across various platforms, frameworks, and programming languages.
 
 ## Architecture
 
@@ -28,7 +78,7 @@ MCP UI DSL (Domain Specific Language) is a JSON-based language for defining and 
 
 UI is stored as MCP Resources and defined in JSON format. From v1.0, it supports both single pages and multi-page applications.
 
-#### 1.1 Application Definition (NEW)
+#### 1.1 Application Definition
 Top-level resource that defines an entire application:
 
 ```json
@@ -40,16 +90,18 @@ Top-level resource that defines an entire application:
   "theme": {
     "mode": "light",  // "light" | "dark" | "system"
     "colors": {
-      "primary": "#2196F3",
-      "secondary": "#FF4081",
-      "background": "#FFFFFF",
-      "surface": "#F5F5F5",
-      "error": "#F44336",
-      "onPrimary": "#FFFFFF",
-      "onSecondary": "#000000",
-      "onBackground": "#000000",
-      "onSurface": "#000000",
-      "onError": "#FFFFFF"
+      // Colors support both 6-digit (#RRGGBB) and 8-digit (#AARRGGBB) hex formats
+      // 6-digit format assumes full opacity (FF alpha)
+      "primary": "#2196F3",        // Blue (6-digit)
+      "secondary": "#FFFF4081",    // Pink with full opacity (8-digit)
+      "background": "#FFFFFFFF",   // White with full opacity (8-digit)
+      "surface": "#F5F5F5",        // Light gray (6-digit)
+      "error": "#F44336",          // Red (6-digit)
+      "textOnPrimary": "#FFFFFF",
+      "textOnSecondary": "#FF000000",  // Black with full opacity (8-digit)
+      "textOnBackground": "#000000",
+      "textOnSurface": "#000000",
+      "textOnError": "#FFFFFF"
     },
     "typography": {
       "h1": {
@@ -168,7 +220,8 @@ Defines individual pages:
     }
   },
   "content": {
-    "type": "column",
+    "type": "linear",
+    "direction": "vertical",
     "children": [...]
   }
 }
@@ -196,24 +249,40 @@ Define light/dark themes separately:
     "light": {
       "colors": {
         "primary": "#2196F3",
-        "background": "#FFFFFF"
+        "background": "#FFFFFFFF"  // 8-digit format for precise alpha control
       }
     },
     "dark": {
       "colors": {
         "primary": "#1976D2",
-        "background": "#121212"
+        "background": "#FF121212"  // Dark background with full opacity
       }
     }
   }
 }
 ```
 
-##### 1.3.3 Theme Binding
+##### 1.3.3 Color Format Specification
+Colors in MCP UI DSL support two hex formats:
+
+1. **6-digit format (#RRGGBB)**: Standard RGB format, assumes full opacity (alpha = FF)
+   - Example: `#2196F3` (blue)
+   - Example: `#FFFFFF` (white)
+
+2. **8-digit format (#AARRGGBB)**: ARGB format with explicit alpha channel
+   - Example: `#FF2196F3` (blue with full opacity)
+   - Example: `#80000000` (black with 50% opacity)
+   - Example: `#00FFFFFF` (fully transparent white)
+
+Implementations MUST support both formats. When parsing:
+- 6-digit: Prepend "FF" for full opacity
+- 8-digit: Use as-is with alpha channel
+
+##### 1.3.4 Theme Binding
 Reference theme values in widgets:
 ```json
 {
-  "type": "container",
+  "type": "box",
   "color": "{{theme.colors.surface}}",
   "padding": "{{theme.spacing.md}}",
   "borderRadius": "{{theme.borderRadius.md}}",
@@ -270,7 +339,7 @@ Access theme values:
 #### 2.2 Tool-based Data Loading
 ```json
 {
-  "type": "listview",
+  "type": "list",
   "dataSource": {
     "type": "tool",
     "name": "getUsers",
@@ -288,7 +357,7 @@ Tools serve multiple purposes in MCP UI DSL:
 {
   "type": "button",
   "label": "Create User",
-  "onTap": {
+  "click": {
     "type": "tool",
     "name": "createUser",
     "params": {
@@ -310,6 +379,103 @@ Tools serve multiple purposes in MCP UI DSL:
 }
 ```
 
+## Platform Abstraction
+
+MCP UI DSL is designed to be platform-neutral. Each platform implements widgets according to its native capabilities while maintaining consistent behavior.
+
+### Widget Naming Convention
+
+MCP UI DSL follows a consistent naming convention for all widget types:
+
+#### Naming Rules
+1. **Single-word widgets**: Use lowercase
+   - Examples: `text`, `button`, `box`, `image`, `icon`
+
+2. **Multi-word widgets**: Use CamelCase
+   - Examples: `textInput`, `sizedBox`, `loadingIndicator`, `bottomNavigation`
+
+#### Core Widget Types
+
+| Widget Type | Description | Category |
+|------------|-------------|----------|
+| **Layout Widgets** | | |
+| `linear` | Linear layout container (replaces row/column) | Layout |
+| `stack` | Overlapping layout | Layout |
+| `box` | Container widget (replaces container) | Layout |
+| `center` | Centers child widget | Layout |
+| `padding` | Adds padding around child | Layout |
+| `sizedBox` | Fixed size container | Layout |
+| **Display Widgets** | | |
+| `text` | Text display | Display |
+| `richText` | Styled text spans | Display |
+| `image` | Image display | Display |
+| `icon` | Icon display | Display |
+| `card` | Card container | Display |
+| `badge` | Badge indicator | Display |
+| `loadingIndicator` | Progress/loading indicator | Display |
+| **Input Widgets** | | |
+| `button` | Clickable button | Input |
+| `textInput` | Text input field | Input |
+| `select` | Dropdown selection | Input |
+| `toggle` | Toggle switch | Input |
+| `slider` | Value slider | Input |
+| `checkbox` | Checkbox | Input |
+| `radio` | Radio button | Input |
+| **Extended Input Widgets** | | |
+| `numberField` | Numeric input | Input |
+| `colorPicker` | Color selection | Input |
+| `dateField` | Date picker | Input |
+| `timeField` | Time picker | Input |
+| `radioGroup` | Radio button group | Input |
+| `checkboxGroup` | Checkbox group | Input |
+| **Navigation Widgets** | | |
+| `headerBar` | App header/toolbar | Navigation |
+| `bottomNavigation` | Bottom navigation bar | Navigation |
+| `drawer` | Navigation drawer | Navigation |
+| `tabBar` | Tab navigation | Navigation |
+| **List Widgets** | | |
+| `list` | Scrollable list view | List |
+| `grid` | Grid layout view | List |
+| `listTile` | List item widget | List |
+| **Advanced Widgets** | | |
+| `scrollView` | Scrollable container | Scroll |
+| `chart` | Data visualization | Advanced |
+| `map` | Map display | Advanced |
+| `mediaPlayer` | Audio/video player | Advanced |
+
+### Layout System
+
+The layout system uses platform-neutral properties:
+
+- `direction`: "horizontal" | "vertical" (for linear layouts)
+- `alignment`: "start" | "center" | "end" | "stretch" 
+- `distribution`: "start" | "center" | "end" | "space-between" | "space-around" | "space-evenly"
+
+### Event System
+
+Events use standard names across all platforms:
+
+- `click`: Primary activation (mouse click, tap, Enter key)
+- `double-click`: Double click/tap activation
+- `right-click`: Secondary/context menu activation (where supported)
+- `long-press`: Extended press/touch (mobile/touch devices)
+- `change`: Value changed (input fields, selections)
+- `focus`/`blur`: Focus gained/lost
+- `hover`: Pointer hovering (where supported)
+
+### Size Units
+
+Sizes can be specified with explicit units:
+
+```json
+{
+  "width": {"value": 100, "unit": "px"},
+  "height": {"value": 50, "unit": "percent"}
+}
+```
+
+Supported units: `px`, `percent`, `em`, `rem`, `vw`, `vh`
+
 ## Widget Catalog
 
 ### Layout Widgets
@@ -317,11 +483,11 @@ Tools serve multiple purposes in MCP UI DSL:
 #### Container
 ```json
 {
-  "type": "container",
-  "width": 200,
-  "height": 100,
-  "padding": {"all": 16},
-  "margin": {"horizontal": 8},
+  "type": "box",
+  "width": {"value": 200, "unit": "px"},
+  "height": {"value": 100, "unit": "px"},
+  "padding": {"all": {"value": 16, "unit": "px"}},
+  "margin": {"horizontal": {"value": 8, "unit": "px"}},
   "decoration": {
     "color": "#ffffff",
     "borderRadius": 8,
@@ -334,23 +500,24 @@ Tools serve multiple purposes in MCP UI DSL:
 }
 ```
 
-#### Column
+#### Linear Layout (Vertical)
 ```json
 {
-  "type": "column",
-  "mainAxisAlignment": "start",
-  "crossAxisAlignment": "center",
-  "mainAxisSize": "max",
+  "type": "linear",
+  "direction": "vertical",
+  "alignment": "center",
+  "distribution": "start",
   "children": [...]
 }
 ```
 
-#### Row
+#### Linear Layout (Horizontal)
 ```json
 {
-  "type": "row",
-  "mainAxisAlignment": "spaceBetween",
-  "crossAxisAlignment": "center",
+  "type": "linear", 
+  "direction": "horizontal",
+  "alignment": "center",
+  "distribution": "space-between",
   "children": [...]
 }
 ```
@@ -398,14 +565,14 @@ Renders different widgets based on a condition:
 {
   "type": "conditional",
   "condition": "{{user.isAuthenticated}}",
-  "trueChild": {
+  "then": {
     "type": "text",
     "content": "Welcome, {{user.name}}!"
   },
-  "falseChild": {
+  "else": {
     "type": "button",
     "label": "Sign In",
-    "onTap": {
+    "click": {
       "type": "navigation",
       "action": "push",
       "route": "/login"
@@ -414,14 +581,14 @@ Renders different widgets based on a condition:
 }
 ```
 
-Or with a single child:
+Or with a single child (only renders when true):
 
 ```json
 {
   "type": "conditional",
   "condition": "{{showAdvancedOptions}}",
-  "child": {
-    "type": "container",
+  "then": {
+    "type": "box",
     "child": {...}
   }
 }
@@ -495,22 +662,47 @@ Or with a single child:
 {
   "type": "button",
   "label": "Submit",
-  "style": "elevated",
-  "onTap": {
+  "style": "primary",
+  "click": {
     "type": "tool",
     "name": "submitForm"
   }
 }
 ```
 
-#### TextField
+With multiple event handlers:
 ```json
 {
-  "type": "textfield",
+  "type": "button",
+  "label": "Edit Item",
+  "click": {
+    "type": "state",
+    "action": "set",
+    "path": "mode",
+    "value": "view"
+  },
+  "double-click": {
+    "type": "state",
+    "action": "set",
+    "path": "mode",
+    "value": "edit"
+  },
+  "long-press": {
+    "type": "tool",
+    "name": "showContextMenu",
+    "params": {"itemId": "{{item.id}}"}
+  }
+}
+```
+
+#### Text Input
+```json
+{
+  "type": "textInput",
   "label": "Email",
   "placeholder": "Enter your email",
   "value": "{{form.email}}",
-  "onChange": {
+  "change": {
     "type": "state",
     "action": "set",
     "binding": "form.email",
@@ -524,7 +716,7 @@ Or with a single child:
 {
   "type": "checkbox",
   "value": "{{settings.notifications}}",
-  "onChange": {
+  "change": {
     "type": "state",
     "action": "toggle",
     "binding": "settings.notifications"
@@ -532,12 +724,12 @@ Or with a single child:
 }
 ```
 
-#### Switch
+#### Toggle Switch
 ```json
 {
-  "type": "switch",
+  "type": "toggle",
   "value": "{{settings.darkMode}}",
-  "onChange": {
+  "change": {
     "type": "state",
     "action": "toggle",
     "binding": "settings.darkMode"
@@ -553,7 +745,7 @@ Or with a single child:
   "min": 0,
   "max": 100,
   "divisions": 10,
-  "onChange": {
+  "change": {
     "type": "state",
     "action": "set",
     "binding": "settings.volume",
@@ -578,7 +770,7 @@ Specialized input field for numeric input:
   "prefix": "$",
   "suffix": "",
   "thousandSeparator": ",",
-  "onChange": {
+  "change": {
     "type": "state",
     "action": "set",
     "binding": "form.quantity",
@@ -596,9 +788,9 @@ Widget for color selection:
   "value": "{{theme.primaryColor}}",
   "showAlpha": true,
   "showLabel": true,
-  "pickerType": "both",  // "both" | "material" | "block"
+  "pickerType": "wheel",  // "wheel" | "palette" | "both"
   "enableHistory": true,
-  "onChange": {
+  "change": {
     "type": "state",
     "action": "set",
     "binding": "theme.primaryColor",
@@ -620,7 +812,7 @@ Radio button group for single selection:
     {"value": "fr", "label": "Français"}
   ],
   "orientation": "vertical",  // "vertical" | "horizontal"
-  "onChange": {
+  "change": {
     "type": "state",
     "action": "set",
     "binding": "settings.language",
@@ -643,7 +835,7 @@ Checkbox group for multiple selection:
     {"value": "travel", "label": "Travel"}
   ],
   "orientation": "vertical",
-  "onChange": {
+  "change": {
     "type": "state",
     "action": "set",
     "binding": "form.interests",
@@ -664,8 +856,8 @@ iOS-style segmented control:
     {"value": "grid", "label": "Grid", "icon": "grid_view"},
     {"value": "card", "label": "Card", "icon": "view_agenda"}
   ],
-  "style": "material",  // "material" | "cupertino"
-  "onChange": {
+  "style": "segmented",  // "segmented" | "tabs" | "buttons"
+  "change": {
     "type": "state",
     "action": "set",
     "binding": "viewMode",
@@ -687,7 +879,7 @@ Field for date input:
   "lastDate": "{{today}}",
   "mode": "calendar",  // "calendar" | "input" | "both"
   "locale": "en_US",
-  "onChange": {
+  "change": {
     "type": "state",
     "action": "set",
     "binding": "user.birthdate",
@@ -707,7 +899,7 @@ Field for time input:
   "format": "HH:mm",
   "use24HourFormat": true,
   "mode": "spinner",  // "spinner" | "input" | "dial"
-  "onChange": {
+  "change": {
     "type": "state",
     "action": "set",
     "binding": "settings.notificationTime",
@@ -729,7 +921,7 @@ Widget for date range selection:
   "format": "yyyy-MM-dd",
   "locale": "en_US",
   "saveText": "Save",
-  "onChange": {
+  "change": {
     "type": "batch",
     "actions": [
       {
@@ -751,13 +943,13 @@ Widget for date range selection:
 
 ### List Widgets
 
-#### ListView
+#### List View
 ```json
 {
-  "type": "listview",
+  "type": "list",
   "items": "{{users}}",
-  "itemSpacing": 8,
-  "shrinkWrap": true,
+  "spacing": 8,
+  "orientation": "vertical",
   "itemTemplate": {
     "type": "card",
     "child": {...}
@@ -765,15 +957,15 @@ Widget for date range selection:
 }
 ```
 
-#### GridView
+#### Grid View
 ```json
 {
-  "type": "gridview",
+  "type": "grid",
   "items": "{{products}}",
-  "crossAxisCount": 2,
-  "mainAxisSpacing": 12,
-  "crossAxisSpacing": 12,
-  "childAspectRatio": 0.75,
+  "columns": 2,
+  "rowGap": 12,
+  "columnGap": 12,
+  "itemAspectRatio": 0.75,
   "itemTemplate": {
     "type": "card",
     "child": {...}
@@ -802,6 +994,72 @@ Widget for date range selection:
 "Total: {{count}} items"
 ```
 
+### Expression Language Grammar
+
+MCP UI DSL uses a formal expression language for data binding:
+
+```
+Expression      := Literal | Variable | BinaryOp | UnaryOp | Conditional | FunctionCall | ArrayAccess
+Literal         := String | Number | Boolean | Null
+String          := '"' Character* '"' | "'" Character* "'"
+Number          := Integer | Float
+Boolean         := "true" | "false"
+Null            := "null"
+Variable        := "{{" Path "}}"
+Path            := Identifier ("." Identifier | "[" Expression "]")*
+Identifier      := Letter (Letter | Digit | "_")*
+BinaryOp        := Expression BinaryOperator Expression
+UnaryOp         := UnaryOperator Expression
+Conditional     := Expression "?" Expression ":" Expression
+FunctionCall    := Identifier "(" ArgumentList? ")"
+ArgumentList    := Expression ("," Expression)*
+ArrayAccess     := Expression "[" Expression "]"
+
+BinaryOperator  := "+" | "-" | "*" | "/" | "%" | "==" | "!=" | "<" | ">" | "<=" | ">=" | "&&" | "||"
+UnaryOperator   := "!" | "-" | "+"
+```
+
+### Operator Precedence
+
+From highest to lowest:
+1. `()` `[]` `.` - Grouping, array access, member access
+2. `!` `-` `+` - Unary operators
+3. `*` `/` `%` - Multiplication, division, modulo
+4. `+` `-` - Addition, subtraction
+5. `<` `<=` `>` `>=` - Comparison
+6. `==` `!=` - Equality
+7. `&&` - Logical AND
+8. `||` - Logical OR
+9. `? :` - Conditional (ternary)
+
+### Type Coercion
+
+Automatic type conversion rules:
+- String + Number → String concatenation
+- Number + Number → Numeric addition
+- Boolean in numeric context → 1 (true) or 0 (false)
+- Null in string context → Empty string
+- Undefined property access → null
+
+### Built-in Functions
+
+```json
+"{{toUpperCase(name)}}"
+"{{toLowerCase(text)}}"
+"{{trim(input)}}"
+"{{round(price, 2)}}"
+"{{floor(value)}}"
+"{{ceil(value)}}"
+"{{max(a, b)}}"
+"{{min(a, b)}}"
+"{{length(array)}}"
+"{{contains(text, 'search')}}"
+"{{replace(text, 'old', 'new')}}"
+"{{split(text, ',')}}"
+"{{join(array, ', ')}}"
+"{{format(date, 'YYYY-MM-DD')}}"
+```
+
 ### Context Variables
 
 In list/grid templates:
@@ -811,6 +1069,11 @@ In list/grid templates:
 - `{{isLast}}` - Boolean
 - `{{isEven}}` - Boolean
 - `{{isOdd}}` - Boolean
+
+In event handlers:
+- `{{event.value}}` - Input value
+- `{{event.target}}` - Event target element
+- `{{event.data}}` - Custom event data
 
 ## Actions
 
@@ -835,7 +1098,7 @@ Manipulate both local page state and global app state:
 }
 ```
 
-### Navigation Actions (NEW)
+### Navigation Actions
 Navigate between pages:
 
 ```json
@@ -856,6 +1119,45 @@ Navigation Actions:
 - `pop`: Go back to previous page
 - `popToRoot`: Go back to root page
 
+### Dialog Actions
+Show modal dialogs and bottom sheets:
+
+```json
+{
+  "type": "dialog",
+  "dialog": {
+    "type": "alert",
+    "title": "Delete Item",
+    "content": "Are you sure you want to delete this item?",
+    "dismissible": false,
+    "actions": [
+      {
+        "label": "Cancel",
+        "action": "close"
+      },
+      {
+        "label": "Delete",
+        "action": {
+          "type": "tool",
+          "tool": "deleteItem",
+          "params": {"id": "{{item.id}}"}
+        },
+        "primary": true
+      }
+    ]
+  }
+}
+```
+
+Dialog Types:
+- `alert`: Standard alert dialog with title, content, and actions
+- `simple`: Simple selection dialog with list of options
+- `custom`: Custom dialog with any widget as content
+- `bottomSheet`: Modal bottom sheet
+
+Special Actions:
+- `close`: Closes the current dialog
+
 ### Tool Actions
 Tool Actions call MCP server tools and process results.
 
@@ -864,7 +1166,7 @@ Tool Actions call MCP server tools and process results.
 {
   "type": "tool",
   "tool": "increment",
-  "args": {
+  "params": {
     "amount": 1
   },
   "onSuccess": {
@@ -880,7 +1182,7 @@ Tool Actions call MCP server tools and process results.
 
 **Key Fields:**
 - `tool`: Tool name to call on MCP server (required)
-- `args`: Arguments to pass to tool (optional, default: {})
+- `params`: Parameters to pass to tool (optional, default: {})
 - `onSuccess`: Action to execute on success (optional)
 - `onError`: Action to execute on failure (optional)
 
@@ -940,25 +1242,26 @@ Runtime automatically merges tool response JSON data into state:
 {
   "type": "button",
   "label": "+",
-  "onTap": {
+  "click": {
     "type": "tool",
     "tool": "increment",
-    "args": {}
+    "params": {}
   }
 }
 ```
 
 **MCP Server Tool:**
-```dart
-server.addTool('increment', (args) {
-  counter++;
-  return CallToolResult(
-    content: [
-      TextContent(text: jsonEncode({'counter': counter}))
-    ],
-    isError: false,
-  );
-});
+```pseudocode
+// Server-side tool handler
+function incrementTool(args):
+    counter = counter + 1
+    return {
+        content: [{
+            type: "text",
+            text: JSON.stringify({counter: counter})
+        }],
+        isError: false
+    }
 ```
 
 **Result:**
@@ -972,7 +1275,7 @@ server.addTool('increment', (args) {
 {
   "type": "tool",
   "tool": "validateAndSave",
-  "args": {
+  "params": {
     "data": "{{formData}}"
   },
   "onSuccess": {
@@ -1068,7 +1371,8 @@ Control subscriptions with button clicks:
 
 ```json
 {
-  "type": "column",
+  "type": "linear",
+  "direction": "vertical",
   "children": [
     {
       "type": "text",
@@ -1077,7 +1381,7 @@ Control subscriptions with button clicks:
     {
       "type": "button",
       "label": "Start Monitoring",
-      "onTap": {
+      "click": {
         "type": "resource",
         "action": "subscribe",
         "uri": "ui://sensors/room1/temperature",
@@ -1087,7 +1391,7 @@ Control subscriptions with button clicks:
     {
       "type": "button",
       "label": "Stop Monitoring",
-      "onTap": {
+      "click": {
         "type": "resource",
         "action": "unsubscribe",
         "uri": "ui://sensors/room1/temperature"
@@ -1104,7 +1408,7 @@ Toggle subscribe/unsubscribe with one button:
 {
   "type": "button",
   "label": "{{isMonitoring ? 'Stop' : 'Start'}}",
-  "onTap": {
+  "click": {
     "type": "conditional",
     "condition": "{{isMonitoring}}",
     "then": {
@@ -1192,20 +1496,19 @@ Decide subscription based on conditions:
 #### Server Implementation
 Server must notify subscribers when resources change:
 
-```dart
-// When resource updates
-server.notifyResourceUpdated(
-  'ui://sensors/temperature',
-  ResourceContentInfo(
-    uri: 'ui://sensors/temperature',
-    mimeType: 'application/json',
-    text: jsonEncode({
-      'value': 23.5,
-      'unit': 'celsius',
-      'timestamp': DateTime.now().toIso8601String()
-    }),
-  ),
-);
+```json
+// Resource update notification
+{
+  "method": "notifications/resources/updated",
+  "params": {
+    "uri": "ui://sensors/temperature",
+    "content": {
+      "uri": "ui://sensors/temperature",
+      "mimeType": "application/json",
+      "text": "{\"value\": 23.5, \"unit\": \"celsius\", \"timestamp\": \"2024-01-01T12:00:00Z\"}"
+    }
+  }
+}
 ```
 
 #### Runtime Behavior
@@ -1314,153 +1617,137 @@ Client                          Server
 
 MCP servers provide application and page definitions through the `resources/read` method:
 
-```dart
-// Server-side resource registration
-server.addResource(
-  uri: 'ui://counter',
-  name: 'Counter Page Definition',
-  handler: (uri) async {
-    return ReadResourceResult(
-      contents: [
-        ResourceContentInfo(
-          uri: uri,
-          mimeType: 'application/json',
-          text: jsonEncode({
-            'type': 'page',
-            'content': {
-              'type': 'center',
-              'child': {
-                'type': 'column',
-                'children': [
-                  {
-                    'type': 'text',
-                    'value': 'Counter: {{counter}}',
-                    'style': {'fontSize': 20}
-                  },
-                  {
-                    'type': 'button',
-                    'label': '+',
-                    'onTap': {
-                      'type': 'tool',
-                      'tool': 'increment',
-                      'args': {}
-                    }
-                  }
-                ]
-              }
-            },
-            'runtime': {
-              'services': {
-                'state': {
-                  'initialState': {'counter': 0}
-                }
-              }
+```json
+// Resource response for UI definition
+{
+  "uri": "ui://counter",
+  "name": "Counter Page Definition", 
+  "mimeType": "application/json",
+  "text": "{
+    \"type\": \"page\",
+    \"content\": {
+      \"type\": \"center\",
+      \"child\": {
+        \"type\": \"linear\",
+        \"direction\": \"vertical\",
+        \"children\": [
+          {
+            \"type\": \"text\",
+            \"content\": \"Counter: {{counter}}\",
+            \"style\": {\"fontSize\": 20}
+          },
+          {
+            \"type\": \"button\",
+            \"label\": \"+\",
+            \"click\": {
+              \"type\": \"tool\",
+              \"tool\": \"increment\",
+              \"args\": {}
             }
-          }),
-        )
-      ],
-    );
-  },
-);
+          }
+        ]
+      }
+    },
+    \"state\": {
+      \"initial\": {
+        \"counter\": 0
+      }
+    }
+  }"
+}
 ```
 
 ### Tool-based Action Handling
 
 UI actions are processed through MCP tool calls, with tool responses automatically bound to state:
 
-```dart
-server.addTool(
-  name: 'increment',
-  description: 'Increment the counter',
-  inputSchema: {
-    'type': 'object',
-    'properties': {}
-  },
-  handler: (arguments) async {
-    // Update server state
-    counter++;
-    
-    // Response for client state synchronization
-    return CallToolResult(
-      content: [
-        TextContent(
-          text: jsonEncode({
-            'counter': counter,
-            'message': 'Counter incremented to $counter'
-          })
-        )
-      ],
-      isError: false,
-    );
-  },
-);
+```json
+// Tool definition
+{
+  "name": "increment",
+  "description": "Increment the counter",
+  "inputSchema": {
+    "type": "object",
+    "properties": {}
+  }
+}
+
+// Tool response format
+{
+  "content": [
+    {
+      "type": "text",
+      "text": "{\"counter\": 5, \"message\": \"Counter incremented to 5\"}"
+    }
+  ],
+  "isError": false
+}
 ```
 
 ### Runtime Tool Integration
 
 Client runtime automatically calls tools through MCP client and processes responses:
 
-```dart
+```pseudocode
 // Runtime tool call handling
-Future<void> _handleToolCall(String tool, Map<String, dynamic> args) async {
-  try {
-    // MCP server tool call
-    final result = await _mcpClient.callTool(tool, args);
-    
-    if (result.content.isNotEmpty) {
-      final firstContent = result.content.first;
-      if (firstContent is TextContent) {
-        // Parse JSON response
-        final responseData = jsonDecode(firstContent.text) as Map<String, dynamic>;
+function handleToolCall(tool, args):
+    try:
+        // Call MCP server tool
+        result = mcpClient.callTool(tool, args)
         
-        // Automatic state merge
-        responseData.forEach((key, value) {
-          if (key != 'error' && key != 'message') {
-            _runtime.stateManager.set(key, value);
-          }
-        });
-      }
-    }
-  } catch (e) {
-    // Error handling
-    print('Tool execution failed: $e');
-  }
-}
+        if result.content is not empty:
+            content = result.content[0]
+            if content.type == "text":
+                // Parse JSON response
+                responseData = parseJSON(content.text)
+                
+                // Automatic state merge
+                for each key, value in responseData:
+                    if key != "error" and key != "message":
+                        runtime.stateManager.set(key, value)
+    catch error:
+        // Error handling
+        runtime.logError("Tool execution failed: " + error)
 ```
 
 ### Client-Server Communication Flow
 
 1. **UI Load:**
-   ```dart
-   // Client requests UI definition
-   final resource = await mcpClient.readResource('ui://counter');
-   final definition = jsonDecode(resource.contents.first.text);
-   await runtime.initialize(definition);
+   ```json
+   // Client request
+   {"method": "resources/read", "params": {"uri": "ui://counter"}}
+   
+   // Server response with UI definition
+   {"result": {"contents": [{"uri": "ui://counter", "text": "..."}]}}
    ```
 
 2. **Tool Call:**
-   ```dart
+   ```json
    // User clicks button → Trigger tool action
    {
-     "type": "tool",
-     "tool": "increment",
-     "args": {}
+     "method": "tools/call",
+     "params": {
+       "name": "increment",
+       "arguments": {}
+     }
    }
    ```
 
 3. **Server Processing:**
-   ```dart
-   // Server executes tool and responds
-   return CallToolResult(
-     content: [TextContent(text: '{"counter": 1}')],
-     isError: false
-   );
+   ```json
+   // Server tool response
+   {
+     "content": [
+       {"type": "text", "text": "{\"counter\": 1}"}
+     ],
+     "isError": false
+   }
    ```
 
 4. **Client State Update:**
-   ```dart
+   ```pseudocode
    // Runtime automatically merges state
-   runtime.stateManager.set('counter', 1);
+   runtime.stateManager.set("counter", 1)
    // UI auto re-renders: {{counter}} → 1
    ```
 
@@ -1468,19 +1755,19 @@ Future<void> _handleToolCall(String tool, Map<String, dynamic> args) async {
 
 Real-time data is sent via MCP notifications:
 
-```dart
-server.sendNotification(
-  'notifications/message',
-  {
-    'level': 'info',
-    'logger': 'state-update',
-    'message': jsonEncode({
-      'type': 'state-update',
-      'path': 'app.user.name',
-      'value': 'Updated Name'
-    }),
-  },
-);
+```json
+{
+  "method": "notifications/message",
+  "params": {
+    "level": "info",
+    "logger": "state-update",
+    "message": {
+      "type": "state-update",
+      "path": "app.user.name",
+      "value": "Updated Name"
+    }
+  }
+}
 ```
 
 ### Runtime Implementation Requirements
@@ -1509,122 +1796,86 @@ interface RuntimeHandlers {
 ##### Unified Implementation
 Runtime handles both standard and extended modes with one notification handler:
 
-```dart
-// Flutter implementation example
-class MCPClientIntegration {
-  final MCPUIRuntime runtime = MCPUIRuntime();
-  final Client mcpClient;
-  
-  void initialize() {
-    // Handle all cases with one notification handler
-    mcpClient.onNotification('notifications/resources/updated', (params) {
-      _handleResourceNotification(params);
-    });
-  }
-  
-  Future<void> _handleResourceNotification(Map<String, dynamic> params) async {
-    final uri = params['uri'] as String;
-    final binding = runtime.getBindingForUri(uri);
-    if (binding == null) return;
+```pseudocode
+// Pseudocode for handling resource notifications
+function handleResourceNotification(params):
+    uri = params.uri
+    binding = runtime.getBindingForUri(uri)
+    if binding is null:
+        return
     
     // Auto-detect mode by checking if content is included
-    if (params.containsKey('content')) {
-      // Extended mode: content included in notification
-      final contentData = params['content'] as Map<String, dynamic>;
-      final content = ResourceContentInfo.fromJson(contentData);
-      
-      if (content.text != null) {
-        final data = jsonDecode(content.text!);
-        runtime.updateState(binding, data);
-      }
-    } else {
-      // Standard mode: URI only, must re-read resource
-      try {
-        final resource = await mcpClient.readResource(uri);
-        final content = resource.contents.first.text;
-        
-        if (content != null) {
-          final data = jsonDecode(content);
-          runtime.updateState(binding, data);
-        }
-      } catch (e) {
-        runtime.handleError('Failed to read resource: $e');
-      }
-    }
-  }
-  
-  Widget build() {
-    return runtime.buildUI(
-      onToolCall: (tool, args) async {
-        return await mcpClient.callTool(tool, args);
-      },
-      onResourceSubscribe: (uri, binding) async {
-        await mcpClient.subscribeResource(uri);
-        runtime.registerSubscription(uri, binding);
-      },
-      onResourceUnsubscribe: (uri) async {
-        await mcpClient.unsubscribeResource(uri);
-        runtime.unregisterSubscription(uri);
-      },
-    );
-  }
-}
+    if params contains 'content':
+        // Extended mode: content included in notification
+        content = params.content
+        data = parseJSON(content.text)
+        runtime.updateState(binding, data)
+    else:
+        // Standard mode: URI only, must re-read resource
+        try:
+            resource = mcpClient.readResource(uri)
+            content = resource.contents[0].text
+            data = parseJSON(content)
+            runtime.updateState(binding, data)
+        catch error:
+            runtime.handleError('Failed to read resource: ' + error)
+
+// Initialize runtime with handlers
+runtime.initialize({
+    onToolCall: function(tool, args):
+        return mcpClient.callTool(tool, args)
+    
+    onResourceSubscribe: function(uri, binding):
+        mcpClient.subscribeResource(uri)
+        runtime.registerSubscription(uri, binding)
+    
+    onResourceUnsubscribe: function(uri):
+        mcpClient.unsubscribeResource(uri)
+        runtime.unregisterSubscription(uri)
+})
 ```
 
 ##### 1. Standard Mode Only Implementation
 When using only standard MCP protocol:
 
-```dart
-// Flutter implementation example
-class StandardModeClient {
-  final MCPUIRuntime runtime = MCPUIRuntime();
-  final Client mcpClient;
-  
-  void setupStandardMode() {
+```pseudocode
+// Standard mode implementation
+function setupStandardMode(runtime, mcpClient):
     // Standard method: use onResourceUpdated (receives URI only)
-    mcpClient.onResourceUpdated((uri) async {
-      final binding = runtime.getBindingForUri(uri);
-      if (binding == null) return;
-      
-      // Re-read resource
-      try {
-        final resource = await mcpClient.readResource(uri);
-        final content = resource.contents.first.text;
+    mcpClient.onResourceUpdated(function(uri):
+        binding = runtime.getBindingForUri(uri)
+        if binding is null:
+            return
         
-        if (content != null) {
-          final data = jsonDecode(content);
-          runtime.updateState(binding, data);
-        }
-      } catch (e) {
-        runtime.handleError('Failed to read resource: $e');
-      }
-    });
-  }
-}
+        // Re-read resource
+        try:
+            resource = await mcpClient.readResource(uri)
+            content = resource.contents[0].text
+            
+            if content is not null:
+                data = parseJSON(content)
+                runtime.updateState(binding, data)
+        catch error:
+            runtime.handleError('Failed to read resource: ' + error)
+    )
 ```
 
 ##### 2. Extended Mode Only Implementation
 When performance optimization is needed:
 
-```dart
-// Flutter implementation example
-class ExtendedModeClient {
-  final MCPUIRuntime runtime = MCPUIRuntime();
-  final Client mcpClient;
-  
-  void setupExtendedMode() {
+```pseudocode
+// Extended mode implementation
+function setupExtendedMode(runtime, mcpClient):
     // Extended method: use onResourceContentUpdated (includes content)
-    mcpClient.onResourceContentUpdated((uri, content) {
-      final binding = runtime.getBindingForUri(uri);
-      if (binding == null) return;
-      
-      if (content.text != null) {
-        final data = jsonDecode(content.text!);
-        runtime.updateState(binding, data);
-      }
-    });
-  }
-}
+    mcpClient.onResourceContentUpdated(function(uri, content):
+        binding = runtime.getBindingForUri(uri)
+        if binding is null:
+            return
+        
+        if content.text is not null:
+            data = parseJSON(content.text)
+            runtime.updateState(binding, data)
+    )
 ```
 
 #### Notification Handling
@@ -1633,17 +1884,16 @@ Runtime must be able to handle MCP notifications:
 runtime.handleNotification(notification: MCPNotification);
 ```
 
-Flutter implementation:
-```dart
+Platform implementation example:
+```pseudocode
 // MCP notification handling
-mcpClient.onNotification((notification) {
-  if (notification.method == 'resources/updated') {
-    runtime.handleNotification(
-      notification.params['uri'],
-      notification.params,
-    );
-  }
-});
+mcpClient.onNotification(function(notification):
+    if notification.method == 'resources/updated':
+        runtime.handleNotification(
+            notification.params.uri,
+            notification.params
+        )
+)
 ```
 
 #### Implementation Example
@@ -1714,27 +1964,132 @@ runtime.render();
 
 ## Platform Considerations
 
-### Flutter Implementation
-- Direct widget mapping
-- Native performance
-- Hot reload support
+Each platform implementing MCP UI DSL should:
 
-### Web Implementation
-- React/Vue component mapping
-- CSS-in-JS styling
-- Virtual DOM optimization
+### Rendering Approach
+- Map abstract widgets to native components
+- Maintain consistent behavior across platforms
+- Optimize for platform-specific performance characteristics
 
-### Python Implementation
-- Tkinter/PyQt mapping
-- Native OS widgets
-- Async event handling
+### Styling System
+- Translate abstract style properties to platform conventions
+- Support theme inheritance and overrides
+- Handle unit conversions appropriately
+
+### Event Handling
+- Map standard events to platform-specific handlers
+- Ensure consistent event propagation
+- Support platform-specific gesture recognition where applicable
+
+### State Management
+- Implement reactive updates efficiently
+- Handle concurrent state modifications
+- Provide debugging capabilities
 
 ## Security
 
-1. **Expression Evaluation**: Sandboxed expression parser
-2. **Tool Execution**: Server-side validation
-3. **Data Binding**: Input sanitization
-4. **Navigation**: URL validation
+MCP UI DSL implements multiple security layers to protect against common vulnerabilities.
+
+### Expression Sandboxing
+
+All expressions are evaluated in a secure sandbox:
+
+```json
+{
+  "security": {
+    "expressions": {
+      "allowedGlobals": ["Math", "Date", "JSON"],
+      "timeout": 1000,
+      "maxDepth": 10,
+      "maxIterations": 1000
+    }
+  }
+}
+```
+
+### Content Security
+
+Prevent XSS and injection attacks:
+
+```json
+{
+  "type": "text",
+  "content": "{{userInput}}",
+  "security": {
+    "sanitize": "strict",  // strict, basic, none
+    "allowedTags": [],
+    "allowedAttributes": []
+  }
+}
+```
+
+### Resource Access Control
+
+Control access to external resources:
+
+```json
+{
+  "security": {
+    "resources": {
+      "allowedSchemes": ["https", "data"],
+      "allowedDomains": ["trusted-cdn.com", "api.example.com"],
+      "blockList": ["malicious.com"],
+      "contentSecurityPolicy": "default-src 'self'; img-src https:; script-src 'none';"
+    }
+  }
+}
+```
+
+### Tool Execution Security
+
+Server-side validation for all tool calls:
+
+```json
+{
+  "security": {
+    "tools": {
+      "allowedTools": ["getData", "saveData"],
+      "parameterValidation": true,
+      "rateLimiting": {
+        "maxRequests": 100,
+        "windowMs": 60000
+      }
+    }
+  }
+}
+```
+
+### Input Validation
+
+Automatic validation for all user inputs:
+
+```json
+{
+  "type": "textInput",
+  "validation": {
+    "type": "email",
+    "sanitize": true,
+    "maxLength": 255,
+    "pattern": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$"
+  }
+}
+```
+
+### State Protection
+
+Prevent unauthorized state modifications:
+
+```json
+{
+  "security": {
+    "state": {
+      "readOnlyPaths": ["user.id", "session.token"],
+      "protectedPaths": ["user.role", "permissions"],
+      "allowedOrigins": ["https://app.example.com"]
+    }
+  }
+}
+```
 
 ## Versioning
 
@@ -1742,27 +2097,192 @@ runtime.render();
 - Compatibility: Forward compatible within major versions
 - Extension: Via `experimental` namespace
 
+## Accessibility
+
+MCP UI DSL prioritizes accessibility to ensure UIs are usable by everyone, including users with disabilities.
+
+### Semantic Properties
+
+Every widget can include accessibility properties:
+
+```json
+{
+  "type": "button",
+  "label": "Submit",
+  "accessibility": {
+    "label": "Submit form",
+    "hint": "Double tap to submit the form",
+    "role": "button",
+    "enabled": true,
+    "focusable": true
+  }
+}
+```
+
+### Roles
+
+Standard ARIA-like roles for semantic meaning:
+
+- `button`: Clickable button
+- `link`: Navigation link
+- `heading`: Section heading (with level 1-6)
+- `image`: Image or graphic
+- `textbox`: Text input field
+- `checkbox`: Checkbox input
+- `radio`: Radio button
+- `list`: List container
+- `listitem`: List item
+- `navigation`: Navigation region
+- `main`: Main content region
+- `complementary`: Supporting content
+- `form`: Form container
+
+### Focus Management
+
+```json
+{
+  "type": "linear",
+  "accessibility": {
+    "focusTraversalOrder": ["email-input", "password-input", "submit-button"]
+  },
+  "children": [...]
+}
+```
+
+### Screen Reader Support
+
+```json
+{
+  "type": "image",
+  "src": "chart.png",
+  "accessibility": {
+    "label": "Sales chart showing 25% growth in Q3",
+    "role": "image"
+  }
+}
+```
+
+### Live Regions
+
+For dynamic content updates:
+
+```json
+{
+  "type": "text",
+  "content": "{{status}}",
+  "accessibility": {
+    "live": "polite",
+    "atomic": true
+  }
+}
+```
+
+Live region types:
+- `polite`: Announces when user is idle
+- `assertive`: Interrupts current speech
+- `off`: No announcement
+
+## Internationalization
+
+MCP UI DSL supports internationalization (i18n) for multi-language applications.
+
+### Text Localization
+
+Use keys instead of hardcoded text:
+
+```json
+{
+  "type": "text",
+  "i18n": {
+    "key": "welcome.message",
+    "params": {
+      "name": "{{user.name}}"
+    }
+  }
+}
+```
+
+### Locale-Specific Formatting
+
+Numbers, dates, and currencies:
+
+```json
+{
+  "type": "text",
+  "content": "{{price}}",
+  "i18n": {
+    "format": "currency",
+    "currency": "USD",
+    "locale": "{{app.locale}}"
+  }
+}
+```
+
+### Pluralization
+
+Handle plural forms correctly:
+
+```json
+{
+  "type": "text",
+  "i18n": {
+    "key": "items.count",
+    "count": "{{items.length}}",
+    "zero": "No items",
+    "one": "One item", 
+    "other": "{count} items"
+  }
+}
+```
+
+### RTL Support
+
+Right-to-left language support:
+
+```json
+{
+  "type": "linear",
+  "direction": "horizontal",
+  "i18n": {
+    "rtl": "auto"  // auto, true, false
+  },
+  "children": [...]
+}
+```
+
+### Date/Time Formatting
+
+```json
+{
+  "type": "text",
+  "content": "{{date}}",
+  "i18n": {
+    "format": "date",
+    "style": "long",  // short, medium, long, full
+    "locale": "{{app.locale}}"
+  }
+}
+```
+
 ## Advanced Widgets
 
 ### Chart
 ```json
 {
   "type": "chart",
-  "properties": {
-    "chartType": "line|bar|pie|scatter|gauge",
-    "data": {
-      "labels": ["Jan", "Feb", "Mar"],
-      "datasets": [{
-        "label": "Sales",
-        "data": [100, 200, 150],
-        "borderColor": "#2196F3",
-        "backgroundColor": "rgba(33, 150, 243, 0.2)"
-      }]
-    },
-    "options": {
-      "responsive": true,
-      "animation": {"duration": 1000}
-    }
+  "chartType": "line|bar|pie|scatter|gauge",
+  "data": {
+    "labels": ["Jan", "Feb", "Mar"],
+    "datasets": [{
+      "label": "Sales",
+      "data": [100, 200, 150],
+      "borderColor": "#2196F3",
+      "backgroundColor": "rgba(33, 150, 243, 0.2)"
+    }]
+  },
+  "options": {
+    "responsive": true,
+    "animation": {"duration": 1000}
   }
 }
 ```
@@ -1771,38 +2291,35 @@ runtime.render();
 ```json
 {
   "type": "table",
-  "properties": {
-    "columns": [
-      {"key": "id", "label": "ID", "width": 100},
-      {"key": "name", "label": "Name", "sortable": true},
-      {"key": "status", "label": "Status", "align": "center"}
-    ],
-    "rows": "{{items}}",
-    "selectable": true,
-    "onRowTap": {
-      "type": "navigation",
-      "action": "push",
-      "route": "/detail/{{row.id}}"
-    }
+  "columns": [
+    {"key": "id", "label": "ID", "width": 100},
+    {"key": "name", "label": "Name", "sortable": true},
+    {"key": "status", "label": "Status", "align": "center"}
+  ],
+  "rows": "{{items}}",
+  "selectable": true,
+  "rowClick": {
+    "type": "navigation",
+    "action": "push",
+    "route": "/detail/{{row.id}}"
   }
 }
 ```
 
-### ScrollView
-Scroll view for custom scrolling behavior:
+### Scroll View
+Scrollable container for content that exceeds viewport:
 
 ```json
 {
   "type": "scrollView",
-  "scrollDirection": "vertical",  // "vertical" | "horizontal"
-  "physics": "bouncing",  // "bouncing" | "clamping" | "neverScrollable" | "alwaysScrollable"
+  "direction": "vertical",  // "vertical" | "horizontal" | "both"
+  "scrollBehavior": "auto",  // "auto" | "smooth" | "instant"
   "padding": {"all": 16},
   "reverse": false,
-  "primary": true,
-  "shrinkWrap": false,
-  "controller": "{{scrollController}}",
+  "showScrollbar": "auto",  // "auto" | "always" | "never"
   "child": {
-    "type": "column",
+    "type": "linear",
+    "direction": "vertical",
     "children": [...]
   }
 }
@@ -1816,7 +2333,7 @@ Widget that can be dragged:
   "type": "draggable",
   "data": "{{item.id}}",
   "feedback": {
-    "type": "container",
+    "type": "box",
     "padding": {"all": 8},
     "decoration": {
       "color": "#2196F3",
@@ -1836,7 +2353,7 @@ Widget that can be dragged:
     }
   },
   "childWhenDragging": {
-    "type": "container",
+    "type": "box",
     "decoration": {
       "color": "#E0E0E0",
       "borderRadius": 8
@@ -1864,29 +2381,29 @@ Drop area that can receive dragged widgets:
 ```json
 {
   "type": "dragTarget",
-  "onAccept": {
+  "drop": {
     "type": "tool",
     "tool": "moveItem",
-    "args": {
+    "params": {
       "itemId": "{{event.data}}",
       "targetId": "{{targetId}}"
     }
   },
-  "onWillAccept": "{{canAcceptItem}}",
-  "onHover": {
+  "canDrop": "{{canAcceptItem}}",
+  "dragEnter": {
     "type": "state",
     "action": "set",
     "binding": "hoveredTargetId",
     "value": "{{targetId}}"
   },
-  "onLeave": {
+  "dragLeave": {
     "type": "state",
     "action": "set",
     "binding": "hoveredTargetId",
     "value": null
   },
   "builder": {
-    "type": "container",
+    "type": "box",
     "padding": {"all": 16},
     "decoration": {
       "color": "{{hoveredTargetId == targetId ? '#E3F2FD' : '#F5F5F5'}}",
@@ -1909,30 +2426,137 @@ Drop area that can receive dragged widgets:
 }
 ```
 
+## Dialog Widgets
+
+### AlertDialog
+Shows a modal dialog with title, content, and actions:
+
+```json
+{
+  "type": "alertDialog",
+  "title": "Confirm Action",
+  "content": "Are you sure you want to proceed?",
+  "barrierDismissible": true,
+  "actions": [
+    {
+      "label": "Cancel",
+      "style": "text",
+      "action": {
+        "type": "navigation",
+        "action": "pop"
+      }
+    },
+    {
+      "label": "Confirm",
+      "style": "elevated",
+      "primary": true,
+      "action": {
+        "type": "batch",
+        "actions": [
+          {
+            "type": "tool",
+            "tool": "deleteItem",
+            "params": {"id": "{{item.id}}"}
+          },
+          {
+            "type": "navigation",
+            "action": "pop"
+          }
+        ]
+      }
+    }
+  ]
+}
+```
+
+### SimpleDialog
+Shows a dialog with a list of options:
+
+```json
+{
+  "type": "simpleDialog",
+  "title": "Choose an option",
+  "options": [
+    {
+      "label": "Option 1",
+      "value": "option1",
+      "icon": "check"
+    },
+    {
+      "label": "Option 2",
+      "value": "option2",
+      "icon": "close"
+    }
+  ],
+  "onSelect": {
+    "type": "state",
+    "action": "set",
+    "binding": "selectedOption",
+    "value": "{{event.value}}"
+  }
+}
+```
+
+### BottomSheet
+Shows a modal bottom sheet:
+
+```json
+{
+  "type": "bottomSheet",
+  "isDismissible": true,
+  "enableDrag": true,
+  "backgroundColor": "#FFFFFF",
+  "shape": {
+    "type": "rounded",
+    "radius": {"top": 16}
+  },
+  "child": {
+    "type": "linear",
+    "direction": "vertical",
+    "padding": {"all": 16},
+    "children": [
+      {
+        "type": "text",
+        "content": "Share via",
+        "style": {"fontSize": 18, "fontWeight": "bold"}
+      },
+      {
+        "type": "list",
+        "shrinkWrap": true,
+        "items": [
+          {"icon": "email", "label": "Email"},
+          {"icon": "message", "label": "Message"},
+          {"icon": "share", "label": "Other apps"}
+        ]
+      }
+    ]
+  }
+}
+```
+
+
 ## Validation System
 
 ### Input Validation
 ```json
 {
-  "type": "textfield",
-  "properties": {
-    "value": "{{email}}",
-    "validation": [
-      {
-        "type": "required",
-        "message": "Email is required"
-      },
-      {
-        "type": "email",
-        "message": "Invalid email format"
-      },
-      {
-        "type": "custom",
-        "validator": "checkEmailUnique",
-        "message": "Email already exists"
-      }
-    ]
-  }
+  "type": "textInput",
+  "value": "{{email}}",
+  "validation": [
+    {
+      "type": "required",
+      "message": "Email is required"
+    },
+    {
+      "type": "email",
+      "message": "Invalid email format"
+    },
+    {
+      "type": "custom",
+      "validator": "checkEmailUnique",
+      "message": "Email already exists"
+    }
+  ]
 }
 ```
 
@@ -1940,19 +2564,17 @@ Drop area that can receive dragged widgets:
 ```json
 {
   "type": "form",
-  "properties": {
-    "onSubmit": {
-      "type": "conditional",
-      "condition": "{{form.isValid}}",
-      "then": {
-        "type": "tool",
-        "tool": "submitForm",
-        "args": "{{form.data}}"
-      },
-      "else": {
-        "type": "notification",
-        "message": "Please fix form errors"
-      }
+  "onSubmit": {
+    "type": "conditional",
+    "condition": "{{form.isValid}}",
+    "then": {
+      "type": "tool",
+      "tool": "submitForm",
+      "params": "{{form.data}}"
+    },
+    "else": {
+      "type": "notification",
+      "message": "Please fix form errors"
     }
   }
 }
@@ -1965,21 +2587,17 @@ Drop area that can receive dragged widgets:
 {
   "errorBoundary": {
     "fallback": {
-      "type": "container",
-      "properties": {
-        "child": {
-          "type": "text",
-          "properties": {
-            "content": "Something went wrong",
-            "style": {"color": "#F44336"}
-          }
-        }
+      "type": "box",
+      "child": {
+        "type": "text",
+        "content": "Something went wrong",
+        "style": {"color": "#F44336"}
       }
     },
     "onError": {
       "type": "tool",
       "tool": "logError",
-      "args": {
+      "params": {
         "error": "{{error}}",
         "context": "{{errorContext}}"
       }
@@ -1995,9 +2613,9 @@ Drop area that can receive dragged widgets:
 {
   "type": "lazy",
   "placeholder": {
-    "type": "container",
+    "type": "box",
     "height": 200,
-    "child": {"type": "loading-indicator"}
+    "child": {"type": "loadingIndicator"}
   },
   "content": {
     "source": "ui://pages/heavy-component"
@@ -2008,7 +2626,7 @@ Drop area that can receive dragged widgets:
 ### Virtual Scrolling
 ```json
 {
-  "type": "listview",
+  "type": "list",
   "itemCount": 10000,
   "itemBuilder": "{{itemTemplate}}",
   "virtual": true,
@@ -2063,7 +2681,7 @@ Manages application and page lifecycle:
       {
         "type": "tool",
         "tool": "initializeApp",
-        "args": {"config": "{{app.config}}"}
+        "params": {"config": "{{app.config}}"}
       }
     ],
     "onReady": [
@@ -2111,7 +2729,7 @@ Individual page lifecycle:
       {
         "type": "tool",
         "tool": "logPageView",
-        "args": {"page": "{{route.path}}"}
+        "params": {"page": "{{route.path}}"}
       }
     ],
     "onLeave": [
@@ -2398,3 +3016,283 @@ Cache policies and offline support:
 - Enhanced accessibility features
 - WebAssembly support for compute-intensive tasks
 - Progressive enhancement
+
+## Testing Support
+
+MCP UI DSL provides built-in support for testing and automation.
+
+### Widget Identification
+
+Every widget can have a test identifier:
+
+```json
+{
+  "type": "button",
+  "testId": "submit-button",
+  "label": "Submit"
+}
+```
+
+### Test Selectors
+
+Multiple ways to select widgets in tests:
+
+```json
+{
+  "testSelectors": {
+    "id": "submit-button",
+    "role": "button",
+    "label": "Submit",
+    "xpath": "//button[@label='Submit']"
+  }
+}
+```
+
+### Test Data
+
+Provide mock data for testing:
+
+```json
+{
+  "type": "list",
+  "items": "{{products}}",
+  "testData": {
+    "products": [
+      {"id": 1, "name": "Test Product 1"},
+      {"id": 2, "name": "Test Product 2"}
+    ]
+  }
+}
+```
+
+### Assertions
+
+Define expected states for validation:
+
+```json
+{
+  "type": "text",
+  "content": "{{status}}",
+  "testAssertions": {
+    "visible": true,
+    "content": "Ready",
+    "style": {
+      "color": "#4CAF50"
+    }
+  }
+}
+```
+
+### Test Hooks
+
+Execute actions during tests:
+
+```json
+{
+  "testHooks": {
+    "beforeRender": {
+      "type": "state",
+      "action": "set",
+      "binding": "testMode",
+      "value": true
+    },
+    "afterRender": {
+      "type": "tool",
+      "tool": "captureScreenshot"
+    }
+  }
+}
+```
+
+### Interaction Recording
+
+Record user interactions for replay:
+
+```json
+{
+  "testRecording": {
+    "enabled": true,
+    "events": ["click", "input", "scroll"],
+    "storage": "session"
+  }
+}
+```
+
+## Conformance Requirements
+
+### Conformance Levels
+
+MCP UI DSL defines three conformance levels for implementations:
+
+#### Level 1: Core (Required)
+All implementations MUST support:
+
+1. **Core Widgets**
+   - text, image, button
+   - linear (vertical/horizontal), stack
+   - container, padding, center
+
+2. **Basic Properties**
+   - width, height, padding, margin
+   - color, backgroundColor
+   - visible, enabled
+
+3. **Core Features**
+   - Data binding with simple expressions
+   - Basic event handling (click, change)
+   - State management (get/set)
+   - Tool action execution
+
+4. **Accessibility**
+   - Basic semantic labels
+   - Focus management
+   - Keyboard navigation
+
+#### Level 2: Standard (Recommended)
+Includes Core plus:
+
+1. **Extended Widgets**
+   - All input widgets
+   - List and grid views
+   - Navigation widgets
+   - Form widgets
+
+2. **Advanced Features**
+   - Full expression language
+   - Theme support
+   - Navigation system
+   - Resource subscriptions
+
+3. **Enhanced Accessibility**
+   - Full ARIA role support
+   - Live regions
+   - Screen reader optimization
+
+#### Level 3: Advanced (Optional)
+Includes Standard plus:
+
+1. **Advanced Widgets**
+   - Charts and visualizations
+   - Custom widgets
+   - Animation widgets
+
+2. **Premium Features**
+   - Background services
+   - Offline support
+   - Advanced caching
+   - Performance optimizations
+
+### Implementation Requirements
+
+#### Widget Rendering
+- MUST render all supported widgets according to specification
+- MUST handle unknown widgets gracefully (show error or skip)
+- MUST respect platform conventions while maintaining behavior
+
+#### Data Binding
+- MUST implement expression parser for supported expressions
+- MUST handle binding errors without crashing
+- MUST update UI when bound data changes
+
+#### Event Handling  
+- MUST support standard event names
+- MUST provide event context variables
+- MUST handle event errors gracefully
+
+#### State Management
+- MUST maintain state isolation between pages
+- MUST persist state across navigation (where specified)
+- MUST handle concurrent state updates correctly
+
+#### Security
+- MUST sanitize all user inputs
+- MUST validate expressions before execution
+- MUST enforce resource access controls
+- MUST prevent script injection
+
+#### Performance
+- SHOULD optimize rendering for large lists
+- SHOULD implement efficient state updates
+- SHOULD cache parsed expressions
+- SHOULD minimize memory usage
+
+### Testing Requirements
+
+Conformant implementations MUST pass:
+
+1. **Widget Test Suite** - Validates all widget rendering
+2. **Expression Test Suite** - Tests expression evaluation
+3. **State Test Suite** - Verifies state management
+4. **Security Test Suite** - Checks security measures
+5. **Accessibility Test Suite** - Ensures accessibility compliance
+
+### Certification Process
+
+1. Run automated test suites
+2. Submit test results
+3. Provide implementation documentation
+4. Demonstrate example applications
+5. Receive conformance certificate
+
+### Non-Conformance
+
+Implementations that do not meet requirements:
+- MUST NOT claim MCP UI DSL conformance
+- SHOULD document deviations clearly
+- MAY use subset with "Partial MCP UI DSL" designation
+
+## Glossary
+
+### A-D
+
+**Action**: An operation triggered by user interaction or system events. Types include state, navigation, tool, resource, batch, and conditional actions.
+
+**Binding**: A connection between UI elements and data using expression syntax `{{expression}}`.
+
+**Container**: A widget that can contain a single child widget and apply styling, padding, or decoration.
+
+**Context Variable**: Special variables available in specific scopes, such as `{{item}}` in lists or `{{event}}` in handlers.
+
+### E-H
+
+**Expression**: A statement within `{{}}` that evaluates to a value, supporting operators, functions, and property access.
+
+**Event**: User or system interaction such as click, change, focus, or hover.
+
+**Handler**: A function or action that responds to events.
+
+### I-L
+
+**i18n**: Internationalization - Support for multiple languages and locales.
+
+**Layout**: Arrangement of widgets on screen. Types include linear, stack, and grid.
+
+**Lifecycle**: Stages in the life of an application, page, or widget (initialize, mount, unmount, destroy).
+
+### M-P
+
+**MCP**: Model Context Protocol - The underlying protocol for communication between UI and server.
+
+**Navigation**: Moving between pages or screens in an application.
+
+**Platform**: The target environment (Flutter, Web, Python, etc.) where the UI is rendered.
+
+### Q-T
+
+**Resource**: MCP resources that can be subscribed to for real-time updates.
+
+**Runtime**: The execution environment that interprets and renders MCP UI DSL.
+
+**State**: Application data that can change over time and trigger UI updates.
+
+**Theme**: Visual styling configuration including colors, typography, spacing, and other design tokens.
+
+**Tool**: MCP server-side functions that can be called from the UI.
+
+### U-Z
+
+**UI DSL**: User Interface Domain Specific Language - The JSON-based language for defining UIs.
+
+**Validation**: Checking user input or data against rules and constraints.
+
+**Widget**: A UI component such as text, button, or container. The basic building block of MCP UI DSL interfaces.

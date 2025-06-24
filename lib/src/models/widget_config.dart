@@ -1,6 +1,8 @@
 import 'package:meta/meta.dart';
 import 'action_config.dart';
 import 'property_spec.dart';
+import 'accessibility_config.dart';
+import 'i18n_config.dart';
 
 /// Configuration for a widget in the MCP UI DSL
 /// 
@@ -18,12 +20,20 @@ class WidgetConfig {
   
   /// Metadata for the widget
   final Map<String, dynamic> metadata;
+  
+  /// Accessibility configuration (spec v1.0)
+  final AccessibilityConfig? accessibility;
+  
+  /// Internationalization configuration (spec v1.0)
+  final I18nConfig? i18n;
 
   const WidgetConfig({
     required this.type,
     this.properties = const {},
     this.children = const [],
     this.metadata = const {},
+    this.accessibility,
+    this.i18n,
   });
 
   /// Create a WidgetConfig from JSON
@@ -35,6 +45,12 @@ class WidgetConfig {
           ?.map((child) => WidgetConfig.fromJson(child as Map<String, dynamic>))
           .toList() ?? [],
       metadata: Map<String, dynamic>.from(json['metadata'] ?? {}),
+      accessibility: json['accessibility'] != null
+          ? AccessibilityConfig.fromJson(json['accessibility'] as Map<String, dynamic>)
+          : null,
+      i18n: json['i18n'] != null
+          ? I18nConfig.fromJson(json['i18n'] as Map<String, dynamic>)
+          : null,
     );
   }
 
@@ -56,6 +72,14 @@ class WidgetConfig {
       result['metadata'] = metadata;
     }
     
+    if (accessibility != null) {
+      result['accessibility'] = accessibility!.toJson();
+    }
+    
+    if (i18n != null) {
+      result['i18n'] = i18n!.toJson();
+    }
+    
     return result;
   }
 
@@ -71,12 +95,20 @@ class WidgetConfig {
     return properties.containsKey(key);
   }
 
-  /// Get all action properties
+  /// Get all action properties - Updated for spec v1.0
   List<ActionConfig> getActions() {
     final actions = <ActionConfig>[];
     
+    // Spec v1.0 event names
+    const specEventNames = {
+      'click', 'double-click', 'right-click', 'long-press',
+      'change', 'focus', 'blur', 'hover', 'submit'
+    };
+    
     for (final entry in properties.entries) {
-      if (entry.key.startsWith('on') && entry.value is Map<String, dynamic>) {
+      // Check for spec v1.0 event names or legacy Flutter event names (starting with 'on')
+      if (specEventNames.contains(entry.key) || 
+          (entry.key.startsWith('on') && entry.value is Map<String, dynamic>)) {
         try {
           actions.add(ActionConfig.fromJson(entry.value as Map<String, dynamic>));
         } catch (e) {
@@ -113,12 +145,16 @@ class WidgetConfig {
     Map<String, dynamic>? properties,
     List<WidgetConfig>? children,
     Map<String, dynamic>? metadata,
+    AccessibilityConfig? accessibility,
+    I18nConfig? i18n,
   }) {
     return WidgetConfig(
       type: type ?? this.type,
       properties: properties ?? this.properties,
       children: children ?? this.children,
       metadata: metadata ?? this.metadata,
+      accessibility: accessibility ?? this.accessibility,
+      i18n: i18n ?? this.i18n,
     );
   }
 
@@ -154,20 +190,21 @@ class WidgetConfig {
   /// Check if this widget has children
   bool get hasChildren => children.isNotEmpty;
 
-  /// Check if this widget can have children (based on type)
+  /// Check if this widget can have children (based on type) - MCP UI DSL v1.0
   bool get canHaveChildren {
     const childrenSupportingTypes = {
-      'container', 'column', 'row', 'stack', 'center', 'align',
+      // MCP UI DSL v1.0 types (CamelCase for multi-word)
+      'linear', 'box', 'stack', 'center', 'align',
       'padding', 'margin', 'expanded', 'flexible', 'wrap',
-      'card', 'listview', 'gridview', 'scrollview',
-      'form', 'appbar', 'tabbar', 'drawer',
-      'gesturedetector', 'inkwell', 'draggable', 'dragtarget',
-      'conditional', 'singlechildscrollview', 'scrollbar',
-      'tabbarview', 'bottomnavigationbar', 'navigationrail',
-      'floatingactionbutton', 'animatedcontainer', 'flow',
-      'table', 'positioned', 'intrinsicheight', 'intrinsicwidth',
-      'visibility', 'sizedbox', 'spacer', 'alertdialog',
-      'snackbar', 'bottomsheet',
+      'card', 'list', 'grid', 'scrollView',
+      'form', 'headerBar', 'tabBar', 'drawer',
+      'gestureDetector', 'inkWell', 'draggable', 'dragTarget',
+      'conditional', 'singleChildScrollView', 'scrollBar',
+      'tabBarView', 'bottomNavigation', 'navigationRail',
+      'floatingActionButton', 'animatedContainer', 'flow',
+      'table', 'positioned', 'intrinsicHeight', 'intrinsicWidth',
+      'visibility', 'sizedBox', 'spacer', 'alertDialog',
+      'snackBar', 'bottomSheet',
     };
     return childrenSupportingTypes.contains(type);
   }

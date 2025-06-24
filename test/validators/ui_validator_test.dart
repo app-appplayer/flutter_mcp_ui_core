@@ -178,13 +178,16 @@ void main() {
           },
           children: [
             WidgetConfig(
-              type: WidgetTypes.container,
+              type: WidgetTypes.box,
               properties: {'width': 200.0, 'height': 100.0}
             ),
           ],
         );
 
         final result = UIValidator.validateWidget(widget);
+        if (!result.isValid) {
+          print('Validation errors: ${result.errors.map((e) => e.message).join(', ')}');
+        }
         expect(result.isValid, isTrue);
         expect(result.errors, isEmpty);
       });
@@ -195,7 +198,7 @@ void main() {
           properties: {
             'data': 'item_1',
             'feedback': {
-              'type': 'container',
+              'type': 'box',
               'properties': {
                 'color': '#80000000',
                 'padding': {'all': 8.0}
@@ -237,7 +240,7 @@ void main() {
             ).toJson(),
             'onWillAccept': 'return data != null;',
             'builder': {
-              'type': 'container',
+              'type': 'box',
               'properties': {
                 'color': '{{candidateData != null ? "#FFE0E0E0" : "#FFFFFFFF"}}',
                 'padding': {'all': 16.0}
@@ -353,7 +356,7 @@ void main() {
             type: WidgetTypes.form,
             children: [
               WidgetConfig(
-                type: WidgetTypes.textField,
+                type: WidgetTypes.textInput,
                 properties: {
                   'label': 'Name',
                   'bindTo': 'formData.name',
@@ -440,14 +443,16 @@ void main() {
       test('should validate interactive drag and drop UI', () {
         final uiDefinition = UIDefinition(
           layout: WidgetConfig(
-            type: WidgetTypes.row,
+            type: WidgetTypes.linear,
+            properties: {'direction': 'horizontal'},
             children: [
               WidgetConfig(
                 type: WidgetTypes.expanded,
                 properties: {'flex': 1},
                 children: [
                   WidgetConfig(
-                    type: WidgetTypes.column,
+                    type: WidgetTypes.linear,
+                    properties: {'direction': 'vertical'},
                     children: List.generate(3, (i) => WidgetConfig(
                   type: WidgetTypes.draggable,
                   properties: {
@@ -485,7 +490,7 @@ void main() {
                 type: WidgetTypes.dragTarget,
                 properties: {
                   'builder': {
-                    'type': 'container',
+                    'type': 'box',
                     'properties': {
                       'width': 200.0,
                       'height': 400.0,
@@ -530,7 +535,8 @@ void main() {
             properties: {
               'condition': '{{isAuthenticated}}',
               'trueChild': {
-                'type': 'column',
+                'type': 'linear',
+                'properties': {'direction': 'vertical'},
                 'children': [
                   {
                     'type': 'text',
@@ -540,7 +546,7 @@ void main() {
                     }
                   },
                   {
-                    'type': 'segmentedcontrol',
+                    'type': 'segmentedControl',
                     'properties': {
                       'bindTo': 'activeSection',
                       'options': [
@@ -555,17 +561,18 @@ void main() {
                     'properties': {
                       'condition': '{{activeSection == "profile"}}',
                       'child': {
-                        'type': 'column',
+                        'type': 'linear',
+                        'properties': {'direction': 'vertical'},
                         'children': [
                           {
-                            'type': 'colorpicker',
+                            'type': 'colorPicker',
                             'properties': {
                               'bindTo': 'user.themeColor',
                               'showLabel': true
                             }
                           },
                           {
-                            'type': 'datefield',
+                            'type': 'dateField',
                             'properties': {
                               'label': 'Member since',
                               'value': '{{user.joinDate}}',
@@ -633,7 +640,8 @@ void main() {
       test('should validate bindings for all new input widgets', () {
         final uiDefinition = UIDefinition(
           layout: WidgetConfig(
-            type: WidgetTypes.column,
+            type: WidgetTypes.linear,
+            properties: {'direction': 'vertical'},
             children: [
               WidgetConfig(
                 type: WidgetTypes.numberField,
@@ -696,7 +704,8 @@ void main() {
       test('should detect invalid bindings for new widgets', () {
         final uiDefinition = UIDefinition(
           layout: WidgetConfig(
-            type: WidgetTypes.column,
+            type: WidgetTypes.linear,
+            properties: {'direction': 'vertical'},
             children: [
               WidgetConfig(
                 type: WidgetTypes.numberField,
@@ -788,6 +797,225 @@ void main() {
 
         final result = UIValidator.validateWidget(widget);
         expect(result.isValid, isTrue);
+      });
+    });
+
+    group('Modern Widget Support', () {
+      test('should validate layout widget types', () {
+        // Test modern layout widgets
+        final linearWidget = WidgetConfig(
+          type: 'linear',
+          properties: {
+            'direction': 'vertical',
+            'gap': 16.0,
+            'distribution': 'space-between',
+            'alignment': 'center',
+          },
+          children: [
+            WidgetConfig(type: 'text', properties: {'content': 'Hello'}),
+            WidgetConfig(type: 'text', properties: {'content': 'World'}),
+          ],
+        );
+        expect(UIValidator.validateWidget(linearWidget).isValid, isTrue);
+
+        final boxWidget = WidgetConfig(
+          type: 'box',
+          properties: {
+            'width': 200.0,
+            'height': 100.0,
+            'padding': {'all': 16.0},
+            'color': '#2196F3',
+          },
+          children: [
+            WidgetConfig(type: 'text', properties: {'content': 'Box content'}),
+          ],
+        );
+        expect(UIValidator.validateWidget(boxWidget).isValid, isTrue);
+      });
+
+      test('should validate input widget aliases', () {
+        final textInputWidget = WidgetConfig(
+          type: 'textInput',
+          properties: {
+            'label': 'Username',
+            'value': '',
+            'placeholder': 'Enter username',
+            'change': {
+              'type': 'state',
+              'action': 'set',
+              'binding': 'username',
+            },
+          },
+        );
+        expect(UIValidator.validateWidget(textInputWidget).isValid, isTrue);
+
+        final toggleWidget = WidgetConfig(
+          type: 'toggle',
+          properties: {
+            'value': true,
+            'label': 'Enable notifications',
+            'change': {
+              'type': 'state',
+              'action': 'set',
+              'binding': 'settings.notifications',
+            },
+          },
+        );
+        expect(UIValidator.validateWidget(toggleWidget).isValid, isTrue);
+
+        final selectWidget = WidgetConfig(
+          type: 'select',
+          properties: {
+            'value': 'en',
+            'label': 'Language',
+            'items': [
+              {'label': 'English', 'value': 'en'},
+              {'label': 'Spanish', 'value': 'es'},
+              {'label': 'French', 'value': 'fr'},
+            ],
+            'change': {
+              'type': 'state',
+              'action': 'set',
+              'binding': 'language',
+            },
+          },
+        );
+        expect(UIValidator.validateWidget(selectWidget).isValid, isTrue);
+      });
+
+      test('should validate navigation widget aliases', () {
+        final headerBarWidget = WidgetConfig(
+          type: 'headerBar',
+          properties: {
+            'title': 'My App',
+            'actions': [
+              {
+                'type': 'button',
+                'properties': {
+                  'icon': 'settings',
+                  'click': {'type': 'navigation', 'action': 'push', 'route': '/settings'},
+                },
+              },
+            ],
+          },
+        );
+        expect(UIValidator.validateWidget(headerBarWidget).isValid, isTrue);
+
+        final bottomNavWidget = WidgetConfig(
+          type: 'bottomNavigation',
+          properties: {
+            'currentIndex': 0,
+            'items': [
+              {'icon': 'home', 'label': 'Home'},
+              {'icon': 'search', 'label': 'Search'},
+              {'icon': 'person', 'label': 'Profile'},
+            ],
+            'onTap': {
+              'type': 'navigation',
+              'action': 'push',
+              'route': '{{item.route}}',
+            },
+          },
+        );
+        expect(UIValidator.validateWidget(bottomNavWidget).isValid, isTrue);
+      });
+
+      test('should validate dash-notation event properties', () {
+        // Test content property for text widgets
+        final textWidget = WidgetConfig(
+          type: 'text',
+          properties: {
+            'content': 'Hello, World!',
+            'style': {
+              'fontSize': 16.0,
+              'color': '#333333',
+            },
+          },
+        );
+        expect(UIValidator.validateWidget(textWidget).isValid, isTrue);
+
+        // Test dash-notation event properties
+        final buttonWidget = WidgetConfig(
+          type: 'button',
+          properties: {
+            'label': 'Click me',
+            'click': {'type': 'tool', 'tool': 'handleClick'},
+            'doubleClick': {'type': 'tool', 'tool': 'handleDoubleClick'},
+            'rightClick': {'type': 'tool', 'tool': 'handleRightClick'},
+            'longPress': {'type': 'tool', 'tool': 'handleLongPress'},
+          },
+        );
+        expect(UIValidator.validateWidget(buttonWidget).isValid, isTrue);
+      });
+
+      test('should validate advanced widgets', () {
+        final chartWidget = WidgetConfig(
+          type: 'chart',
+          properties: {
+            'chartType': 'line',
+            'data': [
+              {'x': 0, 'y': 10},
+              {'x': 1, 'y': 20},
+              {'x': 2, 'y': 15},
+            ],
+            'title': 'Sales Chart',
+            'height': 300.0,
+          },
+        );
+        expect(UIValidator.validateWidget(chartWidget).isValid, isTrue);
+
+        final mapWidget = WidgetConfig(
+          type: 'map',
+          properties: {
+            'latitude': 37.7749,
+            'longitude': -122.4194,
+            'zoom': 12.0,
+            'markers': [
+              {
+                'lat': 37.7749,
+                'lng': -122.4194,
+                'label': 'San Francisco',
+              },
+            ],
+            'height': 400.0,
+          },
+        );
+        expect(UIValidator.validateWidget(mapWidget).isValid, isTrue);
+      });
+
+      test('should validate latest MCP UI DSL v1.0 spec', () {
+        // MCP UI DSL v1.0: content property for text widget
+        final textWidget = WidgetConfig(
+          type: 'text',
+          properties: {'content': 'Hello'},
+        );
+        expect(UIValidator.validateWidget(textWidget).isValid, isTrue);
+
+        // MCP UI DSL v1.0: textInput instead of deprecated textField
+        final inputWidget = WidgetConfig(
+          type: 'textInput',
+          properties: {'value': 'Hello'},
+        );
+        expect(UIValidator.validateWidget(inputWidget).isValid, isTrue);
+
+        // Both click and onTap should work for button
+        final button1 = WidgetConfig(
+          type: 'button',
+          properties: {
+            'label': 'Click',
+            'click': {'type': 'tool', 'tool': 'handleClick'},
+          },
+        );
+        expect(UIValidator.validateWidget(button1).isValid, isTrue);
+
+        final button2 = WidgetConfig(
+          type: 'button',
+          properties: {
+            'label': 'Tap',
+            'onTap': {'type': 'tool', 'tool': 'handleTap'},
+          },
+        );
+        expect(UIValidator.validateWidget(button2).isValid, isTrue);
       });
     });
   });

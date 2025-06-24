@@ -50,11 +50,11 @@ void main() {
     });
 
     test('should validate widget types', () {
-      expect(WidgetTypes.isValidType(WidgetTypes.container), isTrue);
+      expect(WidgetTypes.isValidType(WidgetTypes.box), isTrue);
       expect(WidgetTypes.isValidType(WidgetTypes.text), isTrue);
       expect(WidgetTypes.isValidType('unknown'), isFalse);
       
-      expect(WidgetTypes.getCategoryForType(WidgetTypes.container), equals('layout'));
+      expect(WidgetTypes.getCategoryForType(WidgetTypes.box), equals('layout'));
       expect(WidgetTypes.getCategoryForType(WidgetTypes.text), equals('display'));
       expect(WidgetTypes.getCategoryForType(WidgetTypes.button), equals('input'));
     });
@@ -128,13 +128,13 @@ void main() {
       final page = PageConfig(
         title: 'Home Page',
         route: '/',
-        content: {'type': 'container', 'children': []},
+        content: {'type': 'box', 'children': []},
       );
       
       expect(page.title, equals('Home Page'));
       expect(page.route, equals('/'));
       expect(page.type, equals('page'));
-      expect(page.content['type'], equals('container'));
+      expect(page.content['type'], equals('box'));
       
       final json = page.toJson();
       expect(json['type'], equals('page'));
@@ -143,6 +143,80 @@ void main() {
       final fromJson = PageConfig.fromJson(json);
       expect(fromJson.title, equals(page.title));
       expect(fromJson.route, equals(page.route));
+    });
+
+    test('should create ActionConfig instances', () {
+      // Tool action
+      final toolAction = ActionConfig.tool('submitForm', {'data': '{{formData}}'});
+      expect(toolAction.type, equals('tool'));
+      expect(toolAction.toolName, equals('submitForm'));
+      expect(toolAction.toolParams?['data'], equals('{{formData}}'));
+
+      // State action
+      final stateAction = ActionConfig.state(
+        action: 'set',
+        binding: 'user.name',
+        value: 'John',
+      );
+      expect(stateAction.type, equals('state'));
+      expect(stateAction.stateAction, equals('set'));
+      expect(stateAction.stateBinding, equals('user.name'));
+      expect(stateAction.stateValue, equals('John'));
+
+      // Navigation action
+      final navAction = ActionConfig.navigation(
+        action: 'push',
+        route: '/dashboard',
+        params: {'id': '123'},
+      );
+      expect(navAction.type, equals('navigation'));
+      expect(navAction.navigationAction, equals('push'));
+      expect(navAction.navigationRoute, equals('/dashboard'));
+      expect(navAction.navigationParams?['id'], equals('123'));
+
+      // Batch action
+      final batchAction = ActionConfig.batch([toolAction, stateAction]);
+      expect(batchAction.type, equals('batch'));
+      expect(batchAction.actions, hasLength(2));
+
+      // Conditional action
+      final conditionalAction = ActionConfig.conditional(
+        condition: '{{user.isLoggedIn}}',
+        thenAction: navAction,
+        elseAction: stateAction,
+      );
+      expect(conditionalAction.type, equals('conditional'));
+      expect(conditionalAction.condition, equals('{{user.isLoggedIn}}'));
+      expect(conditionalAction.thenAction, equals(navAction));
+      expect(conditionalAction.elseAction, equals(stateAction));
+    });
+
+    test('should validate ActionConfig', () {
+      // Valid actions
+      expect(ActionConfig.tool('test', {}).isValid(), isTrue);
+      expect(ActionConfig.state(action: 'set', binding: 'value').isValid(), isTrue);
+      expect(ActionConfig.navigation(action: 'push', route: '/test').isValid(), isTrue);
+
+      // Invalid actions
+      expect(ActionConfig.tool('', {}).isValid(), isFalse);
+      expect(ActionConfig.state(action: '', binding: 'value').isValid(), isFalse);
+      expect(ActionConfig.navigation(action: '', route: '/test').isValid(), isFalse);
+    });
+
+    test('should serialize and deserialize ActionConfig', () {
+      final original = ActionConfig.conditional(
+        condition: '{{isActive}}',
+        thenAction: ActionConfig.state(action: 'set', binding: 'status', value: 'active'),
+        elseAction: ActionConfig.tool('deactivate', {'reason': 'inactive'}),
+      );
+
+      final json = original.toJson();
+      final restored = ActionConfig.fromJson(json);
+
+      expect(restored.type, equals(original.type));
+      expect(restored.condition, equals(original.condition));
+      expect(restored.thenAction?.type, equals(original.thenAction?.type));
+      expect(restored.elseAction?.type, equals(original.elseAction?.type));
     });
   });
 }

@@ -39,7 +39,8 @@ React to state changes with watchers:
             "type": "conditional",
             "condition": "{{!user.isAuthenticated}}",
             "then": {
-              "type": "navigate",
+              "type": "navigation",
+              "action": "push",
               "route": "/login"
             }
           }
@@ -291,8 +292,8 @@ Implement responsive master-detail views:
             "type": "listTile",
             "title": {"type": "text", "value": "{{items[index].name}}"},
             "selected": "{{selectedIndex === index}}",
-            "onTap": {
-              "type": "setState",
+            "click": {
+              "type": "state", "action": "set",
               "updates": {"selectedIndex": "{{index}}"}
             }
           }
@@ -389,25 +390,25 @@ Multi-step forms with validation:
             "type": "button",
             "label": "Previous",
             "enabled": "{{currentStep > 0}}",
-            "onTap": {
-              "type": "setState",
+            "click": {
+              "type": "state", "action": "set",
               "updates": {"currentStep": "{{currentStep - 1}}"}
             }
           },
           {
             "type": "button",
             "label": "{{currentStep < totalSteps - 1 ? 'Next' : 'Submit'}}",
-            "onTap": {
+            "click": {
               "type": "conditional",
               "condition": "{{currentStep < totalSteps - 1}}",
               "then": {
-                "type": "setState",
+                "type": "state", "action": "set",
                 "updates": {"currentStep": "{{currentStep + 1}}"}
               },
               "else": {
                 "type": "tool",
                 "tool": "submitWizard",
-                "args": {"data": "{{wizardData}}"}
+                "params": {"data": "{{wizardData}}"}
               }
             }
           }

@@ -91,10 +91,10 @@ void main() async {
                           'type': 'button',
                           'label': '-',
                           'style': 'elevated',
-                          'onTap': {
+                          'click': {
                             'type': 'tool',
                             'tool': 'decrement',
-                            'args': {}
+                            'params': {}
                           }
                         },
                         {
@@ -105,10 +105,10 @@ void main() async {
                           'type': 'button',
                           'label': '+',
                           'style': 'elevated',
-                          'onTap': {
+                          'click': {
                             'type': 'tool',
                             'tool': 'increment',
-                            'args': {}
+                            'params': {}
                           }
                         },
                         {
@@ -119,10 +119,10 @@ void main() async {
                           'type': 'button',
                           'label': 'Reset',
                           'style': 'outlined',
-                          'onTap': {
+                          'click': {
                             'type': 'tool',
                             'tool': 'reset',
-                            'args': {}
+                            'params': {}
                           }
                         }
                       ]
@@ -321,12 +321,12 @@ class _CounterScreenState extends State<CounterScreen> {
     }
   }
 
-  Future<void> _handleToolCall(String tool, Map<String, dynamic> args) async {
+  Future<void> _handleToolCall(String tool, Map<String, dynamic> params) async {
     if (_mcpClient == null) return;
     
     try {
       // Call tool on server
-      final result = await _mcpClient!.callTool(tool, args);
+      final result = await _mcpClient!.callTool(tool, params);
       
       // Parse response
       if (result.content.isNotEmpty) {
@@ -425,10 +425,10 @@ Each button triggers a tool call to the server:
 {
   "type": "button",
   "label": "+",
-  "onTap": {
+  "click": {
     "type": "tool",
     "tool": "increment",
-    "args": {}
+    "params": {}
   }
 }
 ```
@@ -466,12 +466,11 @@ For a purely client-side counter:
 {
   "type": "button",
   "label": "+",
-  "onTap": {
-    "type": "setState",
-    "updates": {
-      "counter": "{{counter + 1}}",
-      "lastAction": "Incremented locally"
-    }
+  "click": {
+    "type": "state",
+    "action": "set",
+    "binding": "counter",
+    "value": "{{counter + 1}}"
   }
 }
 ```

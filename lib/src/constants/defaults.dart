@@ -3,15 +3,19 @@
 /// Contains default values used when properties are not specified.
 /// This ensures consistent behavior across renderer and generator.
 class Defaults {
-  // Layout Defaults
+  // Layout Defaults - Updated for spec v1.0
   static const double defaultWidth = double.infinity;
   static const double defaultHeight = double.infinity;
   static const double defaultPadding = 0.0;
   static const double defaultMargin = 0.0;
   static const String defaultAlignment = 'center';
-  static const String defaultMainAxisAlignment = 'start';
-  static const String defaultCrossAxisAlignment = 'center';
-  static const String defaultMainAxisSize = 'max';
+  static const String defaultDistribution = 'start'; // spec v1.0
+  static const String defaultDirection = 'vertical'; // spec v1.0 for linear layouts
+  static const double defaultGap = 0.0; // spec v1.0
+  static const bool defaultWrap = false; // spec v1.0
+  static const String defaultMainAxisAlignment = 'start'; // legacy
+  static const String defaultCrossAxisAlignment = 'center'; // legacy
+  static const String defaultMainAxisSize = 'max'; // legacy
   
   // Style Defaults
   static const String defaultColor = '#000000';
@@ -105,9 +109,13 @@ class Defaults {
       case 'padding': return defaultPadding;
       case 'margin': return defaultMargin;
       case 'alignment': return defaultAlignment;
-      case 'mainAxisAlignment': return defaultMainAxisAlignment;
-      case 'crossAxisAlignment': return defaultCrossAxisAlignment;
-      case 'mainAxisSize': return defaultMainAxisSize;
+      case 'distribution': return defaultDistribution; // spec v1.0
+      case 'direction': return defaultDirection; // spec v1.0
+      case 'gap': return defaultGap; // spec v1.0
+      case 'wrap': return defaultWrap; // spec v1.0
+      case 'mainAxisAlignment': return defaultMainAxisAlignment; // legacy
+      case 'crossAxisAlignment': return defaultCrossAxisAlignment; // legacy
+      case 'mainAxisSize': return defaultMainAxisSize; // legacy
       
       // Style
       case 'color': return defaultColor;

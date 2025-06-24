@@ -7,12 +7,18 @@ class PropertyKeys {
   static const String type = 'type';
   static const String children = 'children';
   
-  // Layout Properties
+  // Layout Properties - Updated to match spec v1.0
   static const String width = 'width';
   static const String height = 'height';
   static const String padding = 'padding';
   static const String margin = 'margin';
   static const String alignment = 'alignment';
+  static const String distribution = 'distribution'; // spec v1.0: replaces mainAxisAlignment
+  static const String direction = 'direction'; // spec v1.0: for linear layouts
+  static const String gap = 'gap'; // spec v1.0: spacing between items
+  static const String wrap = 'wrap'; // spec v1.0: whether items wrap
+  
+  // Legacy Flutter layout names (for backward compatibility)
   static const String mainAxisAlignment = 'mainAxisAlignment';
   static const String crossAxisAlignment = 'crossAxisAlignment';
   static const String mainAxisSize = 'mainAxisSize';
@@ -54,13 +60,24 @@ class PropertyKeys {
   static const String iconSize = 'iconSize';
   static const String iconColor = 'iconColor';
   
-  // Interaction Properties
+  // Interaction Properties - Updated to match spec v1.0
+  static const String click = 'click';
+  static const String doubleClick = 'doubleClick'; // CamelCase per spec v1.0
+  static const String rightClick = 'rightClick'; // CamelCase per spec v1.0
+  static const String longPress = 'longPress'; // CamelCase per spec v1.0
+  static const String change = 'change';
+  static const String focus = 'focus';
+  static const String blur = 'blur';
+  static const String hover = 'hover';
+  static const String submit = 'submit';
+  static const String enabled = 'enabled';
+  static const String disabled = 'disabled';
+  
+  // Legacy Flutter event names (for backward compatibility)
   static const String onTap = 'onTap';
   static const String onPressed = 'onPressed';
   static const String onChanged = 'onChanged';
   static const String onSubmitted = 'onSubmitted';
-  static const String enabled = 'enabled';
-  static const String disabled = 'disabled';
   
   // State Properties
   static const String bindTo = 'bindTo';
@@ -150,6 +167,7 @@ class PropertyKeys {
   static List<String> get allKeys => [
     type, children,
     width, height, padding, margin, alignment,
+    distribution, direction, gap, wrap,
     mainAxisAlignment, crossAxisAlignment, mainAxisSize,
     style, color, backgroundColor, foregroundColor,
     fontSize, fontWeight, fontFamily, textAlign,
@@ -158,6 +176,7 @@ class PropertyKeys {
     hint, hintText, placeholder,
     src, image, fit, aspectRatio,
     icon, iconSize, iconColor,
+    click, doubleClick, rightClick, longPress, change, focus, blur, hover, submit,
     onTap, onPressed, onChanged, onSubmitted,
     enabled, disabled,
     bindTo, selected, checked, visible,

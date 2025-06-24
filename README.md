@@ -37,7 +37,7 @@ Add this to your package's `pubspec.yaml` file:
 
 ```yaml
 dependencies:
-  flutter_mcp_ui_core: ^0.1.0
+  flutter_mcp_ui_core: ^0.2.0
 ```
 
 ## Core Models
@@ -71,7 +71,8 @@ final widget = WidgetConfig(
   type: WidgetTypes.button,
   properties: {
     PropertyKeys.label: 'Click Me',
-    PropertyKeys.onTap: ActionConfig.tool('handleClick').toJson(),
+    PropertyKeys.variant: 'elevated',
+    PropertyKeys.click: ActionConfig.tool('handleClick').toJson(),
   },
 );
 ```

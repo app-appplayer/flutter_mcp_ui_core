@@ -336,7 +336,7 @@ A clickable button with various styles.
   "style": "elevated",
   "icon": "add",
   "enabled": true,
-  "onTap": {
+  "click": {
     "type": "tool",
     "tool": "handleClick"
   }
@@ -349,7 +349,7 @@ A clickable button with various styles.
 | `style` | string | Button style | `elevated`, `outlined`, `text` |
 | `icon` | string | Optional icon | Icon name |
 | `enabled` | boolean/string | Whether enabled (can be binding) | true |
-| `onTap` | object | Tap action | Action object |
+| `click` | object | Click action | Action object |
 
 ### TextField
 
@@ -373,8 +373,10 @@ Single-line text input.
     "errorMessage": "Invalid username"
   },
   "onChanged": {
-    "type": "setState",
-    "updates": {"isDirty": true}
+    "type": "state",
+    "action": "set",
+    "binding": "isDirty",
+    "value": true
   }
 }
 ```
@@ -404,8 +406,10 @@ A toggleable checkbox.
   "tristate": false,
   "enabled": true,
   "onChange": {
-    "type": "setState",
-    "updates": {"canSubmit": "{{agreedToTerms}}"}
+    "type": "state",
+    "action": "set",
+    "binding": "canSubmit",
+    "value": "{{agreedToTerms}}"
   }
 }
 ```
@@ -431,7 +435,7 @@ A toggle switch.
   "onChange": {
     "type": "tool",
     "tool": "updateSettings",
-    "args": {"notifications": "{{notificationsEnabled}}"}
+    "params": {"notifications": "{{notificationsEnabled}}"}
   }
 }
 ```
@@ -452,8 +456,10 @@ A value slider.
   "label": "{{volume}}",
   "enabled": true,
   "onChanged": {
-    "type": "setState",
-    "updates": {"volumePercent": "{{volume / 100}}"}
+    "type": "state",
+    "action": "set",
+    "binding": "volumePercent",
+    "value": "{{volume / 100}}"
   }
 }
 ```
@@ -484,7 +490,7 @@ A dropdown selection.
   "onChanged": {
     "type": "tool",
     "tool": "loadStates",
-    "args": {"country": "{{selectedCountry}}"}
+    "params": {"country": "{{selectedCountry}}"}
   }
 }
 ```
@@ -511,8 +517,9 @@ A scrollable list of widgets.
       "type": "text",
       "value": "{{items[index].description}}"
     },
-    "onTap": {
-      "type": "navigate",
+    "click": {
+      "type": "navigation",
+      "action": "push",
       "route": "/detail",
       "params": {"id": "{{items[index].id}}"}
     }
@@ -550,7 +557,7 @@ A standard list item.
     "type": "icon",
     "icon": "chevron_right"
   },
-  "onTap": {
+  "click": {
     "type": "tool",
     "tool": "selectUser"
   }
@@ -605,8 +612,9 @@ Application bar typically at the top.
     {
       "type": "iconButton",
       "icon": "search",
-      "onTap": {
-        "type": "navigate",
+      "click": {
+        "type": "navigation",
+        "action": "push", 
         "route": "/search"
       }
     }
@@ -637,9 +645,11 @@ Bottom navigation for switching between views.
       "label": "Profile"
     }
   ],
-  "onTap": {
-    "type": "setState",
-    "updates": {"currentTab": "{{index}}"}
+  "click": {
+    "type": "state",
+    "action": "set",
+    "binding": "currentTab",
+    "value": "{{index}}"
   }
 }
 ```
@@ -664,8 +674,9 @@ Side navigation drawer.
       {
         "type": "listTile",
         "title": {"type": "text", "value": "Home"},
-        "onTap": {
-          "type": "navigate",
+        "click": {
+          "type": "navigation",
+          "action": "push",
           "route": "/home"
         }
       }

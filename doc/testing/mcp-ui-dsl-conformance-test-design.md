@@ -1,74 +1,74 @@
-# MCP UI DSL v1.0 Complete Conformance Verification Test Design
+# MCP UI DSL v1.0 완전 준수 검증 테스트 설계
 
-## 1. Test Structure Overview
+## 1. 테스트 구조 개요
 
-### 1.1 Test Categories
+### 1.1 테스트 카테고리
 ```
 tests/
-├── conformance/              # DSL specification conformance tests
-│   ├── structure/           # Structural element tests
-│   ├── widgets/             # Widget tests
-│   ├── binding/             # Data binding tests
-│   ├── actions/             # Action system tests
-│   ├── navigation/          # Navigation tests
-│   ├── theme/               # Theme system tests
-│   └── lifecycle/           # Lifecycle tests
-├── integration/             # Integration tests
-│   ├── mcp_protocol/        # MCP protocol integration
-│   ├── state_management/    # State management integration
-│   └── runtime/             # Runtime behavior
-├── performance/             # Performance tests
-├── edge_cases/              # Edge cases
-└── visual_regression/       # Visual regression tests
+├── conformance/              # DSL 사양 준수 테스트
+│   ├── structure/           # 구조적 요소 테스트
+│   ├── widgets/             # 위젯 테스트
+│   ├── binding/             # 데이터 바인딩 테스트
+│   ├── actions/             # 액션 시스템 테스트
+│   ├── navigation/          # 네비게이션 테스트
+│   ├── theme/               # 테마 시스템 테스트
+│   └── lifecycle/           # 라이프사이클 테스트
+├── integration/             # 통합 테스트
+│   ├── mcp_protocol/        # MCP 프로토콜 통합
+│   ├── state_management/    # 상태 관리 통합
+│   └── runtime/             # 런타임 동작
+├── performance/             # 성능 테스트
+├── edge_cases/              # 엣지 케이스
+└── visual_regression/       # 시각적 회귀 테스트
 ```
 
-### 1.2 Test Levels
-1. **Unit Tests**: Individual component behavior verification
-2. **Widget Tests**: Widget rendering and property verification
-3. **Integration Tests**: Inter-system integration verification
-4. **E2E Tests**: Complete application flow verification
+### 1.2 테스트 레벨
+1. **Unit Tests**: 개별 컴포넌트 동작 검증
+2. **Widget Tests**: 위젯 렌더링 및 속성 검증
+3. **Integration Tests**: 시스템 간 통합 검증
+4. **E2E Tests**: 전체 애플리케이션 플로우 검증
 
-## 2. DSL Specification Conformance Checklist
+## 2. DSL 사양 준수 체크리스트
 
-### 2.1 Structural Elements
-- [ ] Application definition verification
-- [ ] Page definition verification
-- [ ] Routing table verification
-- [ ] Initial state setup verification
-- [ ] Theme definition verification
+### 2.1 구조적 요소
+- [ ] Application 정의 검증
+- [ ] Page 정의 검증
+- [ ] 라우팅 테이블 검증
+- [ ] 초기 상태 설정 검증
+- [ ] 테마 정의 검증
 
-### 2.2 Widget System
-- [ ] All layout widgets (Container, Column, Row, Stack, Center, Expanded, Flexible)
-- [ ] All display widgets (Text, Image, Icon, Divider, Card)
-- [ ] All input widgets (Button, TextField, Checkbox, Switch, Slider)
-- [ ] All list widgets (ListView, GridView)
-- [ ] Advanced widgets (Chart, Table)
+### 2.2 위젯 시스템
+- [ ] 모든 레이아웃 위젯 (Container, Column, Row, Stack, Center, Expanded, Flexible)
+- [ ] 모든 디스플레이 위젯 (Text, Image, Icon, Divider, Card)
+- [ ] 모든 입력 위젯 (Button, TextField, Checkbox, Switch, Slider)
+- [ ] 모든 리스트 위젯 (ListView, GridView)
+- [ ] 고급 위젯 (Chart, Table)
 
-### 2.3 Data Binding
-- [ ] Simple binding expressions
-- [ ] Nested property access
-- [ ] Array index access
-- [ ] Conditional expressions
-- [ ] Mixed content
-- [ ] Context variables (item, index, isFirst, isLast, isEven, isOdd)
+### 2.3 데이터 바인딩
+- [ ] 단순 바인딩 표현식
+- [ ] 중첩 속성 접근
+- [ ] 배열 인덱스 접근
+- [ ] 조건부 표현식
+- [ ] 혼합 콘텐츠
+- [ ] 컨텍스트 변수 (item, index, isFirst, isLast, isEven, isOdd)
 
-### 2.4 Action System
+### 2.4 액션 시스템
 - [ ] State Actions (set, increment, decrement, toggle, append, remove)
 - [ ] Navigation Actions (push, replace, pop, popToRoot)
-- [ ] Tool Actions (basic calls, success/failure handling)
+- [ ] Tool Actions (기본 호출, 성공/실패 핸들링)
 - [ ] Resource Actions (subscribe, unsubscribe)
 - [ ] Batch Actions
 - [ ] Conditional Actions
 
-### 2.5 MCP Protocol Integration
-- [ ] Resource reading
-- [ ] Tool calls and response processing
-- [ ] Notification handling
-- [ ] Subscribe/unsubscribe
+### 2.5 MCP 프로토콜 통합
+- [ ] Resource 읽기
+- [ ] Tool 호출 및 응답 처리
+- [ ] 알림 처리
+- [ ] 구독/구독 해제
 
-## 3. Detailed Test Cases
+## 3. 상세 테스트 케이스
 
-### 3.1 Application Definition Tests
+### 3.1 Application 정의 테스트
 ```dart
 // test/conformance/structure/application_test.dart
 import 'package:flutter_test/flutter_test.dart';
@@ -130,7 +130,7 @@ void main() {
       final runtime = MCPUIRuntime();
       expect(() => runtime.initialize(appDef), returnsNormally);
       
-      // Verify that all required properties have been parsed
+      // 모든 필수 속성이 파싱되었는지 검증
       expect(runtime.title, equals("Test App"));
       expect(runtime.version, equals("1.0.0"));
       expect(runtime.initialRoute, equals("/dashboard"));
@@ -151,14 +151,14 @@ void main() {
 
       final runtime = MCPUIRuntime();
       expect(() => runtime.initialize(minimalApp), returnsNormally);
-      expect(runtime.version, equals("1.0.0")); // default value
-      expect(runtime.initialRoute, equals("/")); // first route
+      expect(runtime.version, equals("1.0.0")); // 기본값
+      expect(runtime.initialRoute, equals("/")); // 첫 번째 라우트
     });
 
     test('should validate required fields', () {
       final invalidApp = {
         "type": "application"
-        // title missing
+        // title 누락
       };
 
       final runtime = MCPUIRuntime();
@@ -171,7 +171,7 @@ void main() {
 }
 ```
 
-### 3.2 Widget Conformance Tests
+### 3.2 위젯 준수 테스트
 ```dart
 // test/conformance/widgets/widget_conformance_test.dart
 import 'package:flutter_test/flutter_test.dart';
@@ -209,18 +209,18 @@ void main() {
             runtime.buildWidget(containerDef)
           );
 
-          // Verify Container properties
+          // Container 속성 검증
           final container = tester.widget<Container>(find.byType(Container));
           expect(container.constraints?.maxWidth, equals(200));
           expect(container.constraints?.maxHeight, equals(100));
           
-          // Verify decoration
+          // Decoration 검증
           final decoration = container.decoration as BoxDecoration;
           expect(decoration.color, equals(Color(0xFFFFFFFF)));
           expect(decoration.borderRadius, equals(BorderRadius.circular(8)));
           expect(decoration.border?.top.width, equals(1));
           
-          // Verify child exists
+          // Child 존재 검증
           expect(find.text('Test'), findsOneWidget);
         });
       });
@@ -259,7 +259,7 @@ void main() {
         }
       });
 
-      // Row, Stack, Center, Expanded, Flexible tests...
+      // Row, Stack, Center, Expanded, Flexible 테스트...
     });
 
     group('Display Widgets', () {
@@ -309,7 +309,7 @@ void main() {
         });
       });
 
-      // Image, Icon, Divider, Card tests...
+      // Image, Icon, Divider, Card 테스트...
     });
 
     group('Input Widgets', () {
@@ -327,7 +327,7 @@ void main() {
             "loading": false,
             "fullWidth": false,
             "size": "medium",
-            "onTap": {
+            "click": {
               "type": "tool",
               "tool": "handleTap"
             }
@@ -338,15 +338,15 @@ void main() {
               runtime.buildWidget(buttonDef)
             );
 
-            // Find widget by button type
+            // 버튼 타입에 따른 위젯 찾기
             expect(find.text('Test Button'), findsOneWidget);
             expect(find.byIcon(Icons.add), findsOneWidget);
             
-            // Test tap event
+            // 탭 이벤트 테스트
             await tester.tap(find.byType(InkWell));
             await tester.pump();
             
-            // Verify onTap action was triggered
+            // onTap 액션이 트리거되었는지 검증
             verify(() => runtime.actionHandler.execute(any())).called(1);
           });
         }
@@ -410,19 +410,19 @@ void main() {
             runtime.buildWidget(textFieldDef)
           );
 
-          // Validate with empty value
+          // 빈 값으로 검증
           await tester.enterText(find.byType(TextField), '');
           await tester.pump();
           expect(runtime.state['form']['errors']['email'], 
             equals('Email is required'));
 
-          // Validate with invalid email format
+          // 잘못된 이메일 형식으로 검증
           await tester.enterText(find.byType(TextField), 'invalid-email');
           await tester.pump();
           expect(runtime.state['form']['errors']['email'], 
             equals('Invalid email format'));
 
-          // Validate with correct email
+          // 올바른 이메일로 검증
           await tester.enterText(find.byType(TextField), 'test@example.com');
           await tester.pump();
           expect(runtime.state['form']['errors']['email'], isNull);
@@ -430,7 +430,7 @@ void main() {
         });
       });
 
-      // Checkbox, Switch, Slider tests...
+      // Checkbox, Switch, Slider 테스트...
     });
 
     group('List Widgets', () {
@@ -470,17 +470,17 @@ void main() {
             runtime.buildWidget(listViewDef)
           );
 
-          // Verify item rendering
+          // 아이템 렌더링 검증
           expect(find.text('1. Item 1'), findsOneWidget);
           expect(find.text('2. Item 2'), findsOneWidget);
           expect(find.text('3. Item 3'), findsOneWidget);
 
-          // Verify index
+          // 인덱스 검증
           expect(find.text('Index: 0'), findsOneWidget);
           expect(find.text('Index: 1'), findsOneWidget);
           expect(find.text('Index: 2'), findsOneWidget);
 
-          // Verify ListView properties
+          // ListView 속성 검증
           final listView = tester.widget<ListView>(find.byType(ListView));
           expect(listView.shrinkWrap, isTrue);
           expect(listView.physics, isA<NeverScrollableScrollPhysics>());
@@ -515,26 +515,26 @@ void main() {
               runtime.buildWidget(contextTestDef)
             );
 
-            // First item (index 0)
+            // 첫 번째 아이템 (index 0)
             expect(find.text('First'), findsOneWidget);
             expect(find.text('Even'), findsNWidgets(2)); // index 0, 2
 
-            // Last item (index 2)
+            // 마지막 아이템 (index 2)
             expect(find.text('Last'), findsOneWidget);
 
-            // Odd index
+            // 홀수 인덱스
             expect(find.text('Odd'), findsOneWidget); // index 1
           });
         });
       });
 
-      // GridView tests...
+      // GridView 테스트...
     });
   });
 }
 ```
 
-### 3.3 Data Binding Tests
+### 3.3 데이터 바인딩 테스트
 ```dart
 // test/conformance/binding/binding_conformance_test.dart
 import 'package:flutter_test/flutter_test.dart';
@@ -808,7 +808,7 @@ void main() {
         await runtime.executeAction({
           "type": "tool",
           "tool": "increment",
-          "args": {"amount": 1}
+          "params": {"amount": 1}
         });
 
         // Tool이 호출되었는지 검증
@@ -834,7 +834,7 @@ void main() {
         await runtime.executeAction({
           "type": "tool",
           "tool": "saveData",
-          "args": {"data": "test"},
+          "params": {"data": "test"},
           "onSuccess": {
             "type": "custom",
             "handler": () {
@@ -863,7 +863,7 @@ void main() {
         await runtime.executeAction({
           "type": "tool",
           "tool": "saveData",
-          "args": {"data": "test"},
+          "params": {"data": "test"},
           "onError": {
             "type": "custom",
             "handler": () {
@@ -1091,7 +1091,7 @@ void main() {
           }
         });
 
-        // Verify resource was read again
+        // 리소스가 다시 읽혔는지 검증
         verify(mockClient.readResource('ui://state/user')).called(1);
         
         // 상태가 업데이트되었는지 검증
@@ -1121,16 +1121,16 @@ void main() {
           }
         });
 
-        // Verify resource read was not called (content already included)
+        // 리소스 읽기가 호출되지 않았는지 검증 (콘텐츠가 이미 포함됨)
         verifyNever(mockClient.readResource(any));
         
-        // Verify state was updated directly
+        // 상태가 직접 업데이트되었는지 검증
         expect(runtime.state.get('temperature.value'), equals(23.5));
         expect(runtime.state.get('temperature.unit'), equals('celsius'));
       });
 
       test('multiple subscriptions handling', () async {
-        // Set up multiple subscriptions
+        // 여러 구독 설정
         await runtime.executeAction({
           "type": "batch",
           "actions": [
@@ -1149,7 +1149,7 @@ void main() {
           ]
         });
 
-        // CPU update
+        // CPU 업데이트
         await runtime.handleNotification({
           'method': 'notifications/resources/updated',
           'params': {
@@ -1162,7 +1162,7 @@ void main() {
           }
         });
 
-        // Memory update
+        // Memory 업데이트
         await runtime.handleNotification({
           'method': 'notifications/resources/updated',
           'params': {
@@ -1175,7 +1175,7 @@ void main() {
           }
         });
 
-        // Verify state
+        // 상태 검증
         expect(runtime.state.get('metrics.cpu.usage'), equals(45.2));
         expect(runtime.state.get('metrics.memory.used'), equals(8192));
       });
@@ -1203,10 +1203,10 @@ void main() {
         await runtime.executeAction({
           "type": "tool",
           "tool": "getUserData",
-          "args": {"userId": "123"}
+          "params": {"userId": "123"}
         });
 
-        // Verify all top-level keys were merged into state
+        // 모든 최상위 키가 상태에 병합되었는지 검증
         expect(runtime.state.get('user.id'), equals('123'));
         expect(runtime.state.get('user.name'), equals('John Doe'));
         expect(runtime.state.get('user.email'), equals('john@example.com'));
@@ -1234,7 +1234,7 @@ void main() {
         await runtime.executeAction({
           "type": "tool",
           "tool": "saveData",
-          "args": {"data": {}},
+          "params": {"data": {}},
           "onError": {
             "type": "custom",
             "handler": (error) {
@@ -1247,7 +1247,7 @@ void main() {
         expect(errorHandled, isTrue);
         expect(errorMessage, equals('Email is required'));
         
-        // Error responses are not merged into state
+        // 에러 응답은 상태에 병합되지 않음
         expect(runtime.state.get('error'), isNull);
         expect(runtime.state.get('field'), isNull);
       });
@@ -1284,13 +1284,13 @@ void main() {
 
         await runtime.initializePage(pageDef);
 
-        // Verify subscription was set up
+        // 구독이 설정되었는지 검증
         verify(mockClient.subscribeResource('ui://state/user')).called(1);
         
         // Tool이 호출되었는지 검증
         verify(mockClient.callTool('loadPageData', any)).called(1);
         
-        // Verify state was set
+        // 상태가 설정되었는지 검증
         expect(runtime.state.get('pageData'), equals('loaded'));
       });
 
@@ -1328,14 +1328,14 @@ void main() {
 
         await runtime.destroyPage(pageDef);
 
-        // Verify subscriptions were unsubscribed
+        // 구독이 해제되었는지 검증
         verify(mockClient.unsubscribeResource('ui://state/user')).called(1);
         verify(mockClient.unsubscribeResource('ui://stream/notifications')).called(1);
         
         // Tool이 호출되었는지 검증
         verify(mockClient.callTool('savePageState', any)).called(1);
         
-        // Verify subscription list was cleaned up
+        // 구독 목록이 정리되었는지 검증
         expect(runtime.subscriptions.isEmpty, isTrue);
       });
     });
@@ -1343,7 +1343,7 @@ void main() {
 }
 ```
 
-### 3.6 Theme System Tests
+### 3.6 테마 시스템 테스트
 ```dart
 // test/conformance/theme/theme_conformance_test.dart
 import 'package:flutter_test/flutter_test.dart';
@@ -1397,7 +1397,7 @@ void main() {
 
       runtime.setTheme(themeDef);
 
-      // Verify all theme properties were set correctly
+      // 모든 테마 속성이 올바르게 설정되었는지 검증
       expect(runtime.theme.mode, equals('light'));
       expect(runtime.theme.colors['primary'], equals('#2196F3'));
       expect(runtime.theme.typography['h1']['fontSize'], equals(32));
@@ -1438,7 +1438,7 @@ void main() {
         expect(decoration.color, equals(Color(0xFFF5F5F5)));
         expect(decoration.borderRadius, equals(BorderRadius.circular(8)));
         
-        // Verify padding
+        // Padding 검증
         final padding = tester.widget<Padding>(
           find.descendant(
             of: find.byType(Container),
@@ -1475,7 +1475,7 @@ void main() {
       expect(runtime.theme.colors['primary'], equals('#2196F3'));
       expect(runtime.theme.colors['background'], equals('#FFFFFF'));
 
-      // Switch to dark mode
+      // 다크 모드로 전환
       runtime.app.state.set('themeMode', 'dark');
       runtime.updateTheme();
       
@@ -1503,19 +1503,19 @@ void main() {
 
       runtime.pushPage(pageDef);
       
-      // Verify page theme was applied
+      // 페이지 테마가 적용되었는지 검증
       expect(runtime.currentTheme.colors['primary'], equals('#4CAF50'));
       
       runtime.popPage();
       
-      // Verify theme was restored to original
+      // 원래 테마로 복원되었는지 검증
       expect(runtime.currentTheme.colors['primary'], equals('#2196F3'));
     });
   });
 }
 ```
 
-### 3.7 Performance and Edge Case Tests
+### 3.7 성능 및 엣지 케이스 테스트
 ```dart
 // test/performance/performance_test.dart
 import 'package:flutter_test/flutter_test.dart';
@@ -1671,7 +1671,7 @@ void main() {
       expect(runtime.resolveBinding('{{obj.nested}}'), isNull);
       expect(runtime.resolveBinding('{{obj.undefined.deep}}'), isNull);
       
-      // Null safety operator
+      // Null 안전 연산자
       expect(runtime.resolveBinding('{{nullValue ?? "default"}}'), equals('default'));
       expect(runtime.resolveBinding('{{obj.nested?.property}}'), isNull);
     });
@@ -1689,13 +1689,13 @@ void main() {
     });
 
     test('extremely long strings', () {
-      final longString = 'x' * 1000000; // 1MB string
+      final longString = 'x' * 1000000; // 1MB 문자열
       runtime.state.set('longString', longString);
       
       final result = runtime.resolveBinding('{{longString}}');
       expect(result, equals(longString));
       
-      // Verify it can be handled in text widget
+      // 텍스트 위젯에서도 처리되는지 확인
       final textWidget = {
         "type": "text",
         "content": "{{longString}}"
@@ -1705,7 +1705,7 @@ void main() {
     });
 
     test('widget without required properties', () {
-      // Widgets without required properties
+      // 필수 속성이 없는 위젯들
       final incompleteWidgets = [
         {"type": "text"}, // content 누락
         {"type": "image"}, // src 누락

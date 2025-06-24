@@ -338,10 +338,10 @@ All widgets support these common properties:
   "type": "button",
   "label": "Click Me",
   "style": "elevated",      // elevated, outlined, text
-  "onTap": {
+  "click": {
     "type": "tool",
     "tool": "handleClick",
-    "args": {"id": "{{itemId}}"}
+    "params": {"id": "{{itemId}}"}
   }
 }
 ```
@@ -370,7 +370,7 @@ All widgets support these common properties:
   "label": "I agree to terms",
   "bindTo": "agreedToTerms",
   "onChange": {
-    "type": "setState",
+    "type": "state", "action": "set",
     "updates": {"formValid": "{{agreedToTerms}}"}
   }
 }
@@ -385,7 +385,7 @@ Calls an MCP tool on the server.
 {
   "type": "tool",
   "tool": "createUser",
-  "args": {
+  "params": {
     "name": "{{formData.name}}",
     "email": "{{formData.email}}"
   }
@@ -397,7 +397,7 @@ Updates local state.
 
 ```dart
 {
-  "type": "setState",
+  "type": "state", "action": "set",
   "updates": {
     "counter": "{{counter + 1}}",
     "lastUpdated": "{{timestamp()}}"
@@ -410,7 +410,8 @@ Navigates to a different page.
 
 ```dart
 {
-  "type": "navigate",
+  "type": "navigation",
+  "action": "push",
   "route": "/profile",
   "params": {
     "userId": "{{selectedUser.id}}"

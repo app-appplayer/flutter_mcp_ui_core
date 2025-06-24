@@ -14,12 +14,17 @@ export 'src/models/theme_config.dart';
 export 'src/models/application_config.dart';
 export 'src/models/page_config.dart';
 export 'src/models/property_spec.dart';
+export 'src/models/accessibility_config.dart';
+export 'src/models/i18n_config.dart';
 
 // Constants
 export 'src/constants/widget_types.dart';
 export 'src/constants/property_keys.dart';
 export 'src/constants/defaults.dart';
 export 'src/constants/dsl_version.dart';
+export 'src/constants/accessibility.dart';
+export 'src/constants/i18n.dart';
+export 'src/constants/conformance.dart';
 
 // Validators
 export 'src/validators/ui_validator.dart';
@@ -33,3 +38,7 @@ export 'src/utils/property_helpers.dart';
 // Exceptions
 export 'src/exceptions/validation_exception.dart';
 export 'src/exceptions/ui_exception.dart';
+
+// Specifications
+export 'src/spec/widget_spec_registry.dart';
+export 'src/spec/action_spec_registry.dart';

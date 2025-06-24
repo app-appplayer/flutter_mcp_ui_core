@@ -173,7 +173,7 @@ class SchemaDefinitions {
   /// Widget property specifications
   static final Map<String, Map<String, PropertySpec>> _widgetPropertySpecs = {
     // Layout Widgets
-    WidgetTypes.container: {
+    WidgetTypes.box: {
       'width': const PropertySpec(type: double, defaultValue: null),
       'height': const PropertySpec(type: double, defaultValue: null),
       'padding': const PropertySpec(type: Map, defaultValue: null),
@@ -183,13 +183,11 @@ class SchemaDefinitions {
       'alignment': const PropertySpec(type: dynamic, defaultValue: null),
     },
     
-    WidgetTypes.column: {
-      'mainAxisAlignment': const PropertySpec(type: String, defaultValue: 'start'),
-      'crossAxisAlignment': const PropertySpec(type: String, defaultValue: 'center'),
-      'mainAxisSize': const PropertySpec(type: String, defaultValue: 'max'),
-    },
-    
-    WidgetTypes.row: {
+    // Linear widget replaces both column and row
+    // Use direction: 'vertical' for column behavior (default)
+    // Use direction: 'horizontal' for row behavior
+    WidgetTypes.linear: {
+      'direction': const PropertySpec(type: String, defaultValue: 'vertical'),
       'mainAxisAlignment': const PropertySpec(type: String, defaultValue: 'start'),
       'crossAxisAlignment': const PropertySpec(type: String, defaultValue: 'center'),
       'mainAxisSize': const PropertySpec(type: String, defaultValue: 'max'),
@@ -228,6 +226,14 @@ class SchemaDefinitions {
       'color': const PropertySpec(type: String, defaultValue: null),
     },
     
+    // Loading indicator widget
+    WidgetTypes.loadingIndicator: {
+      'size': const PropertySpec(type: double, defaultValue: 24.0),
+      'color': const PropertySpec(type: String, defaultValue: null),
+      'type': const PropertySpec(type: String, defaultValue: 'circular'),
+      'message': const PropertySpec(type: String, defaultValue: null),
+    },
+    
     // Input Widgets
     WidgetTypes.button: {
       'label': const PropertySpec(type: String, required: true),
@@ -238,7 +244,7 @@ class SchemaDefinitions {
       'icon': const PropertySpec(type: String, defaultValue: null),
     },
     
-    WidgetTypes.textField: {
+    WidgetTypes.textInput: {
       'label': const PropertySpec(type: String, defaultValue: null),
       'value': const PropertySpec(type: String, defaultValue: null),
       'hintText': const PropertySpec(type: String, defaultValue: null),
@@ -267,8 +273,8 @@ class SchemaDefinitions {
       'bindTo': const PropertySpec(type: String, defaultValue: null),
     },
     
-    // List Widgets
-    WidgetTypes.listView: {
+    // List Widgets - Spec v1.0 compliant names first
+    WidgetTypes.list: {
       'items': const PropertySpec(type: String, defaultValue: null),
       'itemTemplate': const PropertySpec(type: Map, defaultValue: null),
       'shrinkWrap': const PropertySpec(type: bool, defaultValue: false),
@@ -276,7 +282,25 @@ class SchemaDefinitions {
       'scrollDirection': const PropertySpec(type: String, defaultValue: 'vertical'),
     },
     
-    WidgetTypes.gridView: {
+    WidgetTypes.grid: {
+      'items': const PropertySpec(type: String, defaultValue: null),
+      'itemTemplate': const PropertySpec(type: Map, defaultValue: null),
+      'crossAxisCount': const PropertySpec(type: int, defaultValue: 2),
+      'mainAxisSpacing': const PropertySpec(type: double, defaultValue: 0.0),
+      'crossAxisSpacing': const PropertySpec(type: double, defaultValue: 0.0),
+      'childAspectRatio': const PropertySpec(type: double, defaultValue: 1.0),
+    },
+    
+    // Legacy list widget names
+    'listView': {
+      'items': const PropertySpec(type: String, defaultValue: null),
+      'itemTemplate': const PropertySpec(type: Map, defaultValue: null),
+      'shrinkWrap': const PropertySpec(type: bool, defaultValue: false),
+      'physics': const PropertySpec(type: String, defaultValue: null),
+      'scrollDirection': const PropertySpec(type: String, defaultValue: 'vertical'),
+    },
+    
+    'gridView': {
       'items': const PropertySpec(type: String, defaultValue: null),
       'itemTemplate': const PropertySpec(type: Map, defaultValue: null),
       'crossAxisCount': const PropertySpec(type: int, defaultValue: 2),
@@ -294,7 +318,7 @@ class SchemaDefinitions {
     },
     
     // Navigation Widgets
-    WidgetTypes.appBar: {
+    WidgetTypes.headerBar: {
       'title': const PropertySpec(type: String, required: true),
       'backgroundColor': const PropertySpec(type: String, defaultValue: null),
       'actions': const PropertySpec(type: List, defaultValue: null),
@@ -406,8 +430,19 @@ class SchemaDefinitions {
       'onChange': const PropertySpec(type: Map, defaultValue: null),
     },
     
-    // Scroll Widgets
+    // Scroll Widgets - Spec v1.0 compliant
     WidgetTypes.scrollView: {
+      'scrollDirection': const PropertySpec(type: String, defaultValue: 'vertical'),
+      'physics': const PropertySpec(type: String, defaultValue: 'bouncing'),
+      'padding': const PropertySpec(type: Map, defaultValue: null),
+      'reverse': const PropertySpec(type: bool, defaultValue: false),
+      'primary': const PropertySpec(type: bool, defaultValue: true),
+      'shrinkWrap': const PropertySpec(type: bool, defaultValue: false),
+      'controller': const PropertySpec(type: String, defaultValue: null),
+    },
+    
+    // Legacy scroll widget
+    'legacyScrollView': {
       'scrollDirection': const PropertySpec(type: String, defaultValue: 'vertical'),
       'physics': const PropertySpec(type: String, defaultValue: 'bouncing'),
       'padding': const PropertySpec(type: Map, defaultValue: null),

@@ -199,7 +199,7 @@ void main() {
           },
           children: [
             WidgetConfig(
-              type: WidgetTypes.container,
+              type: WidgetTypes.box,
               properties: {'width': 100.0, 'height': 100.0},
             ),
           ],
@@ -370,7 +370,7 @@ void main() {
           properties: {
             'condition': '{{showAdvanced}}',
             'trueChild': {
-              'type': WidgetTypes.column,
+              'type': WidgetTypes.linear,
               'children': [
                 {
                   'type': WidgetTypes.colorPicker,
@@ -398,7 +398,7 @@ void main() {
         expect(deserialized.properties['condition'], equals('{{showAdvanced}}'));
         
         final trueChild = deserialized.properties['trueChild'] as Map<String, dynamic>;
-        expect(trueChild['type'], equals(WidgetTypes.column));
+        expect(trueChild['type'], equals(WidgetTypes.linear));
         
         final children = trueChild['children'] as List;
         expect(children.length, equals(2));

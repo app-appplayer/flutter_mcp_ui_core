@@ -312,20 +312,20 @@ void main() async {
                               'type': 'button',
                               'label': 'Standard Mode',
                               'style': '{{subscriptionMode === "standard" ? "elevated" : "outlined"}}',
-                              'onTap': {
+                              'click': {
                                 'type': 'tool',
                                 'tool': 'setSubscriptionMode',
-                                'args': {'mode': 'standard'}
+                                'params': {'mode': 'standard'}
                               }
                             },
                             {
                               'type': 'button',
                               'label': 'Extended Mode',
                               'style': '{{subscriptionMode === "extended" ? "elevated" : "outlined"}}',
-                              'onTap': {
+                              'click': {
                                 'type': 'tool',
                                 'tool': 'setSubscriptionMode',
-                                'args': {'mode': 'extended'}
+                                'params': {'mode': 'extended'}
                               }
                             }
                           ]
@@ -342,27 +342,27 @@ void main() async {
                               'type': 'button',
                               'label': '{{isSubscribed ? "Unsubscribe" : "Subscribe"}}',
                               'style': 'elevated',
-                              'onTap': {
+                              'click': {
                                 'type': 'conditional',
                                 'condition': '{{isSubscribed}}',
                                 'then': {
-                                  'type': 'composite',
+                                  'type': 'batch',
                                   'actions': [
                                     {'type': 'resource', 'action': 'unsubscribe', 'uri': 'data://sensors/temperature'},
                                     {'type': 'resource', 'action': 'unsubscribe', 'uri': 'data://sensors/humidity'},
                                     {'type': 'resource', 'action': 'unsubscribe', 'uri': 'data://system/cpu'},
                                     {'type': 'resource', 'action': 'unsubscribe', 'uri': 'data://system/memory'},
-                                    {'type': 'setState', 'updates': {'isSubscribed': false}}
+                                    {'type': 'state', 'action': 'set', 'binding': 'isSubscribed', 'value': false}
                                   ]
                                 },
                                 'else': {
-                                  'type': 'composite',
+                                  'type': 'batch',
                                   'actions': [
                                     {'type': 'resource', 'action': 'subscribe', 'uri': '{{subscriptionMode === "standard" ? "data://sensors/temperature" : "data://sensors/temperature-extended"}}', 'binding': 'temperature'},
                                     {'type': 'resource', 'action': 'subscribe', 'uri': '{{subscriptionMode === "standard" ? "data://sensors/humidity" : "data://sensors/humidity-extended"}}', 'binding': 'humidity'},
                                     {'type': 'resource', 'action': 'subscribe', 'uri': 'data://system/cpu', 'binding': 'cpuUsage'},
                                     {'type': 'resource', 'action': 'subscribe', 'uri': 'data://system/memory', 'binding': 'memoryData'},
-                                    {'type': 'setState', 'updates': {'isSubscribed': true}}
+                                    {'type': 'state', 'action': 'set', 'binding': 'isSubscribed', 'value': true}
                                   ]
                                 }
                               }
@@ -460,8 +460,8 @@ void _addSensorResources(Server server, SensorData data) {
 void _addTools(Server server) {
   server.addTool(
     name: 'setSubscriptionMode',
-    handler: (args) async {
-      final mode = args['mode'] as String;
+    handler: (params) async {
+      final mode = params['mode'] as String;
       
       return CallToolResult(
         content: [
@@ -652,8 +652,8 @@ class _DashboardAppState extends State<DashboardApp> {
     );
   }
   
-  Future<void> _handleToolCall(String tool, Map<String, dynamic> args) async {
-    final result = await _mcpClient!.callTool(tool, args);
+  Future<void> _handleToolCall(String tool, Map<String, dynamic> params) async {
+    final result = await _mcpClient!.callTool(tool, params);
     
     if (result.content.isNotEmpty) {
       final response = jsonDecode((result.content.first as TextContent).text);
@@ -794,7 +794,7 @@ Add threshold-based alerts:
           {
             "type": "tool",
             "tool": "sendAlert",
-            "args": {
+            "params": {
               "type": "temperature",
               "value": "{{temperature}}"
             }

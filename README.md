@@ -7,6 +7,7 @@ If you find this package useful, consider supporting ongoing development on PayP
 [![Donate](https://www.paypalobjects.com/en_US/i/btn/btn_donate_LG.gif)](https://www.paypal.com/ncp/payment/F7G56QD9LSJ92)  
 Support makemind via [PayPal](https://www.paypal.com/ncp/payment/F7G56QD9LSJ92)
 
+---
 
 ### 🔗 MCP Dart Package Family
 

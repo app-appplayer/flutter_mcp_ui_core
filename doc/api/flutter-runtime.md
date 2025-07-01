@@ -262,30 +262,32 @@ All widgets support these common properties:
 
 ### Layout Widgets
 
-#### Column
+#### Linear (Vertical)
 ```dart
 {
-  "type": "column",
+  "type": "linear",
+  "direction": "vertical",
   "mainAxisAlignment": "center",  // start, end, center, spaceBetween, spaceAround, spaceEvenly
   "crossAxisAlignment": "start",  // start, end, center, stretch
   "children": [...]
 }
 ```
 
-#### Row
+#### Linear (Horizontal)
 ```dart
 {
-  "type": "row",
+  "type": "linear",
+  "direction": "horizontal",
   "mainAxisAlignment": "start",
   "crossAxisAlignment": "center",
   "children": [...]
 }
 ```
 
-#### Container
+#### Box
 ```dart
 {
-  "type": "container",
+  "type": "box",
   "padding": 16,              // or {"left": 8, "right": 8, "top": 4, "bottom": 4}
   "margin": 8,
   "width": 200,
@@ -304,11 +306,11 @@ All widgets support these common properties:
 
 ### Display Widgets
 
-#### Text
+#### Label
 ```dart
 {
-  "type": "text",
-  "value": "Hello {{name}}",
+  "type": "label",
+  "content": "Hello {{name}}",
   "style": {
     "fontSize": 16,
     "fontWeight": "bold",    // normal, bold
@@ -369,9 +371,10 @@ All widgets support these common properties:
   "type": "checkbox",
   "label": "I agree to terms",
   "bindTo": "agreedToTerms",
-  "onChange": {
+  "change": {
     "type": "state", "action": "set",
-    "updates": {"formValid": "{{agreedToTerms}}"}
+    "binding": "formValid",
+    "value": "{{agreedToTerms}}"
   }
 }
 ```
@@ -398,10 +401,8 @@ Updates local state.
 ```dart
 {
   "type": "state", "action": "set",
-  "updates": {
-    "counter": "{{counter + 1}}",
-    "lastUpdated": "{{timestamp()}}"
-  }
+  "binding": "counter",
+  "value": "{{counter + 1}}"
 }
 ```
 
@@ -410,9 +411,8 @@ Navigates to a different page.
 
 ```dart
 {
-  "type": "navigation",
-  "action": "push",
-  "route": "/profile",
+  "type": "navigate",
+  "target": "/profile",
   "params": {
     "userId": "{{selectedUser.id}}"
   }

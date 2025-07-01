@@ -58,9 +58,9 @@ Widget create(Map<String, dynamic> definition, RenderContext context) {
       : null;
   
   // Handle actions
-  if (definition['onTap'] != null) {
+  if (definition['click'] != null) {
     return GestureDetector(
-      onTap: () => context.handleAction(definition['onTap']),
+      onTap: () => context.handleAction(definition['click']),
       child: MyWidget(value: value),
     );
   }
@@ -108,7 +108,7 @@ class RatingWidgetFactory implements WidgetFactory {
         : 0.0;
     
     // Handle change action
-    final onChange = definition['onChange'];
+    final change = definition['change'];
     
     return RatingWidget(
       value: currentRating,
@@ -120,9 +120,9 @@ class RatingWidgetFactory implements WidgetFactory {
         // Update state
         context.stateManager.set(bindTo, rating);
         
-        // Execute onChange action if provided
-        if (onChange != null) {
-          context.handleAction(onChange);
+        // Execute change action if provided
+        if (change != null) {
+          context.handleAction(change);
         }
       },
     );
@@ -202,11 +202,12 @@ void main() async {
 {
   "type": "page",
   "content": {
-    "type": "column",
+    "type": "linear",
+    "direction": "vertical",
     "children": [
       {
-        "type": "text",
-        "value": "Rate this product:"
+        "type": "label",
+        "content": "Rate this product:"
       },
       {
         "type": "rating",
@@ -214,7 +215,7 @@ void main() async {
         "maxRating": 5,
         "size": 40,
         "color": "#FFB800",
-        "onChange": {
+        "change": {
           "type": "tool",
           "tool": "submitRating",
           "params": {
@@ -224,8 +225,8 @@ void main() async {
         }
       },
       {
-        "type": "text",
-        "value": "Your rating: {{productRating}} stars"
+        "type": "label",
+        "content": "Your rating: {{productRating}} stars"
       }
     ]
   },
@@ -286,7 +287,7 @@ class StatefulWidgetFactory implements WidgetFactory {
     
     return AnimatedBuilder(
       animation: context.stateManager,
-      builder: (context, child) {
+      builder: (BuildContext _, Widget? child) {
         final value = context.stateManager.get(stateKey);
         return CustomWidget(value: value);
       },
@@ -474,7 +475,8 @@ class UserCardFactory implements WidgetFactory {
         'type': 'padding',
         'padding': 16,
         'child': {
-          'type': 'row',
+          'type': 'linear',
+          'direction': 'horizontal',
           'children': [
             {
               'type': 'image',
@@ -487,17 +489,18 @@ class UserCardFactory implements WidgetFactory {
               'width': 16,
             },
             {
-              'type': 'column',
+              'type': 'linear',
+              'direction': 'vertical',
               'crossAxisAlignment': 'start',
               'children': [
                 {
-                  'type': 'text',
-                  'value': user['name'],
+                  'type': 'label',
+                  'content': user['name'],
                   'style': {'fontSize': 18, 'fontWeight': 'bold'},
                 },
                 {
-                  'type': 'text',
-                  'value': user['email'],
+                  'type': 'label',
+                  'content': user['email'],
                   'style': {'color': '#666666'},
                 },
               ],

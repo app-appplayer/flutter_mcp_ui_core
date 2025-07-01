@@ -124,9 +124,9 @@ example_name/
     "child": {"type": "circularProgressIndicator"}
   },
   "else": {
-    "type": "listView",
-    "itemCount": "{{items.length}}",
-    "itemBuilder": {...}
+    "type": "list",
+    "items": "{{items}}",
+    "itemTemplate": {...}
   }
 }
 ```
@@ -137,7 +137,7 @@ example_name/
   "type": "conditional",
   "condition": "{{error !== null}}",
   "then": {
-    "type": "container",
+    "type": "box",
     "padding": 16,
     "decoration": {"color": "#FFEBEE"},
     "child": {
@@ -152,8 +152,14 @@ example_name/
 ### Form Validation
 ```json
 {
-  "type": "textField",
-  "bindTo": "email",
+  "type": "textInput",
+  "value": "{{email}}",
+  "change": {
+    "type": "state",
+    "action": "set",
+    "binding": "email",
+    "value": "{{event.value}}"
+  },
   "validation": {
     "required": true,
     "pattern": "^[\\w-\\.]+@([\\w-]+\\.)+[\\w-]{2,4}$",
@@ -170,11 +176,13 @@ example_name/
     "type": "conditional",
     "condition": "{{screenWidth > 600}}",
     "then": {
-      "type": "row",
+      "type": "linear",
+      "direction": "horizontal",
       "children": [...]
     },
     "else": {
-      "type": "column",
+      "type": "linear",
+      "direction": "vertical",
       "children": [...]
     }
   }

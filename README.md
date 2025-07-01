@@ -2,9 +2,11 @@
 
 ## 🙌 Support This Project
 
-If you find this package useful, consider supporting ongoing development on Patreon.
+If you find this package useful, consider supporting ongoing development on PayPal.
 
-[![Support on Patreon](https://c5.patreon.com/external/logo/become_a_patron_button.png)](https://www.patreon.com/mcpdevstudio)
+[![Donate](https://www.paypalobjects.com/en_US/i/btn/btn_donate_LG.gif)](https://www.paypal.com/ncp/payment/F7G56QD9LSJ92)  
+Support makemind via [PayPal](https://www.paypal.com/ncp/payment/F7G56QD9LSJ92)
+
 
 ### 🔗 MCP Dart Package Family
 
@@ -50,10 +52,11 @@ import 'package:flutter_mcp_ui_core/flutter_mcp_ui_core.dart';
 
 final uiDefinition = UIDefinition(
   layout: WidgetConfig(
-    type: WidgetTypes.column,
+    type: WidgetTypes.linear,
+    properties: {'direction': 'vertical'},
     children: [
       WidgetConfig(
-        type: WidgetTypes.text,
+        type: WidgetTypes.label,
         properties: {'content': 'Hello World'},
       ),
     ],
@@ -166,7 +169,7 @@ final conditional = WidgetConfig(
 ### Widget Types
 ```dart
 // Use predefined widget type constants
-final container = WidgetConfig(type: WidgetTypes.container);
+final box = WidgetConfig(type: WidgetTypes.box);
 final button = WidgetConfig(type: WidgetTypes.button);
 
 // Check if a widget type is valid
@@ -306,7 +309,7 @@ final current = MCPUIDSLVersion.current; // '1.0.0'
 
 The package organizes widgets into logical categories:
 
-- **Layout** (20 widgets): `container`, `column`, `row`, `stack`, `padding`, `conditional`, etc.
+- **Layout** (20 widgets): `box`, `linear`, `stack`, `padding`, `conditional`, etc.
 - **Display** (16 widgets): `text`, `image`, `icon`, `card`, `chip`, etc.  
 - **Input** (20 widgets): `button`, `textfield`, `checkbox`, `slider`, `numberfield`, `colorpicker`, `radiogroup`, `checkboxgroup`, `segmentedcontrol`, `datefield`, `timefield`, `daterangepicker`, etc.
 - **List** (3 widgets): `listview`, `gridview`, `listtile`

@@ -48,7 +48,8 @@ void main() async {
               'content': {
                 'type': 'center',
                 'child': {
-                  'type': 'column',
+                  'type': 'linear',
+                  'direction': 'vertical',
                   'mainAxisAlignment': 'center',
                   'children': [
                     {
@@ -64,7 +65,7 @@ void main() async {
                       'height': 20
                     },
                     {
-                      'type': 'container',
+                      'type': 'box',
                       'padding': 20,
                       'decoration': {
                         'borderRadius': 10,
@@ -84,14 +85,15 @@ void main() async {
                       'height': 20
                     },
                     {
-                      'type': 'row',
+                      'type': 'linear',
+                      'direction': 'horizontal',
                       'mainAxisAlignment': 'center',
                       'children': [
                         {
                           'type': 'button',
                           'label': '-',
                           'style': 'elevated',
-                          'click': {
+                          'onTap': {
                             'type': 'tool',
                             'tool': 'decrement',
                             'params': {}
@@ -105,7 +107,7 @@ void main() async {
                           'type': 'button',
                           'label': '+',
                           'style': 'elevated',
-                          'click': {
+                          'onTap': {
                             'type': 'tool',
                             'tool': 'increment',
                             'params': {}
@@ -119,7 +121,7 @@ void main() async {
                           'type': 'button',
                           'label': 'Reset',
                           'style': 'outlined',
-                          'click': {
+                          'onTap': {
                             'type': 'tool',
                             'tool': 'reset',
                             'params': {}
@@ -425,7 +427,7 @@ Each button triggers a tool call to the server:
 {
   "type": "button",
   "label": "+",
-  "click": {
+  "onTap": {
     "type": "tool",
     "tool": "increment",
     "params": {}
@@ -466,8 +468,8 @@ For a purely client-side counter:
 {
   "type": "button",
   "label": "+",
-  "click": {
-    "type": "state",
+  "onTap": {
+    "type": "stateAction",
     "action": "set",
     "binding": "counter",
     "value": "{{counter + 1}}"
@@ -481,7 +483,7 @@ Add smooth transitions:
 
 ```json
 {
-  "type": "animatedContainer",
+  "type": "animatedBox",
   "duration": 300,
   "padding": "{{counter > 10 ? 30 : 20}}",
   "decoration": {

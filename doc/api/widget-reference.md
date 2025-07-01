@@ -24,13 +24,14 @@ All widgets support these base properties:
 
 ## Layout Widgets
 
-### Column
+### Linear
 
-Arranges children vertically.
+Arranges children in a single direction (vertical or horizontal).
 
 ```json
 {
-  "type": "column",
+  "type": "linear",
+  "direction": "vertical",
   "mainAxisAlignment": "start",
   "crossAxisAlignment": "center",
   "mainAxisSize": "max",
@@ -45,13 +46,12 @@ Arranges children vertically.
 | `mainAxisSize` | string | Size along main axis | `min`, `max` |
 | `children` | array | Child widgets | [] |
 
-### Row
-
-Arranges children horizontally.
+For horizontal arrangement:
 
 ```json
 {
-  "type": "row",
+  "type": "linear",
+  "direction": "horizontal",
   "mainAxisAlignment": "start",
   "crossAxisAlignment": "center",
   "mainAxisSize": "max",
@@ -59,15 +59,15 @@ Arranges children horizontally.
 }
 ```
 
-Properties are identical to Column but apply horizontally.
+Properties are identical to vertical linear layout but apply horizontally.
 
-### Container
+### Box
 
 A box with optional decoration, padding, and constraints.
 
 ```json
 {
-  "type": "container",
+  "type": "box",
   "width": 200,
   "height": 100,
   "padding": 16,
@@ -336,7 +336,7 @@ A clickable button with various styles.
   "style": "elevated",
   "icon": "add",
   "enabled": true,
-  "click": {
+  "onTap": {
     "type": "tool",
     "tool": "handleClick"
   }
@@ -349,7 +349,7 @@ A clickable button with various styles.
 | `style` | string | Button style | `elevated`, `outlined`, `text` |
 | `icon` | string | Optional icon | Icon name |
 | `enabled` | boolean/string | Whether enabled (can be binding) | true |
-| `click` | object | Click action | Action object |
+| `onTap` | object | Click action | Action object |
 
 ### TextField
 
@@ -372,8 +372,8 @@ Single-line text input.
     "pattern": "^[a-zA-Z0-9_]+$",
     "errorMessage": "Invalid username"
   },
-  "onChanged": {
-    "type": "state",
+  "onChange": {
+    "type": "stateAction",
     "action": "set",
     "binding": "isDirty",
     "value": true
@@ -392,7 +392,7 @@ Single-line text input.
 | `maxLength` | number | Maximum characters | null |
 | `keyboardType` | string | Keyboard type | `text`, `number`, `email`, `phone`, `url` |
 | `validation` | object | Validation rules | - |
-| `onChanged` | object | Change action | - |
+| `onChange` | object | Change action | - |
 
 ### Checkbox
 
@@ -406,7 +406,7 @@ A toggleable checkbox.
   "tristate": false,
   "enabled": true,
   "onChange": {
-    "type": "state",
+    "type": "stateAction",
     "action": "set",
     "binding": "canSubmit",
     "value": "{{agreedToTerms}}"
@@ -455,8 +455,8 @@ A value slider.
   "divisions": 10,
   "label": "{{volume}}",
   "enabled": true,
-  "onChanged": {
-    "type": "state",
+  "onChange": {
+    "type": "stateAction",
     "action": "set",
     "binding": "volumePercent",
     "value": "{{volume / 100}}"
@@ -487,7 +487,7 @@ A dropdown selection.
   ],
   "placeholder": "Select a country",
   "enabled": true,
-  "onChanged": {
+  "onChange": {
     "type": "tool",
     "tool": "loadStates",
     "params": {"country": "{{selectedCountry}}"}
@@ -497,17 +497,17 @@ A dropdown selection.
 
 ## List Widgets
 
-### ListView
+### List
 
 A scrollable list of widgets.
 
 ```json
 {
-  "type": "listView",
+  "type": "list",
   "scrollDirection": "vertical",
   "padding": 8,
   "itemCount": "{{items.length}}",
-  "itemBuilder": {
+  "itemTemplate": {
     "type": "listTile",
     "title": {
       "type": "text",
@@ -517,7 +517,7 @@ A scrollable list of widgets.
       "type": "text",
       "value": "{{items[index].description}}"
     },
-    "click": {
+    "onTap": {
       "type": "navigation",
       "action": "push",
       "route": "/detail",
@@ -532,7 +532,7 @@ A scrollable list of widgets.
 | `scrollDirection` | string | Scroll direction | `vertical`, `horizontal` |
 | `padding` | number/object | List padding | 0 |
 | `itemCount` | string/number | Number of items (binding) | **Required** |
-| `itemBuilder` | object | Widget template for items | **Required** |
+| `itemTemplate` | object | Widget template for items | **Required** |
 
 ### ListTile
 
@@ -557,29 +557,30 @@ A standard list item.
     "type": "icon",
     "icon": "chevron_right"
   },
-  "click": {
+  "onTap": {
     "type": "tool",
     "tool": "selectUser"
   }
 }
 ```
 
-### GridView
+### Grid
 
 A scrollable grid of widgets.
 
 ```json
 {
-  "type": "gridView",
+  "type": "grid",
   "crossAxisCount": 2,
   "mainAxisSpacing": 8,
   "crossAxisSpacing": 8,
   "padding": 16,
   "itemCount": "{{products.length}}",
-  "itemBuilder": {
-    "type": "container",
+  "itemTemplate": {
+    "type": "box",
     "child": {
-      "type": "column",
+      "type": "linear",
+      "direction": "vertical",
       "children": [
         {
           "type": "image",
@@ -612,7 +613,7 @@ Application bar typically at the top.
     {
       "type": "iconButton",
       "icon": "search",
-      "click": {
+      "onTap": {
         "type": "navigation",
         "action": "push", 
         "route": "/search"
@@ -645,8 +646,8 @@ Bottom navigation for switching between views.
       "label": "Profile"
     }
   ],
-  "click": {
-    "type": "state",
+  "onTap": {
+    "type": "stateAction",
     "action": "set",
     "binding": "currentTab",
     "value": "{{index}}"
@@ -662,7 +663,7 @@ Side navigation drawer.
 {
   "type": "drawer",
   "child": {
-    "type": "listView",
+    "type": "list",
     "children": [
       {
         "type": "drawerHeader",
@@ -674,7 +675,7 @@ Side navigation drawer.
       {
         "type": "listTile",
         "title": {"type": "text", "value": "Home"},
-        "click": {
+        "onTap": {
           "type": "navigation",
           "action": "push",
           "route": "/home"
@@ -793,9 +794,9 @@ When inside list builders, additional context is available:
 Example:
 ```json
 {
-  "type": "listView",
+  "type": "list",
   "itemCount": "{{users.length}}",
-  "itemBuilder": {
+  "itemTemplate": {
     "type": "text",
     "value": "{{users[index].name}} ({{index + 1}} of {{users.length}})"
   }

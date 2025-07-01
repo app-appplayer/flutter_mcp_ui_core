@@ -38,10 +38,10 @@ tests/
 - [ ] 테마 정의 검증
 
 ### 2.2 위젯 시스템
-- [ ] 모든 레이아웃 위젯 (Container, Column, Row, Stack, Center, Expanded, Flexible)
-- [ ] 모든 디스플레이 위젯 (Text, Image, Icon, Divider, Card)
-- [ ] 모든 입력 위젯 (Button, TextField, Checkbox, Switch, Slider)
-- [ ] 모든 리스트 위젯 (ListView, GridView)
+- [ ] 모든 레이아웃 위젯 (box, linear (vertical/horizontal), Stack, Center, Expanded, Flexible)
+- [ ] 모든 디스플레이 위젯 (text, Image, Icon, Divider, Card)
+- [ ] 모든 입력 위젯 (Button, textInput, Checkbox, Switch, Slider)
+- [ ] 모든 리스트 위젯 (list, grid)
 - [ ] 고급 위젯 (Chart, Table)
 
 ### 2.3 데이터 바인딩
@@ -186,9 +186,9 @@ void main() {
     });
 
     group('Layout Widgets', () {
-      test('Container - all properties', () {
+      test('box - all properties', () {
         final containerDef = {
-          "type": "container",
+          "type": "box",
           "width": 200,
           "height": 100,
           "padding": {"all": 16},
@@ -209,7 +209,7 @@ void main() {
             runtime.buildWidget(containerDef)
           );
 
-          // Container 속성 검증
+          // box 속성 검증
           final container = tester.widget<Container>(find.byType(Container));
           expect(container.constraints?.maxWidth, equals(200));
           expect(container.constraints?.maxHeight, equals(100));
@@ -225,7 +225,7 @@ void main() {
         });
       });
 
-      test('Column - all alignment options', () {
+      test('linear (vertical) - all alignment options', () {
         final alignmentOptions = [
           'start', 'end', 'center', 'spaceBetween', 
           'spaceAround', 'spaceEvenly'
@@ -233,7 +233,8 @@ void main() {
 
         for (final alignment in alignmentOptions) {
           final columnDef = {
-            "type": "column",
+            "type": "linear",
+            "direction": "vertical",
             "mainAxisAlignment": alignment,
             "crossAxisAlignment": "center",
             "mainAxisSize": "max",
@@ -243,7 +244,7 @@ void main() {
             ]
           };
 
-          testWidgets('Column with $alignment alignment', (tester) async {
+          testWidgets('linear (vertical) with $alignment alignment', (tester) async {
             await tester.pumpWidget(
               runtime.buildWidget(columnDef)
             );
@@ -259,11 +260,11 @@ void main() {
         }
       });
 
-      // Row, Stack, Center, Expanded, Flexible 테스트...
+      // linear (horizontal), Stack, Center, Expanded, Flexible 테스트...
     });
 
     group('Display Widgets', () {
-      test('Text - all style properties', () {
+      test('text - all style properties', () {
         final textDef = {
           "type": "text",
           "content": "Styled Text",
@@ -352,9 +353,9 @@ void main() {
         }
       });
 
-      test('TextField - all properties and validation', () {
+      test('textInput - all properties and validation', () {
         final textFieldDef = {
-          "type": "textfield",
+          "type": "textInput",
           "label": "Email",
           "placeholder": "Enter your email",
           "value": "{{form.email}}",
@@ -434,9 +435,9 @@ void main() {
     });
 
     group('List Widgets', () {
-      test('ListView - all properties and item rendering', () {
+      test('list - all properties and item rendering', () {
         final listViewDef = {
-          "type": "listview",
+          "type": "list",
           "items": [
             {"id": 1, "name": "Item 1"},
             {"id": 2, "name": "Item 2"},
@@ -447,10 +448,11 @@ void main() {
           "physics": "neverScroll",
           "padding": {"all": 16},
           "itemTemplate": {
-            "type": "container",
+            "type": "box",
             "padding": {"all": 12},
             "child": {
-              "type": "row",
+              "type": "linear",
+              "direction": "horizontal",
               "children": [
                 {
                   "type": "text",
@@ -480,7 +482,7 @@ void main() {
           expect(find.text('Index: 1'), findsOneWidget);
           expect(find.text('Index: 2'), findsOneWidget);
 
-          // ListView 속성 검증
+          // list 속성 검증
           final listView = tester.widget<ListView>(find.byType(ListView));
           expect(listView.shrinkWrap, isTrue);
           expect(listView.physics, isA<NeverScrollableScrollPhysics>());
@@ -489,10 +491,11 @@ void main() {
 
         test('context variables work correctly', () {
           final contextTestDef = {
-            "type": "listview",
+            "type": "list",
             "items": ["A", "B", "C"],
             "itemTemplate": {
-              "type": "column",
+              "type": "linear",
+              "direction": "vertical",
               "children": [
                 {
                   "type": "text",
@@ -528,7 +531,7 @@ void main() {
         });
       });
 
-      // GridView 테스트...
+      // grid 테스트...
     });
   });
 }
@@ -1414,7 +1417,7 @@ void main() {
       });
 
       final widgetDef = {
-        "type": "container",
+        "type": "box",
         "color": "{{theme.colors.surface}}",
         "padding": "{{theme.spacing.md}}",
         "borderRadius": "{{theme.borderRadius.md}}",
@@ -1537,15 +1540,16 @@ void main() {
       });
 
       final listDef = {
-        "type": "listview",
+        "type": "list",
         "items": items,
         "virtual": true,
         "cacheExtent": 250,
         "itemTemplate": {
-          "type": "container",
+          "type": "box",
           "padding": {"all": 8},
           "child": {
-            "type": "column",
+            "type": "linear",
+            "direction": "vertical",
             "children": [
               {"type": "text", "content": "{{item.title}}"},
               {"type": "text", "content": "{{item.description}}"}
@@ -1710,7 +1714,7 @@ void main() {
         {"type": "text"}, // content 누락
         {"type": "image"}, // src 누락
         {"type": "button"}, // label 누락
-        {"type": "listview"}, // items 누락
+        {"type": "list"}, // items 누락
       ];
 
       for (final widget in incompleteWidgets) {
@@ -1725,7 +1729,7 @@ void main() {
     test('recursive widget definition', () {
       // 재귀적 위젯 정의 (무한 루프 방지 테스트)
       final recursiveDef = {
-        "type": "container",
+        "type": "box",
         "child": null
       };
       recursiveDef['child'] = recursiveDef; // 자기 참조

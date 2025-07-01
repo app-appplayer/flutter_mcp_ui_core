@@ -4,11 +4,7 @@ This directory contains the official specifications for the MCP UI Domain Specif
 
 ## Current Version
 
-- [MCP UI DSL v1.0](./mcp-ui-dsl-v1.0.md) - Current stable version
-
-## Legacy Versions
-
-- [MCP UI DSL v1.0 (Korean)](./MCP_UI_DSL_v1.0_Specification.md) - Original Korean specification
+- [MCP UI DSL v1.0](./MCP_UI_DSL_v1.0_Specification.md)
 
 ## Specification Structure
 

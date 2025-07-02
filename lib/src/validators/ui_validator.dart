@@ -412,7 +412,7 @@ class UIValidator {
       return errors;
     }
     
-    final themeMap = theme as Map<String, dynamic>;
+    final themeMap = theme;
     
     // Validate mode if present
     if (themeMap.containsKey('mode')) {

@@ -587,7 +587,7 @@ void main() {
         
         final result = UIValidator.validateTheme(theme);
         expect(result.errors.any((e) => 
-          e.path?.contains('background') ?? false && 
+          (e.path?.contains('background') ?? false) && 
           e.message.contains('#RRGGBB or #AARRGGBB')
         ), isTrue);
       });
@@ -611,7 +611,7 @@ void main() {
         
         final result = UIValidator.validateTheme(theme);
         expect(result.errors.any((e) => 
-          e.path?.contains('mode') ?? false && 
+          (e.path?.contains('mode') ?? false) && 
           e.message.contains('light, dark, system')
         ), isTrue);
       });
@@ -659,7 +659,7 @@ void main() {
         
         final result = UIValidator.validateTheme(theme);
         expect(result.errors.any((e) => 
-          e.path?.contains('elevation.sm') ?? false && 
+          (e.path?.contains('elevation.sm') ?? false) && 
           e.message.contains('at least 0')
         ), isTrue);
       });

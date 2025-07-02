@@ -1,4 +1,17 @@
 
+## 0.2.1
+
+### Bug Fixes
+- Fixed ThemeConfig color keys to match MCP UI DSL v1.0 specification (textOnPrimary instead of onPrimary)
+- Implemented comprehensive theme validation in UIValidator
+- Added color format validation for #RRGGBB and #AARRGGBB formats
+- Fixed theme validation to check all 10 required colors (5 background + 5 text colors)
+- Added validation for theme mode (light, dark, system)
+- Added typography, spacing, borderRadius, and elevation validation
+- Fixed nested theme validation path issues
+- Removed UIDefinition model that didn't follow MCP UI DSL spec
+- Updated UIValidator to validate ApplicationConfig and PageConfig instead of UIDefinition
+
 ## 0.2.0
 
 ### Refactoring

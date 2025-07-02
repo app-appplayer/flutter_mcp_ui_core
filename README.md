@@ -40,7 +40,7 @@ Add this to your package's `pubspec.yaml` file:
 
 ```yaml
 dependencies:
-  flutter_mcp_ui_core: ^0.2.0
+  flutter_mcp_ui_core: ^0.2.1
 ```
 
 ## Core Models

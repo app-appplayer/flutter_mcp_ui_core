@@ -5,7 +5,6 @@ void main() {
   group('flutter_mcp_ui_core', () {
     test('should export all core classes', () {
       // Test that all main classes are available
-      expect(UIDefinition, isNotNull);
       expect(WidgetConfig, isNotNull);
       expect(ActionConfig, isNotNull);
       expect(BindingConfig, isNotNull);
@@ -35,18 +34,14 @@ void main() {
       expect(MCPUIDSLVersion.isCompatible('2.0.0'), isFalse);
     });
 
-    test('should create basic UI definition', () {
-      final definition = UIDefinition(
-        layout: WidgetConfig(
-          type: WidgetTypes.text,
-          properties: {PropertyKeys.content: 'Hello World'},
-        ),
-        dslVersion: '1.0.0',
+    test('should create basic widget configuration', () {
+      final widget = WidgetConfig(
+        type: WidgetTypes.text,
+        properties: {PropertyKeys.content: 'Hello World'},
       );
 
-      expect(definition.layout.type, equals(WidgetTypes.text));
-      expect(definition.dslVersion, equals('1.0.0'));
-      expect(definition.layout.properties[PropertyKeys.content], equals('Hello World'));
+      expect(widget.type, equals(WidgetTypes.text));
+      expect(widget.properties[PropertyKeys.content], equals('Hello World'));
     });
 
     test('should validate widget types', () {

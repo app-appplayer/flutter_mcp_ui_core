@@ -1,6 +1,6 @@
 name: flutter_mcp_ui_core
 description: Core models, constants, and utilities for Flutter MCP UI system. Shared foundation for renderer and generator packages.
-version: 0.2.0
+version: 0.2.1
 homepage: https://app-appplayer.github.io/makemind
 repository: https://github.com/app-appplayer/flutter_mcp_ui_core
 documentation: https://pub.dev/documentation/flutter_mcp_ui_core/latest/

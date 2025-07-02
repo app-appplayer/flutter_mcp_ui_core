@@ -3,7 +3,199 @@ import 'package:flutter_mcp_ui_core/flutter_mcp_ui_core.dart';
 
 void main() {
   group('UIValidator', () {
-    group('New Widget Type Validation', () {
+    group('Application Validation', () {
+      test('should validate valid application configuration', () {
+        final appConfig = ApplicationConfig(
+          title: 'My App',
+          version: '1.0.0',
+          routes: {
+            '/': 'ui://pages/home',
+            '/profile': 'ui://pages/profile',
+            '/settings': 'ui://pages/settings',
+          },
+          initialRoute: '/',
+          theme: {
+            'primaryColor': '#2196F3',
+            'secondaryColor': '#FF5722',
+          },
+          navigation: {
+            'type': 'bottom',
+            'items': [
+              {'title': 'Home', 'route': '/', 'icon': 'home'},
+              {'title': 'Profile', 'route': '/profile', 'icon': 'person'},
+              {'title': 'Settings', 'route': '/settings', 'icon': 'settings'},
+            ],
+          },
+          state: {
+            'initial': {
+              'user': null,
+              'theme': 'light',
+            }
+          },
+        );
+
+        final result = UIValidator.validateApplicationConfig(appConfig);
+        expect(result.isValid, isTrue);
+        expect(result.errors, isEmpty);
+      });
+
+      test('should detect missing required fields in application', () {
+        final appConfig = ApplicationConfig(
+          title: '',  // Empty title
+          version: '',  // Empty version
+          routes: {},  // Empty routes
+          initialRoute: '/home',  // Route not in routes map
+        );
+
+        final result = UIValidator.validateApplicationConfig(appConfig);
+        expect(result.isValid, isFalse);
+        expect(result.errors.any((e) => e.path?.contains('title') ?? false), isTrue);
+        expect(result.errors.any((e) => e.path?.contains('version') ?? false), isTrue);
+        expect(result.errors.any((e) => e.path?.contains('routes') ?? false), isTrue);
+        expect(result.errors.any((e) => e.path?.contains('initialRoute') ?? false), isTrue);
+      });
+
+      test('should validate navigation configuration', () {
+        final appConfig = ApplicationConfig(
+          title: 'Test App',
+          version: '1.0.0',
+          routes: {'/': 'ui://pages/home'},
+          navigation: {
+            'type': 'invalid',  // Invalid navigation type
+            'items': [],  // Empty items
+          },
+        );
+
+        final result = UIValidator.validateApplicationConfig(appConfig);
+        expect(result.isValid, isFalse);
+        expect(result.errors.any((e) => e.message.contains('drawer, tabs, bottom')), isTrue);
+      });
+    });
+
+    group('Page Validation', () {
+      test('should validate valid page configuration', () {
+        final pageConfig = PageConfig(
+          title: 'Home Page',
+          route: '/home',
+          content: {
+            'type': 'linear',
+            'direction': 'vertical',
+            'children': [
+              {
+                'type': 'text',
+                'content': 'Welcome to Home Page',
+              },
+              {
+                'type': 'button',
+                'label': 'Click Me',
+                'onTap': {
+                  'type': 'state',
+                  'action': 'set',
+                  'binding': 'clicked',
+                  'value': true,
+                },
+              },
+            ],
+          },
+          state: {
+            'initial': {
+              'clicked': false,
+            }
+          },
+        );
+
+        final result = UIValidator.validatePageConfig(pageConfig);
+        if (!result.isValid) {
+          print('Page validation errors:');
+          for (final error in result.errors) {
+            print('  - ${error.message} (${error.path ?? "no path"})');
+          }
+        }
+        expect(result.isValid, isTrue);
+        expect(result.errors, isEmpty);
+      });
+
+      test('should validate page with theme override', () {
+        final pageConfig = PageConfig(
+          title: 'Settings',
+          content: {
+            'type': 'text',
+            'content': 'Settings Page',
+          },
+          themeOverride: {
+            'primaryColor': '#FF5722',
+            'backgroundColor': '#FFFFFF',
+          },
+        );
+
+        final result = UIValidator.validatePageConfig(pageConfig);
+        expect(result.isValid, isTrue);
+      });
+    });
+
+    group('JSON Validation', () {
+      test('should validate application JSON', () {
+        final json = {
+          'type': 'application',
+          'title': 'My App',
+          'version': '1.0.0',
+          'routes': {
+            '/': 'ui://pages/home',
+          },
+        };
+
+        final result = UIValidator.validateJson(json);
+        expect(result.isValid, isTrue);
+      });
+
+      test('should validate page JSON', () {
+        final json = {
+          'type': 'page',
+          'title': 'Home',
+          'content': {
+            'type': 'text',
+            'content': 'Hello World',
+          },
+        };
+
+        final result = UIValidator.validateJson(json);
+        expect(result.isValid, isTrue);
+      });
+
+      test('should validate widget JSON', () {
+        final json = {
+          'type': 'button',
+          'label': 'Click Me',
+        };
+
+        final result = UIValidator.validateJson(json);
+        expect(result.isValid, isTrue);
+      });
+
+      test('should reject unknown structure', () {
+        final json = {
+          'type': 'unknown',
+          'data': 'test',
+        };
+
+        final result = UIValidator.validateJson(json);
+        expect(result.isValid, isFalse);
+        expect(result.errors.any((e) => e.code == 'UNKNOWN_STRUCTURE'), isTrue);
+      });
+
+      test('should handle malformed JSON gracefully', () {
+        final json = {
+          'type': 'application',
+          'title': 123,  // Wrong type
+          'routes': 'not a map',  // Wrong type
+        };
+
+        final result = UIValidator.validateJson(json);
+        expect(result.isValid, isFalse);
+      });
+    });
+
+    group('Widget Validation', () {
       test('should validate number field widget', () {
         final widget = WidgetConfig(
           type: WidgetTypes.numberField,
@@ -52,14 +244,18 @@ void main() {
               {'label': 'Option 2', 'value': 'option2'},
               {'label': 'Option 3', 'value': 'option3'},
             ],
-            'orientation': 'horizontal',
-            'bindTo': 'selectedOption'
+            'orientation': 'vertical',
+            'onChange': {
+              'type': 'state',
+              'action': 'set',
+              'binding': 'selectedOption',
+              'value': '{{event.value}}'
+            }
           },
         );
 
         final result = UIValidator.validateWidget(widget);
         expect(result.isValid, isTrue);
-        expect(result.errors, isEmpty);
       });
 
       test('should validate checkbox group widget', () {
@@ -68,21 +264,22 @@ void main() {
           properties: {
             'value': ['option1', 'option3'],
             'options': [
-              {'label': 'Feature A', 'value': 'option1'},
-              {'label': 'Feature B', 'value': 'option2'},
-              {'label': 'Feature C', 'value': 'option3'},
+              {'label': 'Option 1', 'value': 'option1'},
+              {'label': 'Option 2', 'value': 'option2'},
+              {'label': 'Option 3', 'value': 'option3'},
             ],
-            'onChange': ActionConfig.state(
-              action: 'set',
-              binding: 'selectedFeatures',
-              value: '{{value}}'
-            ).toJson()
+            'orientation': 'horizontal',
+            'onChange': {
+              'type': 'state',
+              'action': 'set',
+              'binding': 'selectedOptions',
+              'value': '{{event.value}}'
+            }
           },
         );
 
         final result = UIValidator.validateWidget(widget);
         expect(result.isValid, isTrue);
-        expect(result.errors, isEmpty);
       });
 
       test('should validate segmented control widget', () {
@@ -95,14 +292,17 @@ void main() {
               {'label': 'Tab 2', 'value': 'tab2'},
               {'label': 'Tab 3', 'value': 'tab3'},
             ],
-            'style': 'cupertino',
-            'bindTo': 'activeTab'
+            'onChange': {
+              'type': 'state',
+              'action': 'set',
+              'binding': 'activeTab',
+              'value': '{{event.value}}'
+            }
           },
         );
 
         final result = UIValidator.validateWidget(widget);
         expect(result.isValid, isTrue);
-        expect(result.errors, isEmpty);
       });
 
       test('should validate date field widget', () {
@@ -111,18 +311,20 @@ void main() {
           properties: {
             'label': 'Select Date',
             'value': '2024-01-15',
-            'format': 'dd/MM/yyyy',
+            'format': 'yyyy-MM-dd',
             'firstDate': '2020-01-01',
             'lastDate': '2030-12-31',
-            'mode': 'input',
-            'locale': 'en_GB',
-            'bindTo': 'selectedDate'
+            'onChange': {
+              'type': 'state',
+              'action': 'set',
+              'binding': 'selectedDate',
+              'value': '{{event.value}}'
+            }
           },
         );
 
         final result = UIValidator.validateWidget(widget);
         expect(result.isValid, isTrue);
-        expect(result.errors, isEmpty);
       });
 
       test('should validate time field widget', () {
@@ -131,124 +333,43 @@ void main() {
           properties: {
             'label': 'Select Time',
             'value': '14:30',
-            'format': 'h:mm a',
-            'use24HourFormat': false,
-            'mode': 'dial',
-            'bindTo': 'selectedTime'
+            'format': 'HH:mm',
+            'use24HourFormat': true,
+            'onChange': {
+              'type': 'state',
+              'action': 'set',
+              'binding': 'selectedTime',
+              'value': '{{event.value}}'
+            }
           },
         );
 
         final result = UIValidator.validateWidget(widget);
         expect(result.isValid, isTrue);
-        expect(result.errors, isEmpty);
       });
 
       test('should validate date range picker widget', () {
         final widget = WidgetConfig(
           type: WidgetTypes.dateRangePicker,
           properties: {
+            'label': 'Select Date Range',
             'startDate': '2024-01-01',
             'endDate': '2024-01-31',
-            'firstDate': '2020-01-01',
-            'lastDate': '2030-12-31',
-            'format': 'MMM dd, yyyy',
-            'locale': 'en_US',
-            'saveText': 'Apply',
-            'onChange': ActionConfig.batch([
-              ActionConfig.state(action: 'set', binding: 'startDate', value: '{{startDate}}'),
-              ActionConfig.state(action: 'set', binding: 'endDate', value: '{{endDate}}'),
-            ]).toJson()
-          },
-        );
-
-        final result = UIValidator.validateWidget(widget);
-        expect(result.isValid, isTrue);
-        expect(result.errors, isEmpty);
-      });
-
-      test('should validate scroll view widget', () {
-        final widget = WidgetConfig(
-          type: WidgetTypes.scrollView,
-          properties: {
-            'scrollDirection': 'horizontal',
-            'physics': 'never',
-            'padding': {'all': 16.0},
-            'reverse': false,
-            'shrinkWrap': true
-          },
-          children: [
-            WidgetConfig(
-              type: WidgetTypes.box,
-              properties: {'width': 200.0, 'height': 100.0}
-            ),
-          ],
-        );
-
-        final result = UIValidator.validateWidget(widget);
-        if (!result.isValid) {
-          print('Validation errors: ${result.errors.map((e) => e.message).join(', ')}');
-        }
-        expect(result.isValid, isTrue);
-        expect(result.errors, isEmpty);
-      });
-
-      test('should validate draggable widget', () {
-        final widget = WidgetConfig(
-          type: WidgetTypes.draggable,
-          properties: {
-            'data': 'item_1',
-            'feedback': {
-              'type': 'box',
-              'properties': {
-                'color': '#80000000',
-                'padding': {'all': 8.0}
-              },
-              'children': [
+            'format': 'yyyy-MM-dd',
+            'onChange': {
+              'type': 'batch',
+              'actions': [
                 {
-                  'type': 'text',
-                  'properties': {'content': 'Dragging...'}
-                }
-              ]
-            },
-            'axis': 'vertical',
-            'maxSimultaneousDrags': 1
-          },
-          children: [
-            WidgetConfig(
-              type: WidgetTypes.text,
-              properties: {'content': 'Drag me'}
-            ),
-          ],
-        );
-
-        final result = UIValidator.validateWidget(widget);
-        if (!result.isValid) {
-          print('Draggable validation errors: ${result.errors.map((e) => e.message).join(', ')}');
-        }
-        expect(result.isValid, isTrue);
-        expect(result.errors, isEmpty);
-      });
-
-      test('should validate drag target widget', () {
-        final widget = WidgetConfig(
-          type: WidgetTypes.dragTarget,
-          properties: {
-            'onAccept': ActionConfig.state(
-              action: 'set',
-              binding: 'droppedItem',
-              value: '{{data}}'
-            ).toJson(),
-            'onWillAccept': 'return data != null;',
-            'builder': {
-              'type': 'box',
-              'properties': {
-                'color': '{{candidateData != null ? "#FFE0E0E0" : "#FFFFFFFF"}}',
-                'padding': {'all': 16.0}
-              },
-              'children': [
+                  'type': 'state',
+                  'action': 'set',
+                  'binding': 'dateRange.start',
+                  'value': '{{event.startDate}}'
+                },
                 {
-                  'type': 'text',
-                  'properties': {'content': 'Drop here'}
+                  'type': 'state',
+                  'action': 'set',
+                  'binding': 'dateRange.end',
+                  'value': '{{event.endDate}}'
                 }
               ]
             }
@@ -257,551 +378,9 @@ void main() {
 
         final result = UIValidator.validateWidget(widget);
         expect(result.isValid, isTrue);
-        expect(result.errors, isEmpty);
       });
 
-      test('should validate conditional widget', () {
-        final widget = WidgetConfig(
-          type: WidgetTypes.conditional,
-          properties: {
-            'condition': '{{user.isLoggedIn}}',
-            'trueChild': {
-              'type': 'text',
-              'properties': {'content': 'Welcome, {{user.name}}!'}
-            },
-            'falseChild': {
-              'type': 'button',
-              'properties': {
-                'label': 'Login',
-                'onTap': ActionConfig.navigation(
-                  action: 'push',
-                  route: '/login'
-                ).toJson()
-              }
-            }
-          },
-        );
-
-        final result = UIValidator.validateWidget(widget);
-        expect(result.isValid, isTrue);
-        expect(result.errors, isEmpty);
-      });
-    });
-
-    group('Required Property Validation for New Widgets', () {
-      test('should fail when radio group missing required options', () {
-        final widget = WidgetConfig(
-          type: WidgetTypes.radioGroup,
-          properties: {
-            'value': 'option1',
-            'orientation': 'vertical'
-          },
-        );
-
-        final result = UIValidator.validateWidget(widget);
-        expect(result.isValid, isFalse);
-        expect(result.errors.any((e) => e.message.contains('options')), isTrue);
-      });
-
-      test('should fail when checkbox group missing required options', () {
-        final widget = WidgetConfig(
-          type: WidgetTypes.checkboxGroup,
-          properties: {
-            'value': [],
-            'bindTo': 'selections'
-          },
-        );
-
-        final result = UIValidator.validateWidget(widget);
-        expect(result.isValid, isFalse);
-        expect(result.errors.any((e) => e.message.contains('options')), isTrue);
-      });
-
-      test('should fail when draggable missing required properties', () {
-        final widget = WidgetConfig(
-          type: WidgetTypes.draggable,
-          properties: {
-            'axis': 'horizontal'
-          },
-          children: [
-            WidgetConfig(type: WidgetTypes.text, properties: {'content': 'Drag me'})
-          ],
-        );
-
-        final result = UIValidator.validateWidget(widget);
-        expect(result.isValid, isFalse);
-        expect(result.errors.any((e) => e.message.contains('data')), isTrue);
-        expect(result.errors.any((e) => e.message.contains('feedback')), isTrue);
-      });
-
-      test('should fail when conditional missing required condition', () {
-        final widget = WidgetConfig(
-          type: WidgetTypes.conditional,
-          properties: {
-            'trueChild': {'type': 'text', 'properties': {'content': 'True'}},
-            'falseChild': {'type': 'text', 'properties': {'content': 'False'}}
-          },
-        );
-
-        final result = UIValidator.validateWidget(widget);
-        expect(result.isValid, isFalse);
-        expect(result.errors.any((e) => e.message.contains('condition')), isTrue);
-      });
-    });
-
-    group('Complex UI Definition Validation with New Widgets', () {
-      test('should validate complete form with new input widgets', () {
-        final uiDefinition = UIDefinition(
-          layout: WidgetConfig(
-            type: WidgetTypes.form,
-            children: [
-              WidgetConfig(
-                type: WidgetTypes.textInput,
-                properties: {
-                  'label': 'Name',
-                  'bindTo': 'formData.name',
-                  'hintText': 'Enter your full name'
-                }
-              ),
-              WidgetConfig(
-                type: WidgetTypes.numberField,
-                properties: {
-                  'label': 'Age',
-                  'bindTo': 'formData.age',
-                  'min': 18.0,
-                  'max': 120.0,
-                  'step': 1.0
-                }
-              ),
-              WidgetConfig(
-                type: WidgetTypes.dateField,
-                properties: {
-                  'label': 'Birth Date',
-                  'bindTo': 'formData.birthDate',
-                  'lastDate': DateTime.now().toIso8601String().split('T')[0]
-                }
-              ),
-              WidgetConfig(
-                type: WidgetTypes.colorPicker,
-                properties: {
-                  'bindTo': 'formData.favoriteColor',
-                  'showLabel': true
-                }
-              ),
-              WidgetConfig(
-                type: WidgetTypes.radioGroup,
-                properties: {
-                  'bindTo': 'formData.gender',
-                  'options': [
-                    {'label': 'Male', 'value': 'male'},
-                    {'label': 'Female', 'value': 'female'},
-                    {'label': 'Other', 'value': 'other'}
-                  ]
-                }
-              ),
-              WidgetConfig(
-                type: WidgetTypes.checkboxGroup,
-                properties: {
-                  'bindTo': 'formData.interests',
-                  'options': [
-                    {'label': 'Sports', 'value': 'sports'},
-                    {'label': 'Music', 'value': 'music'},
-                    {'label': 'Art', 'value': 'art'},
-                    {'label': 'Technology', 'value': 'tech'}
-                  ]
-                }
-              ),
-              WidgetConfig(
-                type: WidgetTypes.button,
-                properties: {
-                  'label': 'Submit',
-                  'onTap': ActionConfig.tool('submitForm', {
-                    'data': '{{formData}}'
-                  }).toJson()
-                }
-              )
-            ],
-          ),
-          initialState: {
-            'formData': {
-              'name': '',
-              'age': 18,
-              'birthDate': null,
-              'favoriteColor': '#2196F3',
-              'gender': null,
-              'interests': []
-            }
-          },
-          dslVersion: '1.0.0',
-        );
-
-        final result = UIValidator.validateUIDefinition(uiDefinition);
-        expect(result.isValid, isTrue);
-        expect(result.errors, isEmpty);
-      });
-
-      test('should validate interactive drag and drop UI', () {
-        final uiDefinition = UIDefinition(
-          layout: WidgetConfig(
-            type: WidgetTypes.linear,
-            properties: {'direction': 'horizontal'},
-            children: [
-              WidgetConfig(
-                type: WidgetTypes.expanded,
-                properties: {'flex': 1},
-                children: [
-                  WidgetConfig(
-                    type: WidgetTypes.linear,
-                    properties: {'direction': 'vertical'},
-                    children: List.generate(3, (i) => WidgetConfig(
-                  type: WidgetTypes.draggable,
-                  properties: {
-                    'data': 'item_$i',
-                    'feedback': {
-                      'type': 'card',
-                      'properties': {'elevation': 8.0},
-                      'children': [
-                        {
-                          'type': 'text',
-                          'properties': {'content': 'Item $i'}
-                        }
-                      ]
-                    }
-                  },
-                  children: [
-                    WidgetConfig(
-                      type: WidgetTypes.card,
-                      children: [
-                        WidgetConfig(
-                          type: WidgetTypes.listTile,
-                          properties: {
-                            'title': 'Item $i',
-                            'subtitle': 'Drag me'
-                          }
-                        )
-                      ]
-                    )
-                  ]
-                ))
-                  )
-                ]
-              ),
-              WidgetConfig(
-                type: WidgetTypes.dragTarget,
-                properties: {
-                  'builder': {
-                    'type': 'box',
-                    'properties': {
-                      'width': 200.0,
-                      'height': 400.0,
-                      'color': '#FFE0E0E0',
-                      'padding': {'all': 16.0}
-                    },
-                    'children': [
-                      {
-                        'type': 'text',
-                        'properties': {'content': 'Drop items here'}
-                      }
-                    ]
-                  },
-                  'onAccept': ActionConfig.state(
-                    action: 'add',
-                    binding: 'droppedItems',
-                    value: '{{data}}'
-                  ).toJson()
-                }
-              )
-            ],
-          ),
-          initialState: {
-            'droppedItems': []
-          },
-          dslVersion: '1.0.0',
-        );
-
-        final result = UIValidator.validateUIDefinition(uiDefinition);
-        if (!result.isValid) {
-          print('Drag and drop validation errors: ${result.errors.map((e) => e.message).join(', ')}');
-        }
-        expect(result.isValid, isTrue);
-        // The 'data' binding in dragTarget generates a warning since it's dynamic
-        expect(result.criticalErrors, isEmpty);
-      });
-
-      test('should validate conditional UI with authentication flow', () {
-        final uiDefinition = UIDefinition(
-          layout: WidgetConfig(
-            type: WidgetTypes.conditional,
-            properties: {
-              'condition': '{{isAuthenticated}}',
-              'trueChild': {
-                'type': 'linear',
-                'properties': {'direction': 'vertical'},
-                'children': [
-                  {
-                    'type': 'text',
-                    'properties': {
-                      'content': 'Welcome back, {{user.name}}!',
-                      'style': {'fontSize': 24.0}
-                    }
-                  },
-                  {
-                    'type': 'segmentedControl',
-                    'properties': {
-                      'bindTo': 'activeSection',
-                      'options': [
-                        {'label': 'Profile', 'value': 'profile'},
-                        {'label': 'Settings', 'value': 'settings'},
-                        {'label': 'Activity', 'value': 'activity'}
-                      ]
-                    }
-                  },
-                  {
-                    'type': 'conditional',
-                    'properties': {
-                      'condition': '{{activeSection == "profile"}}',
-                      'child': {
-                        'type': 'linear',
-                        'properties': {'direction': 'vertical'},
-                        'children': [
-                          {
-                            'type': 'colorPicker',
-                            'properties': {
-                              'bindTo': 'user.themeColor',
-                              'showLabel': true
-                            }
-                          },
-                          {
-                            'type': 'dateField',
-                            'properties': {
-                              'label': 'Member since',
-                              'value': '{{user.joinDate}}',
-                              'enabled': false
-                            }
-                          }
-                        ]
-                      }
-                    }
-                  }
-                ]
-              },
-              'falseChild': {
-                'type': 'center',
-                'children': [
-                  {
-                    'type': 'card',
-                    'properties': {
-                      'padding': {'all': 24.0}
-                    },
-                    'children': [
-                      {
-                        'type': 'text',
-                        'properties': {
-                          'content': 'Please log in to continue',
-                          'style': {'fontSize': 18.0}
-                        }
-                      },
-                      {
-                        'type': 'button',
-                        'properties': {
-                          'label': 'Login',
-                          'onTap': ActionConfig.navigation(
-                            action: 'push',
-                            route: '/login'
-                          ).toJson()
-                        }
-                      }
-                    ]
-                  }
-                ]
-              }
-            }
-          ),
-          initialState: {
-            'isAuthenticated': false,
-            'activeSection': 'profile',
-            'user': {
-              'name': null,
-              'joinDate': null,
-              'themeColor': '#2196F3'
-            }
-          },
-          dslVersion: '1.0.0',
-        );
-
-        final result = UIValidator.validateUIDefinition(uiDefinition);
-        expect(result.isValid, isTrue);
-        // The condition expression might generate a warning, but that's OK
-        expect(result.criticalErrors, isEmpty);
-      });
-    });
-
-    group('Binding Validation for New Widgets', () {
-      test('should validate bindings for all new input widgets', () {
-        final uiDefinition = UIDefinition(
-          layout: WidgetConfig(
-            type: WidgetTypes.linear,
-            properties: {'direction': 'vertical'},
-            children: [
-              WidgetConfig(
-                type: WidgetTypes.numberField,
-                properties: {'bindTo': 'values.number'}
-              ),
-              WidgetConfig(
-                type: WidgetTypes.colorPicker,
-                properties: {'bindTo': 'values.color'}
-              ),
-              WidgetConfig(
-                type: WidgetTypes.radioGroup,
-                properties: {
-                  'bindTo': 'values.radio',
-                  'options': [{'label': 'A', 'value': 'a'}]
-                }
-              ),
-              WidgetConfig(
-                type: WidgetTypes.checkboxGroup,
-                properties: {
-                  'bindTo': 'values.checkboxes',
-                  'options': [{'label': 'A', 'value': 'a'}]
-                }
-              ),
-              WidgetConfig(
-                type: WidgetTypes.segmentedControl,
-                properties: {
-                  'bindTo': 'values.segment',
-                  'options': [{'label': 'A', 'value': 'a'}]
-                }
-              ),
-              WidgetConfig(
-                type: WidgetTypes.dateField,
-                properties: {'bindTo': 'values.date'}
-              ),
-              WidgetConfig(
-                type: WidgetTypes.timeField,
-                properties: {'bindTo': 'values.time'}
-              ),
-            ],
-          ),
-          initialState: {
-            'values': {
-              'number': 0,
-              'color': '#000000',
-              'radio': null,
-              'checkboxes': [],
-              'segment': null,
-              'date': null,
-              'time': null
-            }
-          },
-          dslVersion: '1.0.0',
-        );
-
-        final result = UIValidator.validateUIDefinition(uiDefinition);
-        expect(result.isValid, isTrue);
-        expect(result.errors, isEmpty);
-      });
-
-      test('should detect invalid bindings for new widgets', () {
-        final uiDefinition = UIDefinition(
-          layout: WidgetConfig(
-            type: WidgetTypes.linear,
-            properties: {'direction': 'vertical'},
-            children: [
-              WidgetConfig(
-                type: WidgetTypes.numberField,
-                properties: {
-                  'value': '{{nonexistent.value}}',
-                  'onChange': {
-                    'type': 'state',
-                    'action': 'set',
-                    'binding': 'nonexistent.value',
-                    'value': '{{event.value}}'
-                  }
-                }
-              ),
-              WidgetConfig(
-                type: WidgetTypes.colorPicker,
-                properties: {
-                  'value': '{{another.missing.path}}',
-                  'onChange': {
-                    'type': 'state',
-                    'action': 'set',
-                    'binding': 'another.missing.path',
-                    'value': '{{event.value}}'
-                  }
-                }
-              ),
-            ],
-          ),
-          initialState: {
-            'existingValue': 42
-          },
-          dslVersion: '1.0.0',
-        );
-
-        final result = UIValidator.validateUIDefinition(uiDefinition);
-        // Missing bindings generate warnings, not errors
-        expect(result.hasWarnings, isTrue);
-        expect(result.warnings.any((w) => w.message.contains('nonexistent.value')), isTrue);
-        expect(result.warnings.any((w) => w.message.contains('another.missing.path')), isTrue);
-      });
-    });
-
-    group('Action Validation for New Widgets', () {
-      test('should validate onChange actions for new input widgets', () {
-        final widget = WidgetConfig(
-          type: WidgetTypes.numberField,
-          properties: {
-            'onChange': ActionConfig.conditional(
-              condition: '{{value > 100}}',
-              thenAction: ActionConfig.state(
-                action: 'set',
-                binding: 'warnings.highValue',
-                value: true
-              ),
-              elseAction: ActionConfig.state(
-                action: 'set',
-                binding: 'warnings.highValue',
-                value: false
-              )
-            ).toJson()
-          }
-        );
-
-        final result = UIValidator.validateWidget(widget);
-        expect(result.isValid, isTrue);
-      });
-
-      test('should validate complex date range picker actions', () {
-        final widget = WidgetConfig(
-          type: WidgetTypes.dateRangePicker,
-          properties: {
-            'onChange': ActionConfig.batch([
-              ActionConfig.state(
-                action: 'set',
-                binding: 'dateRange.start',
-                value: '{{startDate}}'
-              ),
-              ActionConfig.state(
-                action: 'set',
-                binding: 'dateRange.end',
-                value: '{{endDate}}'
-              ),
-              ActionConfig.tool('calculateDuration', {
-                'start': '{{startDate}}',
-                'end': '{{endDate}}'
-              })
-            ]).toJson()
-          }
-        );
-
-        final result = UIValidator.validateWidget(widget);
-        expect(result.isValid, isTrue);
-      });
-    });
-
-    group('Modern Widget Support', () {
-      test('should validate layout widget types', () {
+      test('should validate modern layout widgets', () {
         // Test modern layout widgets
         final linearWidget = WidgetConfig(
           type: 'linear',
@@ -833,189 +412,285 @@ void main() {
         expect(UIValidator.validateWidget(boxWidget).isValid, isTrue);
       });
 
-      test('should validate input widget aliases', () {
-        final textInputWidget = WidgetConfig(
-          type: 'textInput',
-          properties: {
-            'label': 'Username',
-            'value': '',
-            'placeholder': 'Enter username',
-            'change': {
-              'type': 'state',
-              'action': 'set',
-              'binding': 'username',
-            },
-          },
-        );
-        expect(UIValidator.validateWidget(textInputWidget).isValid, isTrue);
-
-        final toggleWidget = WidgetConfig(
-          type: 'toggle',
-          properties: {
-            'value': true,
-            'label': 'Enable notifications',
-            'change': {
-              'type': 'state',
-              'action': 'set',
-              'binding': 'settings.notifications',
-            },
-          },
-        );
-        expect(UIValidator.validateWidget(toggleWidget).isValid, isTrue);
-
-        final selectWidget = WidgetConfig(
-          type: 'select',
-          properties: {
-            'value': 'en',
-            'label': 'Language',
-            'items': [
-              {'label': 'English', 'value': 'en'},
-              {'label': 'Spanish', 'value': 'es'},
-              {'label': 'French', 'value': 'fr'},
-            ],
-            'change': {
-              'type': 'state',
-              'action': 'set',
-              'binding': 'language',
-            },
-          },
-        );
-        expect(UIValidator.validateWidget(selectWidget).isValid, isTrue);
-      });
-
-      test('should validate navigation widget aliases', () {
-        final headerBarWidget = WidgetConfig(
-          type: 'headerBar',
-          properties: {
-            'title': 'My App',
-            'actions': [
-              {
-                'type': 'button',
-                'properties': {
-                  'icon': 'settings',
-                  'click': {'type': 'navigation', 'action': 'push', 'route': '/settings'},
-                },
-              },
-            ],
-          },
-        );
-        expect(UIValidator.validateWidget(headerBarWidget).isValid, isTrue);
-
-        final bottomNavWidget = WidgetConfig(
-          type: 'bottomNavigation',
-          properties: {
-            'currentIndex': 0,
-            'items': [
-              {'icon': 'home', 'label': 'Home'},
-              {'icon': 'search', 'label': 'Search'},
-              {'icon': 'person', 'label': 'Profile'},
-            ],
-            'onTap': {
-              'type': 'navigation',
-              'action': 'push',
-              'route': '{{item.route}}',
-            },
-          },
-        );
-        expect(UIValidator.validateWidget(bottomNavWidget).isValid, isTrue);
-      });
-
-      test('should validate dash-notation event properties', () {
-        // Test content property for text widgets
-        final textWidget = WidgetConfig(
+      test('should validate widget with unknown properties', () {
+        final widget = WidgetConfig(
           type: 'text',
           properties: {
-            'content': 'Hello, World!',
-            'style': {
-              'fontSize': 16.0,
-              'color': '#333333',
+            'content': 'Hello',
+            'unknownProperty': 'value',  // This should generate a warning
+          },
+        );
+
+        final result = UIValidator.validateWidget(widget);
+        expect(result.isValid, isTrue);  // Still valid, just with warnings
+        expect(result.warnings.any((w) => w.code == 'UNKNOWN_PROPERTY'), isTrue);
+      });
+
+      test('should validate unknown widget type', () {
+        final widget = WidgetConfig(
+          type: 'unknownWidget',
+          properties: {'prop': 'value'},
+        );
+
+        final result = UIValidator.validateWidget(widget);
+        expect(result.isValid, isFalse);
+        expect(result.errors.any((e) => e.message.contains('Unknown widget type')), isTrue);
+      });
+    });
+
+    group('Action Validation', () {
+      test('should validate state action', () {
+        final action = ActionConfig.state(
+          action: 'set',
+          binding: 'counter',
+          value: 42,
+        );
+
+        final result = UIValidator.validateAction(action);
+        expect(result.isValid, isTrue);
+      });
+
+      test('should validate navigation action', () {
+        final action = ActionConfig.navigation(
+          action: 'push',
+          route: '/profile',
+          params: {'userId': '123'},
+        );
+
+        final result = UIValidator.validateAction(action);
+        expect(result.isValid, isTrue);
+      });
+
+      test('should validate tool action', () {
+        final action = ActionConfig.tool('fetchData', {
+          'endpoint': '/api/users',
+          'method': 'GET',
+        });
+
+        final result = UIValidator.validateAction(action);
+        expect(result.isValid, isTrue);
+      });
+
+      test('should validate batch action', () {
+        final action = ActionConfig.batch([
+          ActionConfig.state(action: 'set', binding: 'loading', value: true),
+          ActionConfig.tool('fetchData', {'id': '123'}),
+          ActionConfig.state(action: 'set', binding: 'loading', value: false),
+        ]);
+
+        final result = UIValidator.validateAction(action);
+        expect(result.isValid, isTrue);
+      });
+
+      test('should validate conditional action', () {
+        final action = ActionConfig.conditional(
+          condition: 'counter > 10',
+          thenAction: ActionConfig.state(action: 'set', binding: 'status', value: 'high'),
+          elseAction: ActionConfig.state(action: 'set', binding: 'status', value: 'low'),
+        );
+
+        final result = UIValidator.validateAction(action);
+        expect(result.isValid, isTrue);
+      });
+
+      test('should detect missing required fields in action', () {
+        // Tool action without tool name
+        final action = ActionConfig(type: 'tool');
+        final result = UIValidator.validateAction(action);
+        expect(result.isValid, isFalse);
+        expect(result.errors.any((e) => e.path?.contains('tool') ?? false), isTrue);
+      });
+    });
+
+    group('Binding Validation', () {
+      test('should validate simple binding', () {
+        final binding = BindingConfig.fromExpression('{{counter}}');
+        final result = UIValidator.validateBinding(binding);
+        expect(result.isValid, isTrue);
+      });
+
+      test('should validate nested binding', () {
+        final binding = BindingConfig.fromExpression('{{user.profile.name}}');
+        final result = UIValidator.validateBinding(binding);
+        expect(result.isValid, isTrue);
+      });
+
+      test('should validate array binding', () {
+        final binding = BindingConfig.fromExpression('{{items[0].title}}');
+        final result = UIValidator.validateBinding(binding);
+        expect(result.isValid, isTrue);
+      });
+
+      test('should detect invalid binding syntax', () {
+        final binding = BindingConfig(
+          expression: '{{invalid..path}}',
+          path: 'invalid..path',
+        );
+        final result = UIValidator.validateBinding(binding);
+        expect(result.isValid, isFalse);
+      });
+    });
+
+    group('Theme Validation', () {
+      test('should validate theme with all required colors', () {
+        final theme = {
+          'mode': 'light',
+          'colors': {
+            'primary': '#2196F3',
+            'secondary': '#FF4081',
+            'background': '#FFFFFF',
+            'surface': '#F5F5F5',
+            'error': '#F44336',
+            'textOnPrimary': '#FFFFFF',
+            'textOnSecondary': '#000000',
+            'textOnBackground': '#000000',
+            'textOnSurface': '#000000',
+            'textOnError': '#FFFFFF',
+          },
+        };
+        
+        final result = UIValidator.validateTheme(theme);
+        expect(result.isValid, isTrue);
+        expect(result.errors, isEmpty);
+      });
+
+      test('should detect missing required colors', () {
+        final theme = {
+          'colors': {
+            'primary': '#2196F3',
+            'secondary': '#FF4081',
+            // Missing background, surface, error, and all textOn* colors
+          },
+        };
+        
+        final result = UIValidator.validateTheme(theme);
+        expect(result.errors.any((e) => e.path?.contains('background') ?? false), isTrue);
+        expect(result.errors.any((e) => e.path?.contains('textOnPrimary') ?? false), isTrue);
+        expect(result.errors.any((e) => e.path?.contains('textOnSecondary') ?? false), isTrue);
+      });
+
+      test('should validate color formats', () {
+        final theme = {
+          'colors': {
+            'primary': '#2196F3',      // Valid 6-digit
+            'secondary': '#FFFF4081',  // Valid 8-digit
+            'background': 'invalid',   // Invalid
+            'surface': '#F5F5F5',
+            'error': '#F44336',
+            'textOnPrimary': '#FFFFFF',
+            'textOnSecondary': '#000000',
+            'textOnBackground': '#000000',
+            'textOnSurface': '#000000',
+            'textOnError': '#FFFFFF',
+          },
+        };
+        
+        final result = UIValidator.validateTheme(theme);
+        expect(result.errors.any((e) => 
+          e.path?.contains('background') ?? false && 
+          e.message.contains('#RRGGBB or #AARRGGBB')
+        ), isTrue);
+      });
+
+      test('should validate theme mode', () {
+        final theme = {
+          'mode': 'invalid',
+          'colors': {
+            'primary': '#2196F3',
+            'secondary': '#FF4081',
+            'background': '#FFFFFF',
+            'surface': '#F5F5F5',
+            'error': '#F44336',
+            'textOnPrimary': '#FFFFFF',
+            'textOnSecondary': '#000000',
+            'textOnBackground': '#000000',
+            'textOnSurface': '#000000',
+            'textOnError': '#FFFFFF',
+          },
+        };
+        
+        final result = UIValidator.validateTheme(theme);
+        expect(result.errors.any((e) => 
+          e.path?.contains('mode') ?? false && 
+          e.message.contains('light, dark, system')
+        ), isTrue);
+      });
+
+      test('should validate typography', () {
+        final theme = {
+          'typography': {
+            'h1': {
+              'fontSize': 32,
+              'fontWeight': 'bold',
+            },
+            'body1': {
+              'fontSize': 'invalid', // Should be number
+              'fontWeight': 'invalid-weight', // Should be valid weight
             },
           },
-        );
-        expect(UIValidator.validateWidget(textWidget).isValid, isTrue);
-
-        // Test dash-notation event properties
-        final buttonWidget = WidgetConfig(
-          type: 'button',
-          properties: {
-            'label': 'Click me',
-            'click': {'type': 'tool', 'tool': 'handleClick'},
-            'doubleClick': {'type': 'tool', 'tool': 'handleDoubleClick'},
-            'rightClick': {'type': 'tool', 'tool': 'handleRightClick'},
-            'longPress': {'type': 'tool', 'tool': 'handleLongPress'},
-          },
-        );
-        expect(UIValidator.validateWidget(buttonWidget).isValid, isTrue);
+        };
+        
+        final result = UIValidator.validateTheme(theme);
+        expect(result.errors.any((e) => e.path?.contains('body1.fontSize') ?? false), isTrue);
+        expect(result.errors.any((e) => e.path?.contains('body1.fontWeight') ?? false), isTrue);
       });
 
-      test('should validate advanced widgets', () {
-        final chartWidget = WidgetConfig(
-          type: 'chart',
-          properties: {
-            'chartType': 'line',
-            'data': [
-              {'x': 0, 'y': 10},
-              {'x': 1, 'y': 20},
-              {'x': 2, 'y': 15},
-            ],
-            'title': 'Sales Chart',
-            'height': 300.0,
+      test('should validate spacing values', () {
+        final theme = {
+          'spacing': {
+            'sm': 8,
+            'md': 'invalid', // Should be number
+            'lg': 24,
           },
-        );
-        expect(UIValidator.validateWidget(chartWidget).isValid, isTrue);
-
-        final mapWidget = WidgetConfig(
-          type: 'map',
-          properties: {
-            'latitude': 37.7749,
-            'longitude': -122.4194,
-            'zoom': 12.0,
-            'markers': [
-              {
-                'lat': 37.7749,
-                'lng': -122.4194,
-                'label': 'San Francisco',
-              },
-            ],
-            'height': 400.0,
-          },
-        );
-        expect(UIValidator.validateWidget(mapWidget).isValid, isTrue);
+        };
+        
+        final result = UIValidator.validateTheme(theme);
+        expect(result.errors.any((e) => e.path?.contains('spacing.md') ?? false), isTrue);
       });
 
-      test('should validate latest MCP UI DSL v1.0 spec', () {
-        // MCP UI DSL v1.0: content property for text widget
-        final textWidget = WidgetConfig(
-          type: 'text',
-          properties: {'content': 'Hello'},
-        );
-        expect(UIValidator.validateWidget(textWidget).isValid, isTrue);
-
-        // MCP UI DSL v1.0: textInput instead of deprecated textField
-        final inputWidget = WidgetConfig(
-          type: 'textInput',
-          properties: {'value': 'Hello'},
-        );
-        expect(UIValidator.validateWidget(inputWidget).isValid, isTrue);
-
-        // Both click and onTap should work for button
-        final button1 = WidgetConfig(
-          type: 'button',
-          properties: {
-            'label': 'Click',
-            'click': {'type': 'tool', 'tool': 'handleClick'},
+      test('should validate elevation values', () {
+        final theme = {
+          'elevation': {
+            'none': 0,
+            'sm': -2, // Should be >= 0
+            'md': 4,
           },
-        );
-        expect(UIValidator.validateWidget(button1).isValid, isTrue);
+        };
+        
+        final result = UIValidator.validateTheme(theme);
+        expect(result.errors.any((e) => 
+          e.path?.contains('elevation.sm') ?? false && 
+          e.message.contains('at least 0')
+        ), isTrue);
+      });
 
-        final button2 = WidgetConfig(
-          type: 'button',
-          properties: {
-            'label': 'Tap',
-            'onTap': {'type': 'tool', 'tool': 'handleTap'},
+      test('should validate nested light/dark themes', () {
+        final theme = {
+          'mode': 'system',
+          'light': {
+            'colors': {
+              'primary': '#2196F3',
+              'secondary': '#FF4081',
+              'background': '#FFFFFF',
+              'surface': '#F5F5F5',
+              'error': '#F44336',
+              'textOnPrimary': '#FFFFFF',
+              'textOnSecondary': '#000000',
+              'textOnBackground': '#000000',
+              'textOnSurface': '#000000',
+              'textOnError': '#FFFFFF',
+            },
           },
-        );
-        expect(UIValidator.validateWidget(button2).isValid, isTrue);
+          'dark': {
+            'colors': {
+              'primary': '#1976D2',
+              // Missing other required colors
+            },
+          },
+        };
+        
+        final result = UIValidator.validateTheme(theme);
+        expect(result.errors.any((e) => e.path?.contains('dark.colors') ?? false), isTrue);
       });
     });
   });

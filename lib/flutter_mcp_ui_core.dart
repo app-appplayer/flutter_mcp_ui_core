@@ -6,7 +6,6 @@
 library flutter_mcp_ui_core;
 
 // Core models
-export 'src/models/ui_definition.dart';
 export 'src/models/widget_config.dart';
 export 'src/models/action_config.dart';
 export 'src/models/binding_config.dart';

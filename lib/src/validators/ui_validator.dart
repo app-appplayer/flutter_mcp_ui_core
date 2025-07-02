@@ -1,40 +1,78 @@
-import '../constants/dsl_version.dart';
 import '../constants/widget_types.dart';
-import '../models/ui_definition.dart';
 import '../models/widget_config.dart';
 import '../models/action_config.dart';
 import '../models/binding_config.dart';
+import '../models/application_config.dart';
+import '../models/page_config.dart';
 import '../exceptions/validation_exception.dart';
 import 'schema_definitions.dart';
 
 /// Comprehensive validator for MCP UI DSL
 class UIValidator {
-  /// Validate a complete UI definition
-  static ValidationResult validateUIDefinition(UIDefinition definition) {
+  /// Validate an application configuration
+  static ValidationResult validateApplicationConfig(ApplicationConfig config) {
     final errors = <ValidationError>[];
     
-    // Validate DSL version
-    errors.addAll(_validateDSLVersion(definition.dslVersion));
-    
-    // Validate layout
-    errors.addAll(_validateWidget(definition.layout).errors);
-    
-    // Validate initial state
-    errors.addAll(_validateState(definition.initialState));
-    
-    // Validate computed values
-    errors.addAll(_validateComputedValues(definition.computedValues));
-    
-    // Validate methods
-    errors.addAll(_validateMethods(definition.methods));
-    
-    // Validate theme
-    if (definition.theme != null) {
-      errors.addAll(_validateTheme(definition.theme!));
+    // Validate required fields
+    if (config.title.isEmpty) {
+      errors.add(ValidationError.requiredField('title'));
     }
     
-    // Cross-validation: check bindings reference valid state paths
-    errors.addAll(_validateBindingReferences(definition));
+    if (config.version.isEmpty) {
+      errors.add(ValidationError.requiredField('version'));
+    }
+    
+    if (config.routes.isEmpty) {
+      errors.add(ValidationError.requiredField('routes'));
+    }
+    
+    // Validate initial route exists in routes
+    if (!config.routes.containsKey(config.initialRoute)) {
+      errors.add(ValidationError.invalidValue(
+        'initialRoute',
+        config.initialRoute,
+        'Initial route must exist in routes map',
+      ));
+    }
+    
+    // Validate theme if present
+    if (config.theme != null) {
+      errors.addAll(_validateTheme(config.theme!));
+    }
+    
+    // Validate navigation if present
+    if (config.navigation != null) {
+      errors.addAll(_validateNavigation(config.navigation!));
+    }
+    
+    // Validate initial state if present
+    if (config.state != null && config.state!['initial'] != null) {
+      errors.addAll(_validateState(config.state!['initial'] as Map<String, dynamic>));
+    }
+    
+    return ValidationResult.fromErrors(errors);
+  }
+  
+  /// Validate a page configuration
+  static ValidationResult validatePageConfig(PageConfig config) {
+    final errors = <ValidationError>[];
+    
+    // Validate content (required)
+    final contentResult = _validateWidget(
+      WidgetConfig.fromJson(config.content),
+      'content'
+    );
+    errors.addAll(contentResult.errors);
+    
+    // Validate theme override if present
+    if (config.themeOverride != null) {
+      errors.addAll(_validateTheme(config.themeOverride!));
+    }
+    
+    // Validate initial state if present
+    if (config.state != null && config.state!['initial'] != null) {
+      errors.addAll(_validateState(config.state!['initial'] as Map<String, dynamic>));
+    }
     
     return ValidationResult.fromErrors(errors);
   }
@@ -54,25 +92,63 @@ class UIValidator {
     return ValidationResult.fromErrors(_validateBinding(binding));
   }
 
+  /// Validate a theme configuration
+  static ValidationResult validateTheme(Map<String, dynamic> theme) {
+    return ValidationResult.fromErrors(_validateTheme(theme));
+  }
+
   /// Validate JSON against MCP UI DSL schema
   static ValidationResult validateJson(Map<String, dynamic> json) {
     final errors = <ValidationError>[];
     
     try {
-      // Basic structure validation
-      if (!json.containsKey('layout')) {
-        errors.add(ValidationError.requiredField('layout'));
-      }
+      // Check for type field to determine validation path
+      final type = json['type'] as String?;
       
-      // Validate against schema
-      final schemaErrors = SchemaDefinitions.validateAgainstSchema(json);
-      errors.addAll(schemaErrors);
-      
-      // If basic structure is valid, validate as UI definition
-      if (errors.isEmpty) {
-        final definition = UIDefinition.fromJson(json);
-        final validationResult = validateUIDefinition(definition);
-        errors.addAll(validationResult.errors);
+      if (type == 'application') {
+        // Validate as application
+        try {
+          final appConfig = ApplicationConfig.fromJson(json);
+          return validateApplicationConfig(appConfig);
+        } catch (e) {
+          errors.add(ValidationError(
+            message: 'Invalid application configuration: ${e.toString()}',
+            code: 'INVALID_APPLICATION',
+            severity: ValidationSeverity.error,
+          ));
+        }
+      } else if (type == 'page') {
+        // Validate as page
+        try {
+          final pageConfig = PageConfig.fromJson(json);
+          return validatePageConfig(pageConfig);
+        } catch (e) {
+          errors.add(ValidationError(
+            message: 'Invalid page configuration: ${e.toString()}',
+            code: 'INVALID_PAGE',
+            severity: ValidationSeverity.error,
+          ));
+        }
+      } else if (json.containsKey('type') && WidgetTypes.isValidType(json['type'] as String)) {
+        // Validate as widget
+        try {
+          final widget = WidgetConfig.fromJson(json);
+          return validateWidget(widget);
+        } catch (e) {
+          errors.add(ValidationError(
+            message: 'Invalid widget configuration: ${e.toString()}',
+            code: 'INVALID_WIDGET',
+            severity: ValidationSeverity.error,
+          ));
+        }
+      } else {
+        // Unknown structure
+        errors.add(ValidationError(
+          message: 'Unknown UI structure. Expected type: "application", "page", or valid widget type',
+          code: 'UNKNOWN_STRUCTURE',
+          severity: ValidationSeverity.error,
+          path: 'type',
+        ));
       }
     } catch (e) {
       errors.add(ValidationError(
@@ -86,22 +162,6 @@ class UIValidator {
   }
 
   // Private validation methods
-
-  static List<ValidationError> _validateDSLVersion(String version) {
-    final errors = <ValidationError>[];
-    
-    if (version.isEmpty) {
-      errors.add(ValidationError.requiredField('dslVersion'));
-    } else if (!MCPUIDSLVersion.isCompatible(version)) {
-      errors.add(ValidationError.invalidValue(
-        'dslVersion',
-        version,
-        'Unsupported version. Supported: ${MCPUIDSLVersion.supported.join(', ')}',
-      ));
-    }
-    
-    return errors;
-  }
 
   static ValidationResult _validateWidget(WidgetConfig widget, [String path = 'layout']) {
     final errors = <ValidationError>[];
@@ -343,99 +403,122 @@ class UIValidator {
     return errors;
   }
 
-  static List<ValidationError> _validateComputedValues(Map<String, String> computedValues) {
-    final errors = <ValidationError>[];
-    
-    for (final entry in computedValues.entries) {
-      if (entry.key.isEmpty) {
-        errors.add(ValidationError.invalidValue(
-          'computedValues',
-          entry.key,
-          'Computed value name cannot be empty',
-        ));
-      }
-      
-      if (entry.value.isEmpty) {
-        errors.add(ValidationError.invalidValue(
-          'computedValues.${entry.key}',
-          entry.value,
-          'Computed value expression cannot be empty',
-        ));
-      }
-      
-      // Basic syntax validation (could be expanded)
-      if (!_isValidExpression(entry.value)) {
-        errors.add(ValidationError.invalidValue(
-          'computedValues.${entry.key}',
-          entry.value,
-          'Invalid expression syntax',
-        ));
-      }
-    }
-    
-    return errors;
-  }
-
-  static List<ValidationError> _validateMethods(Map<String, String> methods) {
-    final errors = <ValidationError>[];
-    
-    for (final entry in methods.entries) {
-      if (entry.key.isEmpty) {
-        errors.add(ValidationError.invalidValue(
-          'methods',
-          entry.key,
-          'Method name cannot be empty',
-        ));
-      }
-      
-      if (entry.value.isEmpty) {
-        errors.add(ValidationError.invalidValue(
-          'methods.${entry.key}',
-          entry.value,
-          'Method code cannot be empty',
-        ));
-      }
-      
-      // Basic JavaScript function validation
-      if (!_isValidJavaScriptFunction(entry.value)) {
-        errors.add(ValidationError.invalidValue(
-          'methods.${entry.key}',
-          entry.value,
-          'Invalid JavaScript function syntax',
-        ));
-      }
-    }
-    
-    return errors;
-  }
 
   static List<ValidationError> _validateTheme(dynamic theme) {
     final errors = <ValidationError>[];
     
-    // Theme validation would depend on the theme structure
-    // For now, just basic checks
-    if (theme is! Map) {
+    if (theme is! Map<String, dynamic>) {
       errors.add(ValidationError.typeMismatch('theme', Map, theme.runtimeType));
+      return errors;
+    }
+    
+    final themeMap = theme as Map<String, dynamic>;
+    
+    // Validate mode if present
+    if (themeMap.containsKey('mode')) {
+      final mode = themeMap['mode'];
+      if (mode is! String || !['light', 'dark', 'system'].contains(mode)) {
+        errors.add(ValidationError.invalidValue(
+          'theme.mode',
+          mode,
+          'Theme mode must be one of: light, dark, system',
+        ));
+      }
+    }
+    
+    // Validate colors if present
+    if (themeMap.containsKey('colors')) {
+      errors.addAll(_validateThemeColors(themeMap['colors'], 'theme.colors'));
+    }
+    
+    // Validate typography if present
+    if (themeMap.containsKey('typography')) {
+      errors.addAll(_validateThemeTypography(themeMap['typography'], 'theme.typography'));
+    }
+    
+    // Validate spacing if present
+    if (themeMap.containsKey('spacing')) {
+      errors.addAll(_validateNumericMap(themeMap['spacing'], 'theme.spacing', 'spacing'));
+    }
+    
+    // Validate borderRadius if present
+    if (themeMap.containsKey('borderRadius')) {
+      errors.addAll(_validateNumericMap(themeMap['borderRadius'], 'theme.borderRadius', 'border radius'));
+    }
+    
+    // Validate elevation if present
+    if (themeMap.containsKey('elevation')) {
+      errors.addAll(_validateNumericMap(themeMap['elevation'], 'theme.elevation', 'elevation', minValue: 0));
+    }
+    
+    // Validate light theme if present
+    if (themeMap.containsKey('light')) {
+      final lightErrors = _validateTheme(themeMap['light']);
+      for (final error in lightErrors) {
+        errors.add(ValidationError(
+          message: error.message,
+          code: error.code,
+          path: error.path != null 
+            ? error.path!.startsWith('theme.') 
+              ? 'theme.light.${error.path!.substring(6)}' 
+              : 'theme.light.${error.path}'
+            : 'theme.light',
+          severity: error.severity,
+        ));
+      }
+    }
+    
+    // Validate dark theme if present
+    if (themeMap.containsKey('dark')) {
+      final darkErrors = _validateTheme(themeMap['dark']);
+      for (final error in darkErrors) {
+        errors.add(ValidationError(
+          message: error.message,
+          code: error.code,
+          path: error.path != null 
+            ? error.path!.startsWith('theme.') 
+              ? 'theme.dark.${error.path!.substring(6)}' 
+              : 'theme.dark.${error.path}'
+            : 'theme.dark',
+          severity: error.severity,
+        ));
+      }
     }
     
     return errors;
   }
-
-  static List<ValidationError> _validateBindingReferences(UIDefinition definition) {
+  
+  static List<ValidationError> _validateNavigation(Map<String, dynamic> navigation) {
     final errors = <ValidationError>[];
-    final availablePaths = _getAvailableStatePaths(definition);
-    final usedBindings = definition.getAllBindings();
     
-    for (final binding in usedBindings) {
-      final path = binding.replaceAll(RegExp(r'[{}]'), '').trim();
-      if (!availablePaths.contains(path) && !_isComputedValue(path, definition)) {
-        errors.add(ValidationError(
-          message: 'Binding references undefined state path: $path',
-          code: 'UNDEFINED_BINDING_PATH',
-          path: 'bindings',
-          actualValue: path,
-          severity: ValidationSeverity.warning,
-        ));
+    // Validate navigation type
+    final type = navigation['type'] as String?;
+    if (type == null || type.isEmpty) {
+      errors.add(ValidationError.requiredField('navigation.type'));
+    } else if (!['drawer', 'tabs', 'bottom'].contains(type)) {
+      errors.add(ValidationError.invalidValue(
+        'navigation.type',
+        type,
+        'Navigation type must be one of: drawer, tabs, bottom',
+      ));
+    }
+    
+    // Validate navigation items
+    final items = navigation['items'] as List<dynamic>? ?? 
+                  navigation['tabs'] as List<dynamic>?;
+    if (items == null || items.isEmpty) {
+      errors.add(ValidationError.requiredField('navigation.items'));
+    } else {
+      for (int i = 0; i < items.length; i++) {
+        if (items[i] is Map<String, dynamic>) {
+          final item = items[i] as Map<String, dynamic>;
+          if (!item.containsKey('title') && !item.containsKey('label')) {
+            errors.add(ValidationError.requiredField('navigation.items[$i].title'));
+          }
+          if (!item.containsKey('route')) {
+            errors.add(ValidationError.requiredField('navigation.items[$i].route'));
+          }
+        }
       }
     }
     
@@ -444,52 +527,23 @@ class UIValidator {
 
   // Helper methods
 
-  static List<String> _getAvailableStatePaths(UIDefinition definition) {
-    final paths = <String>[];
-    
-    void collectPaths(Map<String, dynamic> obj, String prefix) {
-      for (final entry in obj.entries) {
-        final path = prefix.isEmpty ? entry.key : '$prefix.${entry.key}';
-        paths.add(path);
-        
-        if (entry.value is Map<String, dynamic>) {
-          collectPaths(entry.value, path);
-        } else if (entry.value is List) {
-          paths.add('$path.length');
-          // Add indexed paths for arrays
-          for (int i = 0; i < (entry.value as List).length; i++) {
-            paths.add('$path[$i]');
-          }
-        }
-      }
-    }
-    
-    collectPaths(definition.initialState, '');
-    return paths;
-  }
-
-  static bool _isComputedValue(String path, UIDefinition definition) {
-    return definition.computedValues.containsKey(path.split('.').first);
-  }
-
   static bool _isValidStatePath(String path) {
     // Basic path validation
-    return RegExp(r'^[a-zA-Z_][a-zA-Z0-9_.[\]]*$').hasMatch(path);
+    // Must start with letter or underscore
+    // Cannot have consecutive dots
+    // Can contain letters, numbers, dots, underscores, and brackets
+    if (!RegExp(r'^[a-zA-Z_][a-zA-Z0-9_.\[\]]*$').hasMatch(path)) {
+      return false;
+    }
+    
+    // Check for invalid patterns
+    if (path.contains('..') || path.contains('.[') || path.contains('.]')) {
+      return false;
+    }
+    
+    return true;
   }
 
-  static bool _isValidExpression(String expression) {
-    // Basic expression validation (could be more sophisticated)
-    return expression.trim().isNotEmpty && !expression.contains('{{') && !expression.contains('}}');
-  }
-
-  static bool _isValidJavaScriptFunction(String code) {
-    // Basic JavaScript function validation
-    final trimmed = code.trim();
-    return trimmed.isNotEmpty && 
-           (trimmed.startsWith('function') || 
-            trimmed.startsWith('(') || 
-            trimmed.contains('=>'));
-  }
 
   static void _checkCircularReferences(dynamic value, String path, [Set<Object>? visited]) {
     visited ??= <Object>{};
@@ -515,5 +569,162 @@ class UIValidator {
       
       visited.remove(value);
     }
+  }
+
+  static List<ValidationError> _validateThemeColors(dynamic colors, String path) {
+    final errors = <ValidationError>[];
+    
+    if (colors is! Map<String, dynamic>) {
+      errors.add(ValidationError.typeMismatch(path, Map, colors.runtimeType));
+      return errors;
+    }
+    
+    // Required color keys according to spec
+    const requiredColorKeys = [
+      'primary', 'secondary', 'background', 'surface', 'error',
+      'textOnPrimary', 'textOnSecondary', 'textOnBackground', 'textOnSurface', 'textOnError'
+    ];
+    
+    // Check for required colors
+    for (final key in requiredColorKeys) {
+      if (!colors.containsKey(key)) {
+        errors.add(ValidationError.requiredField('$path.$key'));
+      }
+    }
+    
+    // Validate color format for each color
+    for (final entry in colors.entries) {
+      final colorPath = '$path.${entry.key}';
+      if (entry.value is! String) {
+        errors.add(ValidationError.typeMismatch(colorPath, String, entry.value.runtimeType));
+      } else if (!_isValidColorFormat(entry.value as String)) {
+        errors.add(ValidationError.invalidValue(
+          colorPath,
+          entry.value,
+          'Color must be in #RRGGBB or #AARRGGBB format',
+        ));
+      }
+    }
+    
+    return errors;
+  }
+
+  static List<ValidationError> _validateThemeTypography(dynamic typography, String path) {
+    final errors = <ValidationError>[];
+    
+    if (typography is! Map<String, dynamic>) {
+      errors.add(ValidationError.typeMismatch(path, Map, typography.runtimeType));
+      return errors;
+    }
+    
+    // Standard typography keys
+    const standardKeys = [
+      'h1', 'h2', 'h3', 'h4', 'h5', 'h6',
+      'body1', 'body2', 'caption', 'button'
+    ];
+    
+    for (final entry in typography.entries) {
+      final stylePath = '$path.${entry.key}';
+      
+      // Warn if not a standard key
+      if (!standardKeys.contains(entry.key)) {
+        errors.add(ValidationError(
+          message: 'Non-standard typography key: ${entry.key}',
+          code: 'NON_STANDARD_KEY',
+          path: stylePath,
+          severity: ValidationSeverity.warning,
+        ));
+      }
+      
+      if (entry.value is! Map<String, dynamic>) {
+        errors.add(ValidationError.typeMismatch(stylePath, Map, entry.value.runtimeType));
+        continue;
+      }
+      
+      final style = entry.value as Map<String, dynamic>;
+      
+      // Validate fontSize (required)
+      if (!style.containsKey('fontSize')) {
+        errors.add(ValidationError.requiredField('$stylePath.fontSize'));
+      } else if (style['fontSize'] is! num) {
+        errors.add(ValidationError.typeMismatch('$stylePath.fontSize', num, style['fontSize'].runtimeType));
+      }
+      
+      // Validate fontWeight (required)
+      if (!style.containsKey('fontWeight')) {
+        errors.add(ValidationError.requiredField('$stylePath.fontWeight'));
+      } else if (style['fontWeight'] is! String || 
+                 !['normal', 'bold', 'medium', 'light', 'thin'].contains(style['fontWeight'])) {
+        errors.add(ValidationError.invalidValue(
+          '$stylePath.fontWeight',
+          style['fontWeight'],
+          'Font weight must be one of: normal, bold, medium, light, thin',
+        ));
+      }
+      
+      // Validate letterSpacing (optional)
+      if (style.containsKey('letterSpacing') && style['letterSpacing'] is! num) {
+        errors.add(ValidationError.typeMismatch('$stylePath.letterSpacing', num, style['letterSpacing'].runtimeType));
+      }
+      
+      // Validate textTransform (optional)
+      if (style.containsKey('textTransform') && 
+          (style['textTransform'] is! String || 
+           !['uppercase', 'lowercase', 'capitalize', 'none'].contains(style['textTransform']))) {
+        errors.add(ValidationError.invalidValue(
+          '$stylePath.textTransform',
+          style['textTransform'],
+          'Text transform must be one of: uppercase, lowercase, capitalize, none',
+        ));
+      }
+    }
+    
+    return errors;
+  }
+
+  static List<ValidationError> _validateNumericMap(
+    dynamic map, 
+    String path, 
+    String description,
+    {num? minValue, num? maxValue}
+  ) {
+    final errors = <ValidationError>[];
+    
+    if (map is! Map<String, dynamic>) {
+      errors.add(ValidationError.typeMismatch(path, Map, map.runtimeType));
+      return errors;
+    }
+    
+    for (final entry in map.entries) {
+      final valuePath = '$path.${entry.key}';
+      
+      if (entry.value is! num) {
+        errors.add(ValidationError.typeMismatch(valuePath, num, entry.value.runtimeType));
+      } else {
+        final value = entry.value as num;
+        if (minValue != null && value < minValue) {
+          errors.add(ValidationError.invalidValue(
+            valuePath,
+            value,
+            '$description value must be at least $minValue',
+          ));
+        }
+        if (maxValue != null && value > maxValue) {
+          errors.add(ValidationError.invalidValue(
+            valuePath,
+            value,
+            '$description value must be at most $maxValue',
+          ));
+        }
+      }
+    }
+    
+    return errors;
+  }
+
+  static bool _isValidColorFormat(String color) {
+    // Validate #RRGGBB or #AARRGGBB format
+    final regex = RegExp(r'^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{8})$');
+    return regex.hasMatch(color);
   }
 }

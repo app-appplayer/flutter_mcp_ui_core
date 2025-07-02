@@ -38,19 +38,45 @@ class WidgetConfig {
 
   /// Create a WidgetConfig from JSON
   factory WidgetConfig.fromJson(Map<String, dynamic> json) {
+    // Extract type (required)
+    final type = json['type'] as String;
+    
+    // Extract known structural fields
+    final children = (json['children'] as List?)
+        ?.map((child) => WidgetConfig.fromJson(child as Map<String, dynamic>))
+        .toList() ?? [];
+    final metadata = Map<String, dynamic>.from(json['metadata'] ?? {});
+    final accessibility = json['accessibility'] != null
+        ? AccessibilityConfig.fromJson(json['accessibility'] as Map<String, dynamic>)
+        : null;
+    final i18n = json['i18n'] != null
+        ? I18nConfig.fromJson(json['i18n'] as Map<String, dynamic>)
+        : null;
+    
+    // All other fields are properties (MCP UI DSL v1.0 spec)
+    final properties = <String, dynamic>{};
+    for (final entry in json.entries) {
+      if (entry.key != 'type' && 
+          entry.key != 'children' && 
+          entry.key != 'metadata' && 
+          entry.key != 'accessibility' && 
+          entry.key != 'i18n') {
+        properties[entry.key] = entry.value;
+      }
+    }
+    
+    // For backward compatibility, if 'properties' field exists, merge it
+    if (json.containsKey('properties') && json['properties'] is Map) {
+      properties.addAll(Map<String, dynamic>.from(json['properties'] as Map));
+    }
+    
     return WidgetConfig(
-      type: json['type'] as String,
-      properties: Map<String, dynamic>.from(json['properties'] ?? {}),
-      children: (json['children'] as List?)
-          ?.map((child) => WidgetConfig.fromJson(child as Map<String, dynamic>))
-          .toList() ?? [],
-      metadata: Map<String, dynamic>.from(json['metadata'] ?? {}),
-      accessibility: json['accessibility'] != null
-          ? AccessibilityConfig.fromJson(json['accessibility'] as Map<String, dynamic>)
-          : null,
-      i18n: json['i18n'] != null
-          ? I18nConfig.fromJson(json['i18n'] as Map<String, dynamic>)
-          : null,
+      type: type,
+      properties: properties,
+      children: children,
+      metadata: metadata,
+      accessibility: accessibility,
+      i18n: i18n,
     );
   }
 

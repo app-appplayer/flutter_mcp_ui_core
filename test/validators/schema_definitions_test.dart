@@ -18,7 +18,7 @@ void main() {
         expect(numberFieldSpecs['prefix']!.defaultValue, equals(''));
         expect(numberFieldSpecs['suffix']!.defaultValue, equals(''));
         expect(numberFieldSpecs['thousandSeparator']!.defaultValue, equals(','));
-        expect(numberFieldSpecs['onChange'], isNotNull);
+        expect(numberFieldSpecs['change'], isNotNull);
         expect(numberFieldSpecs['bindTo'], isNotNull);
 
         // Color Picker
@@ -29,7 +29,7 @@ void main() {
         expect(colorPickerSpecs['showLabel']!.defaultValue, equals(true));
         expect(colorPickerSpecs['pickerType']!.defaultValue, equals('both'));
         expect(colorPickerSpecs['enableHistory']!.defaultValue, equals(true));
-        expect(colorPickerSpecs['onChange'], isNotNull);
+        expect(colorPickerSpecs['change'], isNotNull);
         expect(colorPickerSpecs['bindTo'], isNotNull);
 
         // Radio Group
@@ -38,7 +38,7 @@ void main() {
         expect(radioGroupSpecs!['value'], isNotNull);
         expect(radioGroupSpecs['options']!.required, isTrue);
         expect(radioGroupSpecs['orientation']!.defaultValue, equals('vertical'));
-        expect(radioGroupSpecs['onChange'], isNotNull);
+        expect(radioGroupSpecs['change'], isNotNull);
         expect(radioGroupSpecs['bindTo'], isNotNull);
 
         // Checkbox Group
@@ -47,7 +47,7 @@ void main() {
         expect(checkboxGroupSpecs!['value']!.defaultValue, equals([]));
         expect(checkboxGroupSpecs['options']!.required, isTrue);
         expect(checkboxGroupSpecs['orientation']!.defaultValue, equals('vertical'));
-        expect(checkboxGroupSpecs['onChange'], isNotNull);
+        expect(checkboxGroupSpecs['change'], isNotNull);
         expect(checkboxGroupSpecs['bindTo'], isNotNull);
 
         // Segmented Control
@@ -56,7 +56,7 @@ void main() {
         expect(segmentedControlSpecs!['value'], isNotNull);
         expect(segmentedControlSpecs['options']!.required, isTrue);
         expect(segmentedControlSpecs['style']!.defaultValue, equals('material'));
-        expect(segmentedControlSpecs['onChange'], isNotNull);
+        expect(segmentedControlSpecs['change'], isNotNull);
         expect(segmentedControlSpecs['bindTo'], isNotNull);
 
         // Date Field
@@ -69,7 +69,7 @@ void main() {
         expect(dateFieldSpecs['lastDate'], isNotNull);
         expect(dateFieldSpecs['mode']!.defaultValue, equals('calendar'));
         expect(dateFieldSpecs['locale']!.defaultValue, equals('en_US'));
-        expect(dateFieldSpecs['onChange'], isNotNull);
+        expect(dateFieldSpecs['change'], isNotNull);
         expect(dateFieldSpecs['bindTo'], isNotNull);
 
         // Time Field
@@ -80,7 +80,7 @@ void main() {
         expect(timeFieldSpecs['format']!.defaultValue, equals('HH:mm'));
         expect(timeFieldSpecs['use24HourFormat']!.defaultValue, equals(true));
         expect(timeFieldSpecs['mode']!.defaultValue, equals('spinner'));
-        expect(timeFieldSpecs['onChange'], isNotNull);
+        expect(timeFieldSpecs['change'], isNotNull);
         expect(timeFieldSpecs['bindTo'], isNotNull);
 
         // Date Range Picker
@@ -93,7 +93,7 @@ void main() {
         expect(dateRangePickerSpecs['format']!.defaultValue, equals('yyyy-MM-dd'));
         expect(dateRangePickerSpecs['locale']!.defaultValue, equals('en_US'));
         expect(dateRangePickerSpecs['saveText']!.defaultValue, equals('Save'));
-        expect(dateRangePickerSpecs['onChange'], isNotNull);
+        expect(dateRangePickerSpecs['change'], isNotNull);
       });
 
       test('should have property specs for scroll widgets', () {
@@ -170,7 +170,7 @@ void main() {
         expect(numberFieldProps, contains('prefix'));
         expect(numberFieldProps, contains('suffix'));
         expect(numberFieldProps, contains('thousandSeparator'));
-        expect(numberFieldProps, contains('onChange'));
+        expect(numberFieldProps, contains('change'));
         expect(numberFieldProps, contains('bindTo'));
         expect(numberFieldProps.length, equals(12));
       });
@@ -197,7 +197,7 @@ void main() {
         expect(numberFieldOptional, contains('bindTo'));
 
         final radioGroupOptional = SchemaDefinitions.getOptionalProperties(WidgetTypes.radioGroup);
-        expect(radioGroupOptional.toSet(), equals({'value', 'orientation', 'onChange', 'bindTo'}));
+        expect(radioGroupOptional.toSet(), equals({'value', 'orientation', 'change', 'bindTo'}));
       });
     });
 

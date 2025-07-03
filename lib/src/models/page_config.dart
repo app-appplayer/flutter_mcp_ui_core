@@ -46,7 +46,9 @@ class PageConfig {
       type: json['type'] as String? ?? 'page',
       title: json['title'] as String?,
       route: json['route'] as String?,
-      content: Map<String, dynamic>.from(json['content'] as Map),
+      content: json['content'] != null 
+          ? Map<String, dynamic>.from(json['content'] as Map)
+          : throw ArgumentError('Required field "content" is missing'),
       themeOverride: json['themeOverride'] as Map<String, dynamic>?,
       state: json['state'] as Map<String, dynamic>?,
       lifecycle: json['lifecycle'] as Map<String, dynamic>?,

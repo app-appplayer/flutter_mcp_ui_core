@@ -67,7 +67,7 @@ void main() {
       test('should have legacy Flutter event names for backward compatibility', () {
         expect(PropertyKeys.onTap, equals('onTap'));
         expect(PropertyKeys.onPressed, equals('onPressed'));
-        expect(PropertyKeys.onChanged, equals('onChanged'));
+        expect(PropertyKeys.onChanged, equals('onChanged')); // Legacy compatibility
         expect(PropertyKeys.onSubmitted, equals('onSubmitted'));
       });
       

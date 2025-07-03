@@ -450,7 +450,7 @@ void main() {
         final widget = WidgetConfig(
           type: WidgetTypes.colorPicker,
           properties: {
-            'onChange': ActionConfig.batch([
+            'change': ActionConfig.batch([
               ActionConfig.state(
                 action: 'set',
                 binding: 'theme.primary',
@@ -461,10 +461,10 @@ void main() {
           },
         );
 
-        final onChange = widget.properties['onChange'] as Map<String, dynamic>;
-        expect(onChange['type'], equals('batch'));
-        expect(onChange['actions'], isNotNull);
-        expect((onChange['actions'] as List).length, equals(2));
+        final change = widget.properties['change'] as Map<String, dynamic>;
+        expect(change['type'], equals('batch'));
+        expect(change['actions'], isNotNull);
+        expect((change['actions'] as List).length, equals(2));
       });
     });
   });

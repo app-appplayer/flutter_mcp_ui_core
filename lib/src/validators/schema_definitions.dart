@@ -253,23 +253,23 @@ class SchemaDefinitions {
       'maxLines': const PropertySpec(type: int, defaultValue: 1),
       'maxLength': const PropertySpec(type: int, defaultValue: null),
       'keyboardType': const PropertySpec(type: String, defaultValue: 'text'),
-      'onChanged': const PropertySpec(type: Map, defaultValue: null),
+      'change': const PropertySpec(type: Map, defaultValue: null),
       'bindTo': const PropertySpec(type: String, defaultValue: null),
     },
     
     WidgetTypes.checkbox: {
-      'value': const PropertySpec(type: bool, defaultValue: false),
+      'value': const PropertySpec(type: dynamic, defaultValue: false), // Can be bool or binding string
       'label': const PropertySpec(type: String, defaultValue: null),
-      'onChanged': const PropertySpec(type: Map, defaultValue: null),
+      'change': const PropertySpec(type: Map, defaultValue: null), // MCP UI DSL uses 'change' not 'onChanged'
       'bindTo': const PropertySpec(type: String, defaultValue: null),
     },
     
     WidgetTypes.slider: {
-      'value': const PropertySpec(type: double, defaultValue: 0.0),
+      'value': const PropertySpec(type: dynamic, defaultValue: 0.0), // Can be double or binding string
       'min': const PropertySpec(type: double, defaultValue: 0.0),
       'max': const PropertySpec(type: double, defaultValue: 100.0),
       'divisions': const PropertySpec(type: int, defaultValue: null),
-      'onChanged': const PropertySpec(type: Map, defaultValue: null),
+      'change': const PropertySpec(type: Map, defaultValue: null), // MCP UI DSL uses 'change' not 'onChanged'
       'bindTo': const PropertySpec(type: String, defaultValue: null),
     },
     
@@ -350,7 +350,7 @@ class SchemaDefinitions {
     // New Input Widgets
     WidgetTypes.numberField: {
       'label': const PropertySpec(type: String, defaultValue: null),
-      'value': const PropertySpec(type: double, defaultValue: 0.0),
+      'value': const PropertySpec(type: dynamic, defaultValue: 0.0), // Can be number or binding string
       'min': const PropertySpec(type: double, defaultValue: null),
       'max': const PropertySpec(type: double, defaultValue: null),
       'step': const PropertySpec(type: double, defaultValue: 1.0),
@@ -359,33 +359,33 @@ class SchemaDefinitions {
       'prefix': const PropertySpec(type: String, defaultValue: ''),
       'suffix': const PropertySpec(type: String, defaultValue: ''),
       'thousandSeparator': const PropertySpec(type: String, defaultValue: ','),
-      'onChange': const PropertySpec(type: Map, defaultValue: null),
+      'change': const PropertySpec(type: Map, defaultValue: null), // MCP UI DSL uses 'change'
       'bindTo': const PropertySpec(type: String, defaultValue: null),
     },
     
     WidgetTypes.colorPicker: {
-      'value': const PropertySpec(type: String, defaultValue: '#000000'),
+      'value': const PropertySpec(type: dynamic, defaultValue: '#000000'), // Can be string or binding
       'showAlpha': const PropertySpec(type: bool, defaultValue: true),
       'showLabel': const PropertySpec(type: bool, defaultValue: true),
       'pickerType': const PropertySpec(type: String, defaultValue: 'both'),
       'enableHistory': const PropertySpec(type: bool, defaultValue: true),
-      'onChange': const PropertySpec(type: Map, defaultValue: null),
+      'change': const PropertySpec(type: Map, defaultValue: null), // MCP UI DSL uses 'change'
       'bindTo': const PropertySpec(type: String, defaultValue: null),
     },
     
     WidgetTypes.radioGroup: {
-      'value': const PropertySpec(type: String, defaultValue: null),
+      'value': const PropertySpec(type: dynamic, defaultValue: null), // Can be string or binding
       'options': const PropertySpec(type: List, required: true),
       'orientation': const PropertySpec(type: String, defaultValue: 'vertical'),
-      'onChange': const PropertySpec(type: Map, defaultValue: null),
+      'change': const PropertySpec(type: Map, defaultValue: null), // MCP UI DSL uses 'change'
       'bindTo': const PropertySpec(type: String, defaultValue: null),
     },
     
     WidgetTypes.checkboxGroup: {
-      'value': const PropertySpec(type: List, defaultValue: []),
+      'value': const PropertySpec(type: dynamic, defaultValue: []), // Can be List or binding string
       'options': const PropertySpec(type: List, required: true),
       'orientation': const PropertySpec(type: String, defaultValue: 'vertical'),
-      'onChange': const PropertySpec(type: Map, defaultValue: null),
+      'change': const PropertySpec(type: Map, defaultValue: null), // MCP UI DSL uses 'change'
       'bindTo': const PropertySpec(type: String, defaultValue: null),
     },
     
@@ -393,7 +393,7 @@ class SchemaDefinitions {
       'value': const PropertySpec(type: String, defaultValue: null),
       'options': const PropertySpec(type: List, required: true),
       'style': const PropertySpec(type: String, defaultValue: 'material'),
-      'onChange': const PropertySpec(type: Map, defaultValue: null),
+      'change': const PropertySpec(type: Map, defaultValue: null),
       'bindTo': const PropertySpec(type: String, defaultValue: null),
     },
     
@@ -405,7 +405,7 @@ class SchemaDefinitions {
       'lastDate': const PropertySpec(type: String, defaultValue: null),
       'mode': const PropertySpec(type: String, defaultValue: 'calendar'),
       'locale': const PropertySpec(type: String, defaultValue: 'en_US'),
-      'onChange': const PropertySpec(type: Map, defaultValue: null),
+      'change': const PropertySpec(type: Map, defaultValue: null),
       'bindTo': const PropertySpec(type: String, defaultValue: null),
     },
     
@@ -415,7 +415,7 @@ class SchemaDefinitions {
       'format': const PropertySpec(type: String, defaultValue: 'HH:mm'),
       'use24HourFormat': const PropertySpec(type: bool, defaultValue: true),
       'mode': const PropertySpec(type: String, defaultValue: 'spinner'),
-      'onChange': const PropertySpec(type: Map, defaultValue: null),
+      'change': const PropertySpec(type: Map, defaultValue: null),
       'bindTo': const PropertySpec(type: String, defaultValue: null),
     },
     
@@ -427,7 +427,7 @@ class SchemaDefinitions {
       'format': const PropertySpec(type: String, defaultValue: 'yyyy-MM-dd'),
       'locale': const PropertySpec(type: String, defaultValue: 'en_US'),
       'saveText': const PropertySpec(type: String, defaultValue: 'Save'),
-      'onChange': const PropertySpec(type: Map, defaultValue: null),
+      'change': const PropertySpec(type: Map, defaultValue: null),
     },
     
     // Scroll Widgets - Spec v1.0 compliant

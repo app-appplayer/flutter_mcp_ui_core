@@ -79,7 +79,7 @@ class UIValidator {
 
   /// Validate a widget configuration
   static ValidationResult validateWidget(WidgetConfig widget) {
-    return ValidationResult.fromErrors(_validateWidget(widget).errors);
+    return ValidationResult.fromErrors(_validateWidget(widget, 'widget').errors);
   }
 
   /// Validate an action configuration
@@ -106,6 +106,37 @@ class UIValidator {
       final type = json['type'] as String?;
       
       if (type == 'application') {
+        // Validate required fields before creating ApplicationConfig
+        if (!json.containsKey('title') || json['title'] == null || (json['title'] as String).isEmpty) {
+          errors.add(ValidationError(
+            message: 'Required field missing: title',
+            code: 'REQUIRED_FIELD',
+            severity: ValidationSeverity.error,
+            path: 'title',
+          ));
+        }
+        if (!json.containsKey('version') || json['version'] == null || (json['version'] as String).isEmpty) {
+          errors.add(ValidationError(
+            message: 'Required field missing: version',
+            code: 'REQUIRED_FIELD',
+            severity: ValidationSeverity.error,
+            path: 'version',
+          ));
+        }
+        if (!json.containsKey('routes') || json['routes'] == null || (json['routes'] as Map).isEmpty) {
+          errors.add(ValidationError(
+            message: 'Required field missing: routes',
+            code: 'REQUIRED_FIELD',
+            severity: ValidationSeverity.error,
+            path: 'routes',
+          ));
+        }
+        
+        // If we have errors already, return them
+        if (errors.isNotEmpty) {
+          return ValidationResult.fromErrors(errors);
+        }
+        
         // Validate as application
         try {
           final appConfig = ApplicationConfig.fromJson(json);
@@ -141,8 +172,27 @@ class UIValidator {
             severity: ValidationSeverity.error,
           ));
         }
+      } else if (json.containsKey('type')) {
+        // Has type but it's not a valid widget type
+        final typeValue = json['type'];
+        if (typeValue is String && typeValue.isNotEmpty) {
+          // Check if it's a known invalid type (like column, row, etc.)
+          errors.add(ValidationError(
+            message: 'Unknown widget type: $typeValue',
+            code: 'UNKNOWN_WIDGET_TYPE',
+            severity: ValidationSeverity.error,
+            path: 'type',
+          ));
+        } else {
+          errors.add(ValidationError(
+            message: 'Invalid type value',
+            code: 'INVALID_TYPE',
+            severity: ValidationSeverity.error,
+            path: 'type',
+          ));
+        }
       } else {
-        // Unknown structure
+        // No type field at all
         errors.add(ValidationError(
           message: 'Unknown UI structure. Expected type: "application", "page", or valid widget type',
           code: 'UNKNOWN_STRUCTURE',
@@ -298,7 +348,9 @@ class UIValidator {
         if (action.navigationAction == null || action.navigationAction!.isEmpty) {
           errors.add(ValidationError.requiredField('$path.action'));
         }
-        if (action.navigationRoute == null || action.navigationRoute!.isEmpty) {
+        // Route is only required for push and replace actions
+        if ((action.navigationAction == 'push' || action.navigationAction == 'replace') &&
+            (action.navigationRoute == null || action.navigationRoute!.isEmpty)) {
           errors.add(ValidationError.requiredField('$path.route'));
         }
         break;
@@ -586,10 +638,21 @@ class UIValidator {
     ];
     
     // Check for required colors
+    final missingColors = <String>[];
     for (final key in requiredColorKeys) {
       if (!colors.containsKey(key)) {
-        errors.add(ValidationError.requiredField('$path.$key'));
+        missingColors.add(key);
       }
+    }
+    
+    // If some colors are defined but not all, it's a warning
+    if (missingColors.isNotEmpty) {
+      errors.add(ValidationError(
+        message: 'Missing required theme colors: ${missingColors.join(', ')}',
+        code: 'MISSING_THEME_COLORS',
+        path: path,
+        severity: ValidationSeverity.warning,
+      ));
     }
     
     // Validate color format for each color

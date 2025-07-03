@@ -15,8 +15,18 @@ void main() {
           },
           initialRoute: '/',
           theme: {
-            'primaryColor': '#2196F3',
-            'secondaryColor': '#FF5722',
+            'colors': {
+              'primary': '#2196F3',
+              'secondary': '#FF5722',
+              'background': '#FFFFFF',
+              'surface': '#F5F5F5',
+              'error': '#F44336',
+              'textOnPrimary': '#FFFFFF',
+              'textOnSecondary': '#FFFFFF',
+              'textOnBackground': '#000000',
+              'textOnSurface': '#000000',
+              'textOnError': '#FFFFFF',
+            },
           },
           navigation: {
             'type': 'bottom',
@@ -123,8 +133,10 @@ void main() {
             'content': 'Settings Page',
           },
           themeOverride: {
-            'primaryColor': '#FF5722',
-            'backgroundColor': '#FFFFFF',
+            'colors': {
+              'primary': '#FF5722',
+              'background': '#FFFFFF',
+            },
           },
         );
 
@@ -180,7 +192,7 @@ void main() {
 
         final result = UIValidator.validateJson(json);
         expect(result.isValid, isFalse);
-        expect(result.errors.any((e) => e.code == 'UNKNOWN_STRUCTURE'), isTrue);
+        expect(result.errors.any((e) => e.code == 'UNKNOWN_WIDGET_TYPE'), isTrue);
       });
 
       test('should handle malformed JSON gracefully', () {
@@ -221,7 +233,7 @@ void main() {
             'value': '#FF5722',
             'showAlpha': false,
             'pickerType': 'wheel',
-            'onChange': ActionConfig.state(
+            'change': ActionConfig.state(
               action: 'set',
               binding: 'theme.primaryColor',
               value: '{{value}}'
@@ -245,7 +257,7 @@ void main() {
               {'label': 'Option 3', 'value': 'option3'},
             ],
             'orientation': 'vertical',
-            'onChange': {
+            'change': {
               'type': 'state',
               'action': 'set',
               'binding': 'selectedOption',
@@ -269,7 +281,7 @@ void main() {
               {'label': 'Option 3', 'value': 'option3'},
             ],
             'orientation': 'horizontal',
-            'onChange': {
+            'change': {
               'type': 'state',
               'action': 'set',
               'binding': 'selectedOptions',
@@ -292,7 +304,7 @@ void main() {
               {'label': 'Tab 2', 'value': 'tab2'},
               {'label': 'Tab 3', 'value': 'tab3'},
             ],
-            'onChange': {
+            'change': {
               'type': 'state',
               'action': 'set',
               'binding': 'activeTab',
@@ -314,7 +326,7 @@ void main() {
             'format': 'yyyy-MM-dd',
             'firstDate': '2020-01-01',
             'lastDate': '2030-12-31',
-            'onChange': {
+            'change': {
               'type': 'state',
               'action': 'set',
               'binding': 'selectedDate',
@@ -335,7 +347,7 @@ void main() {
             'value': '14:30',
             'format': 'HH:mm',
             'use24HourFormat': true,
-            'onChange': {
+            'change': {
               'type': 'state',
               'action': 'set',
               'binding': 'selectedTime',
@@ -356,7 +368,7 @@ void main() {
             'startDate': '2024-01-01',
             'endDate': '2024-01-31',
             'format': 'yyyy-MM-dd',
-            'onChange': {
+            'change': {
               'type': 'batch',
               'actions': [
                 {
@@ -380,10 +392,10 @@ void main() {
         expect(result.isValid, isTrue);
       });
 
-      test('should validate modern layout widgets', () {
-        // Test modern layout widgets
+      test('should validate linear widget (not column)', () {
+        // Test that 'linear' is the correct widget name, not 'column'
         final linearWidget = WidgetConfig(
-          type: 'linear',
+          type: WidgetTypes.linear,  // From spec: 'linear' not 'column'
           properties: {
             'direction': 'vertical',
             'gap': 16.0,
@@ -397,8 +409,20 @@ void main() {
         );
         expect(UIValidator.validateWidget(linearWidget).isValid, isTrue);
 
+        // Test that 'column' is NOT a valid widget type
+        final columnWidget = WidgetConfig(
+          type: 'column',  // This should be invalid
+          properties: {
+            'children': [],
+          },
+        );
+        final columnResult = UIValidator.validateWidget(columnWidget);
+        expect(columnResult.isValid, isFalse, reason: 'column is not a valid widget type in MCP UI DSL');
+        expect(columnResult.errors.any((e) => e.message.contains('Unknown widget type')), isTrue);
+        
+        // Test 'box' widget (container replacement)
         final boxWidget = WidgetConfig(
-          type: 'box',
+          type: WidgetTypes.box,  // 'box' not 'container'
           properties: {
             'width': 200.0,
             'height': 100.0,
@@ -554,7 +578,7 @@ void main() {
         expect(result.errors, isEmpty);
       });
 
-      test('should detect missing required colors', () {
+      test('should warn about missing required colors', () {
         final theme = {
           'colors': {
             'primary': '#2196F3',
@@ -564,9 +588,9 @@ void main() {
         };
         
         final result = UIValidator.validateTheme(theme);
-        expect(result.errors.any((e) => e.path?.contains('background') ?? false), isTrue);
-        expect(result.errors.any((e) => e.path?.contains('textOnPrimary') ?? false), isTrue);
-        expect(result.errors.any((e) => e.path?.contains('textOnSecondary') ?? false), isTrue);
+        // Missing colors should be warnings, not errors
+        expect(result.isValid, isTrue);
+        expect(result.warnings.any((w) => w.message.contains('Missing required theme colors')), isTrue);
       });
 
       test('should validate color formats', () {
@@ -684,7 +708,7 @@ void main() {
           'dark': {
             'colors': {
               'primary': '#1976D2',
-              // Missing other required colors
+              // Missing secondary, background, surface, error, and textOn* colors
             },
           },
         };

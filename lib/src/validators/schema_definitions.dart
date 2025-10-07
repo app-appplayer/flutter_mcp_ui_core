@@ -174,8 +174,9 @@ class SchemaDefinitions {
   static final Map<String, Map<String, PropertySpec>> _widgetPropertySpecs = {
     // Layout Widgets
     WidgetTypes.box: {
-      'width': const PropertySpec(type: double, defaultValue: null),
-      'height': const PropertySpec(type: double, defaultValue: null),
+      // Support both direct numbers and MCP UI DSL v1.0 format {"value": 100, "unit": "px"}
+      'width': const PropertySpec(type: dynamic, defaultValue: null),
+      'height': const PropertySpec(type: dynamic, defaultValue: null),
       'padding': const PropertySpec(type: Map, defaultValue: null),
       'margin': const PropertySpec(type: Map, defaultValue: null),
       'color': const PropertySpec(type: String, defaultValue: null),
@@ -215,20 +216,23 @@ class SchemaDefinitions {
     
     WidgetTypes.image: {
       'src': const PropertySpec(type: String, required: true),
-      'width': const PropertySpec(type: double, defaultValue: null),
-      'height': const PropertySpec(type: double, defaultValue: null),
+      // Support both direct numbers and MCP UI DSL v1.0 format {"value": 100, "unit": "px"}
+      'width': const PropertySpec(type: dynamic, defaultValue: null),
+      'height': const PropertySpec(type: dynamic, defaultValue: null),
       'fit': const PropertySpec(type: String, defaultValue: 'contain'),
     },
     
     WidgetTypes.icon: {
       'icon': const PropertySpec(type: String, required: true),
-      'size': const PropertySpec(type: double, defaultValue: 24.0),
+      // Support both direct numbers and MCP UI DSL v1.0 format
+      'size': const PropertySpec(type: dynamic, defaultValue: 24.0),
       'color': const PropertySpec(type: String, defaultValue: null),
     },
     
     // Loading indicator widget
     WidgetTypes.loadingIndicator: {
-      'size': const PropertySpec(type: double, defaultValue: 24.0),
+      // Support both direct numbers and MCP UI DSL v1.0 format
+      'size': const PropertySpec(type: dynamic, defaultValue: 24.0),
       'color': const PropertySpec(type: String, defaultValue: null),
       'type': const PropertySpec(type: String, defaultValue: 'circular'),
       'message': const PropertySpec(type: String, defaultValue: null),
@@ -266,8 +270,9 @@ class SchemaDefinitions {
     
     WidgetTypes.slider: {
       'value': const PropertySpec(type: dynamic, defaultValue: 0.0), // Can be double or binding string
-      'min': const PropertySpec(type: double, defaultValue: 0.0),
-      'max': const PropertySpec(type: double, defaultValue: 100.0),
+      // Support both direct numbers and MCP UI DSL v1.0 format
+      'min': const PropertySpec(type: dynamic, defaultValue: 0.0),
+      'max': const PropertySpec(type: dynamic, defaultValue: 100.0),
       'divisions': const PropertySpec(type: int, defaultValue: null),
       'change': const PropertySpec(type: Map, defaultValue: null), // MCP UI DSL uses 'change' not 'onChanged'
       'bindTo': const PropertySpec(type: String, defaultValue: null),

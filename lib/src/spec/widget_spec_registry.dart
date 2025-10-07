@@ -65,9 +65,9 @@ class WidgetSpecRegistry {
         ),
         'gap': ParameterSpec(
           name: 'gap',
-          type: double,
+          type: dynamic, // Support both number and MCP UI DSL v1.0 format
           defaultValue: 0.0,
-          description: 'Spacing between items',
+          description: 'Spacing between items - supports both number and MCP UI DSL v1.0 format',
         ),
         'wrap': ParameterSpec(
           name: 'wrap',
@@ -91,13 +91,13 @@ class WidgetSpecRegistry {
         ),
         'width': ParameterSpec(
           name: 'width',
-          type: double,
-          description: 'Box width',
+          type: dynamic, // Support both number and MCP UI DSL v1.0 format {"value": X, "unit": "px"}
+          description: 'Box width - supports both number and MCP UI DSL v1.0 format',
         ),
         'height': ParameterSpec(
           name: 'height',
-          type: double,
-          description: 'Box height',
+          type: dynamic, // Support both number and MCP UI DSL v1.0 format {"value": X, "unit": "px"}
+          description: 'Box height - supports both number and MCP UI DSL v1.0 format',
         ),
         'padding': ParameterSpec(
           name: 'padding',
@@ -200,13 +200,13 @@ class WidgetSpecRegistry {
         ),
         'width': ParameterSpec(
           name: 'width',
-          type: double,
-          description: 'Image width',
+          type: dynamic, // Support both number and MCP UI DSL v1.0 format
+          description: 'Image width - supports both number and MCP UI DSL v1.0 format',
         ),
         'height': ParameterSpec(
           name: 'height',
-          type: double,
-          description: 'Image height',
+          type: dynamic, // Support both number and MCP UI DSL v1.0 format
+          description: 'Image height - supports both number and MCP UI DSL v1.0 format',
         ),
         'fit': ParameterSpec(
           name: 'fit',
@@ -231,9 +231,9 @@ class WidgetSpecRegistry {
         ),
         'size': ParameterSpec(
           name: 'size',
-          type: double,
+          type: dynamic, // Support both number and MCP UI DSL v1.0 format
           defaultValue: 24.0,
-          description: 'Icon size',
+          description: 'Icon size - supports both number and MCP UI DSL v1.0 format',
         ),
         'color': ParameterSpec(
           name: 'color',
@@ -250,9 +250,9 @@ class WidgetSpecRegistry {
       parameters: {
         'size': ParameterSpec(
           name: 'size',
-          type: double,
+          type: dynamic, // Support both number and MCP UI DSL v1.0 format
           defaultValue: 24.0,
-          description: 'Indicator size',
+          description: 'Indicator size - supports both number and MCP UI DSL v1.0 format',
         ),
         'color': ParameterSpec(
           name: 'color',
@@ -261,8 +261,8 @@ class WidgetSpecRegistry {
         ),
         'value': ParameterSpec(
           name: 'value',
-          type: double,
-          description: 'Progress value (0.0 to 1.0)',
+          type: dynamic, // Support both number and MCP UI DSL v1.0 format
+          description: 'Progress value (0.0 to 1.0) - supports both number and MCP UI DSL v1.0 format',
         ),
         'indicatorType': ParameterSpec(
           name: 'indicatorType',
@@ -490,9 +490,9 @@ class WidgetSpecRegistry {
         ),
         'elevation': ParameterSpec(
           name: 'elevation',
-          type: double,
+          type: dynamic, // Support both number and MCP UI DSL v1.0 format
           defaultValue: 4.0,
-          description: 'Header elevation',
+          description: 'Header elevation - supports both number and MCP UI DSL v1.0 format',
         ),
         'backgroundColor': ParameterSpec(
           name: 'backgroundColor',

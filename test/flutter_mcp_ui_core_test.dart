@@ -8,7 +8,22 @@ void main() {
       expect(WidgetConfig, isNotNull);
       expect(ActionConfig, isNotNull);
       expect(BindingConfig, isNotNull);
-      expect(ThemeConfig, isNotNull);
+      expect(ThemeDefinition, isNotNull);
+      expect(ColorSchemeDefinition, isNotNull);
+      expect(TypographyDefinition, isNotNull);
+      expect(SpacingDefinition, isNotNull);
+      expect(ShapeDefinition, isNotNull);
+      expect(ElevationDefinition, isNotNull);
+      expect(MotionDefinition, isNotNull);
+      expect(DensityDefinition, isNotNull);
+      expect(BreakpointsDefinition, isNotNull);
+      expect(BorderDefinition, isNotNull);
+      expect(OpacityDefinition, isNotNull);
+      expect(FocusRingDefinition, isNotNull);
+      expect(ZIndexDefinition, isNotNull);
+      expect(ComponentTokensDefinition, isNotNull);
+      expect(SeedPalette, isNotNull);
+      expect(DtcgCodec, isNotNull);
       expect(ApplicationConfig, isNotNull);
       expect(PageConfig, isNotNull);
       expect(PropertySpec, isNotNull);
@@ -28,9 +43,12 @@ void main() {
     });
 
     test('should have correct DSL version', () {
-      expect(MCPUIDSLVersion.current, equals('1.0.0'));
-      expect(MCPUIDSLVersion.supported, contains('1.0.0'));
-      expect(MCPUIDSLVersion.isCompatible('1.0.0'), isTrue);
+      expect(MCPUIDSLVersion.current, equals('1.3'));
+      expect(MCPUIDSLVersion.minimum, equals('1.3'));
+      expect(MCPUIDSLVersion.supported, equals(['1.3']));
+      expect(MCPUIDSLVersion.isCompatible('1.3'), isTrue);
+      expect(MCPUIDSLVersion.isCompatible('1.3.0'), isTrue);
+      expect(MCPUIDSLVersion.isCompatible('1.2.0'), isFalse);
       expect(MCPUIDSLVersion.isCompatible('2.0.0'), isFalse);
     });
 
@@ -85,17 +103,36 @@ void main() {
       expect((json['user'] as Map)['name'], equals('John')); // Original unchanged
     });
 
-    test('should create ThemeConfig with defaults', () {
-      final theme = ThemeConfig(mode: 'light');
-      expect(theme.mode, equals('light'));
-      
-      final defaultLight = ThemeConfig.defaultLight();
-      expect(defaultLight.mode, equals('light'));
-      expect(defaultLight.colors?['primary'], equals('#2196F3'));
-      
-      final defaultDark = ThemeConfig.defaultDark();
-      expect(defaultDark.mode, equals('dark'));
-      expect(defaultDark.colors?['background'], equals('#121212'));
+    test('ThemeDefinition default light/dark — M3 + HCT seed', () {
+      final light = ThemeDefinition.defaultLight();
+      expect(light.mode, equals('light'));
+      expect(light.color, isNotNull);
+      expect(light.color!.primary, isNotNull);
+      expect(light.typography?.bodyLarge?.fontSize, equals(16));
+      expect(light.spacing?.md, equals(16));
+      expect(light.shape?.full?.uniform, equals(9999));
+      expect(light.elevation?.level3?.shadow, equals(6));
+
+      final dark = ThemeDefinition.defaultDark();
+      expect(dark.mode, equals('dark'));
+      expect(dark.color, isNotNull);
+      expect(dark.color!.primary, isNotNull);
+      expect(dark.color!.primary, isNot(equals(light.color!.primary)));
+    });
+
+    test('ThemeDefinition DTCG round-trip', () {
+      final original = ThemeDefinition.defaultLight();
+      final dtcg = original.toDtcg();
+      expect(dtcg['mode'], equals('light'));
+      expect(dtcg['color'], isNotNull);
+      // Spacing dimension wrapper.
+      expect((dtcg['spacing'] as Map)['md'][r'$type'], equals('dimension'));
+      expect((dtcg['spacing'] as Map)['md'][r'$value'], equals('16px'));
+      // Re-import.
+      final reimported = ThemeDefinition.fromDtcg(dtcg);
+      expect(reimported.mode, equals('light'));
+      expect(reimported.color?.primary, equals(original.color?.primary));
+      expect(reimported.spacing?.md, equals(16));
     });
 
     test('should create ApplicationConfig', () {

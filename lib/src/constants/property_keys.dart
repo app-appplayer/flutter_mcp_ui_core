@@ -15,7 +15,8 @@ class PropertyKeys {
   static const String alignment = 'alignment';
   static const String distribution = 'distribution'; // spec v1.0: replaces mainAxisAlignment
   static const String direction = 'direction'; // spec v1.0: for linear layouts
-  static const String gap = 'gap'; // spec v1.0: spacing between items
+  static const String spacing = 'spacing'; // spec v1.0: spacing between items
+  static const String gap = 'gap'; // legacy alias for spacing
   static const String wrap = 'wrap'; // spec v1.0: whether items wrap
   
   // Legacy Flutter layout names (for backward compatibility)
@@ -60,21 +61,31 @@ class PropertyKeys {
   static const String iconSize = 'iconSize';
   static const String iconColor = 'iconColor';
   
-  // Interaction Properties - Updated to match spec v1.0
+  // Interaction Properties - on + PascalCase (optimal)
+  static const String onTap = 'onTap';
+  static const String onDoubleTap = 'onDoubleTap';
+  static const String onLongPress = 'onLongPress';
+  static const String onSubmit = 'onSubmit';
+  static const String onSelect = 'onSelect';
+  static const String onOpen = 'onOpen';
+  static const String onCommand = 'onCommand';
+  // Legacy short names (accepted as aliases for backward compatibility)
   static const String click = 'click';
-  static const String doubleClick = 'doubleClick'; // CamelCase per spec v1.0
-  static const String rightClick = 'rightClick'; // CamelCase per spec v1.0
-  static const String longPress = 'longPress'; // CamelCase per spec v1.0
+  static const String doubleClick = 'double-click';
+  static const String rightClick = 'right-click';
+  static const String longPress = 'long-press';
+  static const String doubleClickLegacy = 'doubleClick';
+  static const String rightClickLegacy = 'rightClick';
+  static const String longPressLegacy = 'longPress';
   static const String change = 'change';
+  static const String submit = 'submit';
   static const String focus = 'focus';
   static const String blur = 'blur';
   static const String hover = 'hover';
-  static const String submit = 'submit';
   static const String enabled = 'enabled';
   static const String disabled = 'disabled';
-  
+
   // Legacy Flutter event names (for backward compatibility)
-  static const String onTap = 'onTap';
   static const String onPressed = 'onPressed';
   static const String onChanged = 'onChanged';
   static const String onSubmitted = 'onSubmitted';
@@ -85,16 +96,21 @@ class PropertyKeys {
   static const String checked = 'checked';
   static const String visible = 'visible';
   
+  // Button Properties
+  static const String variant = 'variant'; // spec v1.0: button variant
+
   // Form Properties
   static const String validator = 'validator';
   static const String required = 'required';
   static const String obscureText = 'obscureText';
-  static const String keyboardType = 'keyboardType';
+  static const String inputType = 'inputType'; // spec v1.0: input type
+  static const String keyboardType = 'keyboardType'; // legacy alias for inputType
   static const String maxLength = 'maxLength';
   static const String maxLines = 'maxLines';
   
   // List Properties
-  static const String items = 'items';
+  static const String options = 'options'; // spec v1.0: select/radio/checkbox options
+  static const String items = 'items'; // legacy alias for options
   static const String itemTemplate = 'itemTemplate';
   static const String itemBuilder = 'itemBuilder';
   static const String itemCount = 'itemCount';
@@ -162,12 +178,98 @@ class PropertyKeys {
   // Table Properties
   static const String columnWidths = 'columnWidths';
   static const String defaultVerticalAlignment = 'defaultVerticalAlignment';
-  
+
+  // Binding Properties
+  static const String binding = 'binding';
+  static const String source = 'source';
+  static const String target = 'target';
+  static const String transform = 'transform';
+  static const String defaultValue = 'defaultValue';
+
+  // Validation Properties
+  static const String validation = 'validation';
+  static const String pattern = 'pattern';
+  static const String minLength = 'minLength';
+  static const String errorMessage = 'errorMessage';
+  static const String rules = 'rules';
+
+  // Condition Properties
+  static const String condition = 'condition';
+  static const String when = 'when';
+  static const String show = 'show';
+  static const String hide = 'hide';
+
+  // i18n Properties
+  static const String i18n = 'i18n';
+  static const String locale = 'locale';
+  static const String rtl = 'rtl';
+  static const String translations = 'translations';
+
+  // Accessibility Properties
+  static const String semanticLabel = 'semanticLabel';
+  static const String role = 'role';
+  static const String ariaLabel = 'ariaLabel';
+  static const String ariaHidden = 'ariaHidden';
+  static const String focusOrder = 'focusOrder';
+  static const String liveRegion = 'liveRegion';
+
+  // Event Properties
+  static const String onChange = 'onChange';
+  static const String onFocus = 'onFocus';
+  static const String onBlur = 'onBlur';
+  static const String onDelete = 'onDelete';
+
+  // Callback Properties (v1.0+) - on + PascalCase per naming conventions
+  static const String onSuccess = 'onSuccess';
+  static const String onError = 'onError';
+  static const String onMessage = 'onMessage';
+  static const String onMount = 'onMount';
+  static const String onUnmount = 'onUnmount';
+
+  // Child/Slot Properties
+  static const String child = 'child';
+  static const String params = 'params';
+  static const String slots = 'slots';
+  static const String template = 'template';
+
+  // Canvas Coordinate Properties (v1.3)
+  static const String x = 'x';
+  static const String y = 'y';
+  static const String x1 = 'x1';
+  static const String y1 = 'y1';
+  static const String x2 = 'x2';
+  static const String y2 = 'y2';
+
+  // Canvas Properties (v1.3)
+  static const String commands = 'commands';
+  static const String op = 'op';
+  static const String cx = 'cx';
+  static const String cy = 'cy';
+  static const String startAngle = 'startAngle';
+  static const String endAngle = 'endAngle';
+  static const String strokeCap = 'strokeCap';
+  static const String cornerRadius = 'cornerRadius';
+  static const String fill = 'fill';
+  static const String stroke = 'stroke';
+  static const String strokeWidth = 'strokeWidth';
+  static const String d = 'd';
+
+  // Transform/Opacity Properties (v1.3)
+  static const String rotate = 'rotate';
+  static const String scale = 'scale';
+  static const String translate = 'translate';
+  static const String origin = 'origin';
+  static const String animated = 'animated';
+  static const String opacity = 'opacity';
+
+  // Template State Properties (v1.3)
+  static const String stateDefaults = 'stateDefaults';
+
   /// Get all property keys as a list
   static List<String> get allKeys => [
     type, children,
     width, height, padding, margin, alignment,
-    distribution, direction, gap, wrap,
+    distribution, direction, spacing, gap, wrap,
     mainAxisAlignment, crossAxisAlignment, mainAxisSize,
     style, color, backgroundColor, foregroundColor,
     fontSize, fontWeight, fontFamily, textAlign,
@@ -176,13 +278,16 @@ class PropertyKeys {
     hint, hintText, placeholder,
     src, image, fit, aspectRatio,
     icon, iconSize, iconColor,
-    click, doubleClick, rightClick, longPress, change, focus, blur, hover, submit,
-    onTap, onPressed, onChanged, onSubmitted,
+    onTap, onDoubleTap, onLongPress, onSubmit, onSelect, onOpen, onCommand,
+    click, doubleClick, rightClick, longPress,
+    doubleClickLegacy, rightClickLegacy, longPressLegacy,
+    change, focus, blur, hover, submit, variant,
+    onPressed, onChanged, onSubmitted,
     enabled, disabled,
     bindTo, selected, checked, visible,
     validator, required, obscureText, keyboardType,
     maxLength, maxLines,
-    items, itemTemplate, itemBuilder, itemCount,
+    options, items, itemTemplate, itemBuilder, itemCount, inputType,
     shrinkWrap, physics, scrollDirection,
     crossAxisCount, mainAxisSpacing, crossAxisSpacing, childAspectRatio,
     leading, trailing, actions, bottomNav, automaticallyImplyLeading,
@@ -197,5 +302,18 @@ class PropertyKeys {
     mini, extended,
     progress, indeterminate,
     columnWidths, defaultVerticalAlignment,
+    binding, source, target, transform, defaultValue,
+    validation, pattern, minLength, errorMessage, rules,
+    condition, when, show, hide,
+    i18n, locale, rtl, translations,
+    semanticLabel, role, ariaLabel, ariaHidden, focusOrder, liveRegion,
+    onChange, onFocus, onBlur, onDelete,
+    onSuccess, onError, onMessage, onMount, onUnmount,
+    child, params, slots, template,
+    x, y, x1, y1, x2, y2,
+    commands, op, cx, cy, startAngle, endAngle,
+    strokeCap, cornerRadius, fill, stroke, strokeWidth, d,
+    rotate, scale, translate, origin, animated, opacity,
+    stateDefaults,
   ];
 }

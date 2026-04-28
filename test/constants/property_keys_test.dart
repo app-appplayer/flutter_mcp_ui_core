@@ -16,6 +16,7 @@ void main() {
         expect(PropertyKeys.distribution, equals('distribution'));
         expect(PropertyKeys.alignment, equals('alignment'));
         expect(PropertyKeys.direction, equals('direction'));
+        expect(PropertyKeys.spacing, equals('spacing'));
         expect(PropertyKeys.gap, equals('gap'));
         expect(PropertyKeys.wrap, equals('wrap'));
         
@@ -51,12 +52,12 @@ void main() {
     });
 
     group('Interaction Properties', () {
-      test('should have modern event property keys with CamelCase notation', () {
-        // Modern event names - MCP UI DSL v1.0 spec uses CamelCase
+      test('should have modern event property keys with kebab-case notation', () {
+        // Modern event names - MCP UI DSL v1.0 spec uses kebab-case
         expect(PropertyKeys.click, equals('click'));
-        expect(PropertyKeys.doubleClick, equals('doubleClick')); // CamelCase
-        expect(PropertyKeys.rightClick, equals('rightClick')); // CamelCase
-        expect(PropertyKeys.longPress, equals('longPress')); // CamelCase
+        expect(PropertyKeys.doubleClick, equals('double-click'));
+        expect(PropertyKeys.rightClick, equals('right-click'));
+        expect(PropertyKeys.longPress, equals('long-press'));
         expect(PropertyKeys.change, equals('change'));
         expect(PropertyKeys.focus, equals('focus'));
         expect(PropertyKeys.blur, equals('blur'));

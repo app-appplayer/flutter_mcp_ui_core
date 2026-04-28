@@ -120,6 +120,7 @@ void main() {
         expect(WidgetTypes.map, equals('map'));
         expect(WidgetTypes.mediaPlayer, equals('mediaPlayer')); // CamelCase
         expect(WidgetTypes.table, equals('table'));
+        expect(WidgetTypes.dataTable, equals('dataTable'));
       });
 
       test('should define additional advanced widgets', () {
@@ -237,8 +238,8 @@ void main() {
       test('should not contain Flutter-specific legacy names', () {
         // These legacy names should NOT exist
         final legacyNames = [
-          'column', 'row', 'container', 'textfield', 'dropdown',
-          'switch', 'listview', 'gridview', 'appbar', 
+          'column', 'row', 'textfield', 'dropdown',
+          'switch', 'listview', 'gridview', 'appbar',
           'bottomnavigationbar', 'circularprogressindicator',
           'linearprogressindicator', 'switchwidget'
         ];

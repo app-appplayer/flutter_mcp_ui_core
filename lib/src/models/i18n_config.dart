@@ -17,15 +17,48 @@ class I18nConfig {
   /// Date formatting configuration
   final I18nDateFormat? dateFormat;
 
+  /// RTL text direction: "auto", "true", or "false"
+  /// When "auto", RTL is determined by locale (ar, he, fa, ur, etc.)
+  final String? rtl;
+
   const I18nConfig({
     this.text,
     this.pluralization,
     this.numberFormat,
     this.dateFormat,
+    this.rtl,
   });
 
   /// Create from JSON
+  /// Supports both nested structure (implementation) and flat structure (design doc)
   factory I18nConfig.fromJson(Map<String, dynamic> json) {
+    // Detect flat design doc structure: has 'key' at top level
+    if (json.containsKey('key') && !json.containsKey('text')) {
+      final formatType = json['format'] as String?;
+      return I18nConfig(
+        text: I18nText(
+          key: json['key'] as String,
+          defaultText: (json['fallback'] ?? json['default'] ?? '') as String,
+          params: Map<String, dynamic>.from(json['params'] ?? {}),
+        ),
+        numberFormat: formatType == 'number' || json['currency'] != null
+            ? I18nNumberFormat(
+                value: null,
+                style: json['currency'] != null ? 'currency' : (formatType == 'number' ? 'decimal' : null),
+                currency: json['currency'] as String?,
+              )
+            : null,
+        dateFormat: formatType == 'date'
+            ? I18nDateFormat(
+                value: null,
+                style: json['dateStyle'] as String? ?? 'medium',
+              )
+            : null,
+        rtl: json['rtl'] as String?,
+      );
+    }
+
+    // Nested structure (existing implementation)
     return I18nConfig(
       text: json['text'] != null
           ? I18nText.fromJson(json['text'] as Map<String, dynamic>)
@@ -39,6 +72,7 @@ class I18nConfig {
       dateFormat: json['formatting']?['date'] != null
           ? I18nDateFormat.fromJson(json['formatting']['date'] as Map<String, dynamic>)
           : null,
+      rtl: json['rtl'] as String?,
     );
   }
 
@@ -63,7 +97,11 @@ class I18nConfig {
         result['formatting']['date'] = dateFormat!.toJson();
       }
     }
-    
+
+    if (rtl != null) {
+      result['rtl'] = rtl;
+    }
+
     return result;
   }
 
@@ -72,7 +110,8 @@ class I18nConfig {
       text != null ||
       pluralization != null ||
       numberFormat != null ||
-      dateFormat != null;
+      dateFormat != null ||
+      rtl != null;
 
   @override
   bool operator ==(Object other) =>
@@ -82,14 +121,16 @@ class I18nConfig {
           text == other.text &&
           pluralization == other.pluralization &&
           numberFormat == other.numberFormat &&
-          dateFormat == other.dateFormat;
+          dateFormat == other.dateFormat &&
+          rtl == other.rtl;
 
   @override
   int get hashCode =>
       text.hashCode ^
       pluralization.hashCode ^
       numberFormat.hashCode ^
-      dateFormat.hashCode;
+      dateFormat.hashCode ^
+      rtl.hashCode;
 }
 
 /// Text internationalization configuration
@@ -114,7 +155,7 @@ class I18nText {
   factory I18nText.fromJson(Map<String, dynamic> json) {
     return I18nText(
       key: json['key'] as String,
-      defaultText: json['default'] as String,
+      defaultText: (json['default'] ?? json['fallback']) as String,
       params: Map<String, dynamic>.from(json['params'] ?? {}),
     );
   }

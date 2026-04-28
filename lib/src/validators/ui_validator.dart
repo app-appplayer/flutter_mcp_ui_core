@@ -634,7 +634,7 @@ class UIValidator {
     // Required color keys according to spec
     const requiredColorKeys = [
       'primary', 'secondary', 'background', 'surface', 'error',
-      'textOnPrimary', 'textOnSecondary', 'textOnBackground', 'textOnSurface', 'textOnError'
+      'onPrimary', 'onSecondary', 'onBackground', 'onSurface', 'onError'
     ];
     
     // Check for required colors

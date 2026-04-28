@@ -189,6 +189,9 @@ class SchemaDefinitions {
     // Use direction: 'horizontal' for row behavior
     WidgetTypes.linear: {
       'direction': const PropertySpec(type: String, defaultValue: 'vertical'),
+      'distribution': const PropertySpec(type: String, defaultValue: 'start'),
+      'alignment': const PropertySpec(type: String, defaultValue: 'center'),
+      // Legacy aliases (backward compatibility)
       'mainAxisAlignment': const PropertySpec(type: String, defaultValue: 'start'),
       'crossAxisAlignment': const PropertySpec(type: String, defaultValue: 'center'),
       'mainAxisSize': const PropertySpec(type: String, defaultValue: 'max'),
@@ -242,6 +245,7 @@ class SchemaDefinitions {
     WidgetTypes.button: {
       'label': const PropertySpec(type: String, required: true),
       'onTap': const PropertySpec(type: Map, defaultValue: null),
+      // Legacy aliases (backward compatibility)
       'onPressed': const PropertySpec(type: Map, defaultValue: null),
       'enabled': const PropertySpec(type: bool, defaultValue: true),
       'variant': const PropertySpec(type: String, defaultValue: 'elevated'),
@@ -257,14 +261,16 @@ class SchemaDefinitions {
       'maxLines': const PropertySpec(type: int, defaultValue: 1),
       'maxLength': const PropertySpec(type: int, defaultValue: null),
       'keyboardType': const PropertySpec(type: String, defaultValue: 'text'),
-      'change': const PropertySpec(type: Map, defaultValue: null),
+      'onChange': const PropertySpec(type: Map, defaultValue: null),
+      'change': const PropertySpec(type: Map, defaultValue: null), // Legacy alias
       'bindTo': const PropertySpec(type: String, defaultValue: null),
     },
-    
+
     WidgetTypes.checkbox: {
       'value': const PropertySpec(type: dynamic, defaultValue: false), // Can be bool or binding string
       'label': const PropertySpec(type: String, defaultValue: null),
-      'change': const PropertySpec(type: Map, defaultValue: null), // MCP UI DSL uses 'change' not 'onChanged'
+      'onChange': const PropertySpec(type: Map, defaultValue: null),
+      'change': const PropertySpec(type: Map, defaultValue: null), // Legacy alias
       'bindTo': const PropertySpec(type: String, defaultValue: null),
     },
     
@@ -274,10 +280,11 @@ class SchemaDefinitions {
       'min': const PropertySpec(type: dynamic, defaultValue: 0.0),
       'max': const PropertySpec(type: dynamic, defaultValue: 100.0),
       'divisions': const PropertySpec(type: int, defaultValue: null),
-      'change': const PropertySpec(type: Map, defaultValue: null), // MCP UI DSL uses 'change' not 'onChanged'
+      'onChange': const PropertySpec(type: Map, defaultValue: null),
+      'change': const PropertySpec(type: Map, defaultValue: null), // Legacy alias
       'bindTo': const PropertySpec(type: String, defaultValue: null),
     },
-    
+
     // List Widgets - Spec v1.0 compliant names first
     WidgetTypes.list: {
       'items': const PropertySpec(type: String, defaultValue: null),
@@ -333,7 +340,8 @@ class SchemaDefinitions {
     
     WidgetTypes.floatingActionButton: {
       'icon': const PropertySpec(type: String, defaultValue: 'add'),
-      'onPressed': const PropertySpec(type: Map, defaultValue: null),
+      'onTap': const PropertySpec(type: Map, defaultValue: null),
+      'onPressed': const PropertySpec(type: Map, defaultValue: null), // Legacy alias
       'mini': const PropertySpec(type: bool, defaultValue: false),
       'backgroundColor': const PropertySpec(type: String, defaultValue: null),
     },
@@ -364,41 +372,46 @@ class SchemaDefinitions {
       'prefix': const PropertySpec(type: String, defaultValue: ''),
       'suffix': const PropertySpec(type: String, defaultValue: ''),
       'thousandSeparator': const PropertySpec(type: String, defaultValue: ','),
-      'change': const PropertySpec(type: Map, defaultValue: null), // MCP UI DSL uses 'change'
+      'onChange': const PropertySpec(type: Map, defaultValue: null),
+      'change': const PropertySpec(type: Map, defaultValue: null), // Legacy alias
       'bindTo': const PropertySpec(type: String, defaultValue: null),
     },
-    
+
     WidgetTypes.colorPicker: {
       'value': const PropertySpec(type: dynamic, defaultValue: '#000000'), // Can be string or binding
       'showAlpha': const PropertySpec(type: bool, defaultValue: true),
       'showLabel': const PropertySpec(type: bool, defaultValue: true),
       'pickerType': const PropertySpec(type: String, defaultValue: 'both'),
       'enableHistory': const PropertySpec(type: bool, defaultValue: true),
-      'change': const PropertySpec(type: Map, defaultValue: null), // MCP UI DSL uses 'change'
+      'onChange': const PropertySpec(type: Map, defaultValue: null),
+      'change': const PropertySpec(type: Map, defaultValue: null), // Legacy alias
       'bindTo': const PropertySpec(type: String, defaultValue: null),
     },
-    
+
     WidgetTypes.radioGroup: {
       'value': const PropertySpec(type: dynamic, defaultValue: null), // Can be string or binding
       'options': const PropertySpec(type: List, required: true),
       'orientation': const PropertySpec(type: String, defaultValue: 'vertical'),
-      'change': const PropertySpec(type: Map, defaultValue: null), // MCP UI DSL uses 'change'
+      'onChange': const PropertySpec(type: Map, defaultValue: null),
+      'change': const PropertySpec(type: Map, defaultValue: null), // Legacy alias
       'bindTo': const PropertySpec(type: String, defaultValue: null),
     },
-    
+
     WidgetTypes.checkboxGroup: {
       'value': const PropertySpec(type: dynamic, defaultValue: []), // Can be List or binding string
       'options': const PropertySpec(type: List, required: true),
       'orientation': const PropertySpec(type: String, defaultValue: 'vertical'),
-      'change': const PropertySpec(type: Map, defaultValue: null), // MCP UI DSL uses 'change'
+      'onChange': const PropertySpec(type: Map, defaultValue: null),
+      'change': const PropertySpec(type: Map, defaultValue: null), // Legacy alias
       'bindTo': const PropertySpec(type: String, defaultValue: null),
     },
-    
+
     WidgetTypes.segmentedControl: {
       'value': const PropertySpec(type: String, defaultValue: null),
       'options': const PropertySpec(type: List, required: true),
       'style': const PropertySpec(type: String, defaultValue: 'material'),
-      'change': const PropertySpec(type: Map, defaultValue: null),
+      'onChange': const PropertySpec(type: Map, defaultValue: null),
+      'change': const PropertySpec(type: Map, defaultValue: null), // Legacy alias
       'bindTo': const PropertySpec(type: String, defaultValue: null),
     },
     
@@ -410,17 +423,19 @@ class SchemaDefinitions {
       'lastDate': const PropertySpec(type: String, defaultValue: null),
       'mode': const PropertySpec(type: String, defaultValue: 'calendar'),
       'locale': const PropertySpec(type: String, defaultValue: 'en_US'),
-      'change': const PropertySpec(type: Map, defaultValue: null),
+      'onChange': const PropertySpec(type: Map, defaultValue: null),
+      'change': const PropertySpec(type: Map, defaultValue: null), // Legacy alias
       'bindTo': const PropertySpec(type: String, defaultValue: null),
     },
-    
+
     WidgetTypes.timeField: {
       'label': const PropertySpec(type: String, defaultValue: null),
       'value': const PropertySpec(type: String, defaultValue: null),
       'format': const PropertySpec(type: String, defaultValue: 'HH:mm'),
       'use24HourFormat': const PropertySpec(type: bool, defaultValue: true),
       'mode': const PropertySpec(type: String, defaultValue: 'spinner'),
-      'change': const PropertySpec(type: Map, defaultValue: null),
+      'onChange': const PropertySpec(type: Map, defaultValue: null),
+      'change': const PropertySpec(type: Map, defaultValue: null), // Legacy alias
       'bindTo': const PropertySpec(type: String, defaultValue: null),
     },
     
@@ -432,7 +447,8 @@ class SchemaDefinitions {
       'format': const PropertySpec(type: String, defaultValue: 'yyyy-MM-dd'),
       'locale': const PropertySpec(type: String, defaultValue: 'en_US'),
       'saveText': const PropertySpec(type: String, defaultValue: 'Save'),
-      'change': const PropertySpec(type: Map, defaultValue: null),
+      'onChange': const PropertySpec(type: Map, defaultValue: null),
+      'change': const PropertySpec(type: Map, defaultValue: null), // Legacy alias
     },
     
     // Scroll Widgets - Spec v1.0 compliant

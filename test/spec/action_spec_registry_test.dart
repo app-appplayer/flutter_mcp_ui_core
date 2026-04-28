@@ -11,40 +11,40 @@ void main() {
         expect(clickSpec.propertyKey, equals('click'));
         expect(clickSpec.supportsModifiers, isTrue);
 
-        final doubleClickSpec = ActionSpecRegistry.getEventSpec('doubleClick');
+        final doubleClickSpec = ActionSpecRegistry.getEventSpec('double-click');
         expect(doubleClickSpec, isNotNull);
-        expect(doubleClickSpec!.propertyKey, equals('doubleClick')); // CamelCase
+        expect(doubleClickSpec!.propertyKey, equals('double-click'));
 
-        final rightClickSpec = ActionSpecRegistry.getEventSpec('rightClick');
+        final rightClickSpec = ActionSpecRegistry.getEventSpec('right-click');
         expect(rightClickSpec, isNotNull);
-        expect(rightClickSpec!.propertyKey, equals('rightClick')); // CamelCase
+        expect(rightClickSpec!.propertyKey, equals('right-click'));
 
-        final longPressSpec = ActionSpecRegistry.getEventSpec('longPress');
+        final longPressSpec = ActionSpecRegistry.getEventSpec('long-press');
         expect(longPressSpec, isNotNull);
-        expect(longPressSpec!.propertyKey, equals('longPress')); // CamelCase
+        expect(longPressSpec!.propertyKey, equals('long-press'));
         expect(longPressSpec.supportsModifiers, isFalse);
       });
 
       test('getEventSpec returns null for invalid events', () {
         expect(ActionSpecRegistry.getEventSpec('invalid'), isNull);
         expect(ActionSpecRegistry.getEventSpec(''), isNull);
-        expect(ActionSpecRegistry.getEventSpec('double-click'), isNull); // Wrong format
+        expect(ActionSpecRegistry.getEventSpec('doubleClick'), isNull); // Legacy camelCase no longer registered
       });
 
       test('getEventPropertyKey returns correct keys', () {
         expect(ActionSpecRegistry.getEventPropertyKey('click'), equals('click'));
-        expect(ActionSpecRegistry.getEventPropertyKey('doubleClick'), equals('doubleClick'));
-        expect(ActionSpecRegistry.getEventPropertyKey('rightClick'), equals('rightClick'));
-        expect(ActionSpecRegistry.getEventPropertyKey('longPress'), equals('longPress'));
+        expect(ActionSpecRegistry.getEventPropertyKey('double-click'), equals('double-click'));
+        expect(ActionSpecRegistry.getEventPropertyKey('right-click'), equals('right-click'));
+        expect(ActionSpecRegistry.getEventPropertyKey('long-press'), equals('long-press'));
         expect(ActionSpecRegistry.getEventPropertyKey('invalid'), isNull);
       });
 
       test('allEventNames contains all events', () {
         final eventNames = ActionSpecRegistry.allEventNames;
         expect(eventNames, contains('click'));
-        expect(eventNames, contains('doubleClick'));
-        expect(eventNames, contains('rightClick'));
-        expect(eventNames, contains('longPress'));
+        expect(eventNames, contains('double-click'));
+        expect(eventNames, contains('right-click'));
+        expect(eventNames, contains('long-press'));
         expect(eventNames, contains('hover'));
         expect(eventNames, contains('focus'));
         expect(eventNames, contains('blur'));
@@ -65,7 +65,7 @@ void main() {
         expect(stateSpec, isNotNull);
         expect(stateSpec!.requiredParameters, contains('type'));
         expect(stateSpec.requiredParameters, contains('action'));
-        expect(stateSpec.requiredParameters, contains('path'));
+        expect(stateSpec.requiredParameters, contains('binding'));
 
         final navigationSpec = ActionSpecRegistry.getActionSpec('navigation');
         expect(navigationSpec, isNotNull);
@@ -139,7 +139,7 @@ void main() {
           () => ActionSpecRegistry.validateAction({
             'type': 'state',
             'action': 'invalid',
-            'path': 'test.path',
+            'binding': 'test.path',
           }),
           throwsA(isA<Exception>().having(
             (e) => e.toString(),
@@ -151,7 +151,7 @@ void main() {
         final validState = ActionSpecRegistry.validateAction({
           'type': 'state',
           'action': 'set',
-          'path': 'user.name',
+          'binding': 'user.name',
           'value': 'John',
         });
         expect(validState['action'], equals('set'));
@@ -183,7 +183,7 @@ void main() {
         final stateAction = ActionSpecRegistry.validateAction({
           'type': 'state',
           'action': 'increment',
-          'path': 'counter',
+          'binding': 'counter',
         });
         expect(stateAction['amount'], equals(1)); // default value
 
@@ -222,13 +222,13 @@ void main() {
           type: 'state',
           params: {
             'action': 'set',
-            'path': 'form.field',
+            'binding': 'form.field',
             'value': 'new value',
           },
         );
         expect(action['type'], equals('state'));
         expect(action['action'], equals('set'));
-        expect(action['path'], equals('form.field'));
+        expect(action['binding'], equals('form.field'));
       });
 
       test('throws for unknown action type', () {

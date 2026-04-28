@@ -20,15 +20,28 @@ class ConformanceLevels {
   
   /// Core widgets that MUST be supported
   static const List<String> coreWidgets = [
-    'text',
-    'image',
-    'button',
+    // Layout
     'linear',
     'stack',
     'box',
-    'container', // legacy
+    'container', // legacy alias for box
     'padding',
     'center',
+
+    // Display
+    'text',
+    'image',
+    'icon',
+
+    // Input
+    'button',
+    'textInput',
+    'toggle',
+    'select',
+
+    // Lists
+    'list',
+    'listTile',
   ];
   
   /// Core properties that MUST be supported
@@ -45,77 +58,93 @@ class ConformanceLevels {
   
   /// Core features that MUST be supported
   static const List<String> coreFeatures = [
-    'data-binding-simple',
-    'event-handling-basic',
-    'state-management-basic',
-    'tool-action-execution',
+    'dataBindingSimple',
+    'eventHandlingBasic',
+    'stateManagementBasic',
+    'toolActionExecution',
   ];
   
   /// Core accessibility features
   static const List<String> coreAccessibility = [
-    'semantic-labels',
-    'focus-management',
-    'keyboard-navigation',
+    'semanticLabels',
+    'focusManagement',
+    'keyboardNavigation',
   ];
   
   /// Standard widgets (Core + these)
   static const List<String> standardWidgets = [
     ...coreWidgets,
-    'text-input',
-    'checkbox',
-    'radio',
-    'toggle',
-    'slider',
-    'select',
-    'listview',
-    'gridview',
-    'form',
-    'navigation',
-    'tabbar',
+    // Navigation
+    'headerBar',
+    'bottomNavigation',
+    'tabBar',
     'drawer',
+
+    // Forms
+    'form',
+    'radio',
+    'checkbox',
+    'slider',
+
+    // Feedback
+    'dialog',
+    'snackBar',
+    'progressBar',
+
+    // Layout / Lists
+    'grid',
+    'card',
+    'list',
   ];
   
   /// Standard features (Core + these)
   static const List<String> standardFeatures = [
     ...coreFeatures,
-    'expression-language-full',
-    'theme-support',
-    'navigation-system',
-    'resource-subscriptions',
+    'expressionLanguageFull',
+    'themeSupport',
+    'navigationSystem',
+    'resourceSubscriptions',
   ];
   
   /// Standard accessibility features
   static const List<String> standardAccessibility = [
     ...coreAccessibility,
-    'aria-roles-full',
-    'live-regions',
-    'screen-reader-optimization',
+    'ariaRolesFull',
+    'liveRegions',
+    'screenReaderOptimization',
   ];
   
   /// Advanced widgets (Standard + these)
   static const List<String> advancedWidgets = [
     ...standardWidgets,
+    // Data visualization
     'chart',
     'map',
-    'calendar',
     'timeline',
     'gauge',
     'heatmap',
-    'tree',
     'graph',
-    'animation',
-    'custom-widgets',
+
+    // Media
+    'mediaPlayer',
+
+    // Advanced UI
+    'calendar',
+    'table',
+    'tree',
+    'animatedContainer',
+    'customWidgets',
   ];
   
   /// Advanced features (Standard + these)
   static const List<String> advancedFeatures = [
     ...standardFeatures,
-    'background-services',
-    'offline-support',
-    'advanced-caching',
-    'performance-optimizations',
-    'custom-expressions',
-    'plugin-system',
+    'backgroundServices',
+    'offlineSupport',
+    'advancedCaching',
+    'performanceOptimizations',
+    'customExpressions',
+    'pluginSystem',
   ];
   
   /// Check if a conformance level is valid

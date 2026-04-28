@@ -1,9 +1,13 @@
 import 'package:meta/meta.dart';
 
 /// Application definition for MCP UI DSL v1.0
-/// 
+///
 /// Represents a complete multi-page application with routing, navigation,
 /// theme, and global state management.
+///
+/// Deprecated: Use [ApplicationDefinition] for strongly-typed fields.
+/// This class is retained for backward compatibility.
+@Deprecated('Use ApplicationDefinition instead. This class uses untyped Map fields.')
 @immutable
 class ApplicationConfig {
   /// Application type (should be 'application')

@@ -172,7 +172,7 @@ void main() {
         expect(numberFieldProps, contains('thousandSeparator'));
         expect(numberFieldProps, contains('change'));
         expect(numberFieldProps, contains('bindTo'));
-        expect(numberFieldProps.length, equals(12));
+        expect(numberFieldProps.length, equals(13));
       });
 
       test('getRequiredProperties should return only required properties', () {
@@ -191,13 +191,13 @@ void main() {
 
       test('getOptionalProperties should return only optional properties', () {
         final numberFieldOptional = SchemaDefinitions.getOptionalProperties(WidgetTypes.numberField);
-        expect(numberFieldOptional.length, equals(12)); // All properties are optional
+        expect(numberFieldOptional.length, equals(13)); // All properties are optional
         expect(numberFieldOptional, contains('label'));
         expect(numberFieldOptional, contains('value'));
         expect(numberFieldOptional, contains('bindTo'));
 
         final radioGroupOptional = SchemaDefinitions.getOptionalProperties(WidgetTypes.radioGroup);
-        expect(radioGroupOptional.toSet(), equals({'value', 'orientation', 'change', 'bindTo'}));
+        expect(radioGroupOptional.toSet(), equals({'value', 'orientation', 'onChange', 'change', 'bindTo'}));
       });
     });
 

@@ -27,6 +27,7 @@ void main() {
         expect(WidgetTypes.wrap, equals('wrap'));
         expect(WidgetTypes.flow, equals('flow'));
         expect(WidgetTypes.table, equals('table'));
+        expect(WidgetTypes.dataTable, equals('dataTable'));
         expect(WidgetTypes.positioned, equals('positioned'));
         expect(WidgetTypes.intrinsicHeight, equals('intrinsicHeight')); // CamelCase
         expect(WidgetTypes.intrinsicWidth, equals('intrinsicWidth')); // CamelCase
@@ -185,8 +186,8 @@ void main() {
 
       test('list category should contain correct widgets', () {
         final listWidgets = WidgetTypes.categories['list']!;
-        expect(listWidgets, containsAll(['list', 'grid', 'listTile']));
-        expect(listWidgets.length, equals(3));
+        expect(listWidgets, containsAll(['list', 'grid', 'listItem', 'listTile']));
+        expect(listWidgets.length, equals(4));
       });
 
       test('navigation category should contain correct widgets', () {
@@ -198,8 +199,8 @@ void main() {
 
       test('scroll category should contain correct widgets', () {
         final scrollWidgets = WidgetTypes.categories['scroll']!;
-        expect(scrollWidgets, containsAll(['scrollView', 'singleChildScrollView', 'scrollBar']));
-        expect(scrollWidgets.length, equals(3));
+        expect(scrollWidgets, containsAll(['scrollView', 'singleChildScrollView', 'scrollBar', 'pageView']));
+        expect(scrollWidgets.length, equals(4));
       });
     });
 
@@ -265,7 +266,7 @@ void main() {
         // Invalid types (including legacy names)
         expect(WidgetTypes.isValidType('column'), isFalse); // Legacy
         expect(WidgetTypes.isValidType('row'), isFalse); // Legacy
-        expect(WidgetTypes.isValidType('container'), isFalse); // Legacy
+        expect(WidgetTypes.isValidType('container'), isTrue); // Legacy alias for box
         expect(WidgetTypes.isValidType('textfield'), isFalse); // Legacy
         expect(WidgetTypes.isValidType('text-input'), isFalse); // Hyphenated
         expect(WidgetTypes.isValidType('loading-indicator'), isFalse); // Hyphenated

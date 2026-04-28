@@ -54,7 +54,12 @@ void main() {
               "textOnSecondary": "#FF000000",
               "textOnBackground": "#000000",
               "textOnSurface": "#000000",
-              "textOnError": "#FFFFFF"
+              "textOnError": "#FFFFFF",
+              "onPrimary": "#FFFFFF",
+              "onSecondary": "#000000",
+              "onBackground": "#000000",
+              "onSurface": "#000000",
+              "onError": "#FFFFFF"
             },
             "typography": {
               "h1": {"fontSize": 32, "fontWeight": "bold", "letterSpacing": -1.5},
@@ -1481,11 +1486,10 @@ void main() {
         expect(result.errors.any((e) => e.message.contains('Unknown widget type')), isTrue);
       });
       
-      test('container is not a valid widget', () {
+      test('container is a valid widget (legacy alias for box)', () {
         final widget = {"type": "container", "child": {"type": "text", "content": "Hello"}};
         final result = UIValidator.validateJson(widget);
-        expect(result.isValid, isFalse);
-        expect(result.errors.any((e) => e.message.contains('Unknown widget type')), isTrue);
+        expect(result.isValid, isTrue);
       });
       
       test('textfield is not a valid widget', () {

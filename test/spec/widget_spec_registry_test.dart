@@ -70,7 +70,7 @@ void main() {
           throwsA(isA<Exception>().having(
             (e) => e.toString(),
             'message',
-            contains('Required parameter "click" missing'),
+            contains('Required parameter "onTap" missing'),
           )),
         );
       });
@@ -78,9 +78,9 @@ void main() {
       test('applies default values', () {
         final buttonParams = WidgetSpecRegistry.validateParameters('button', {
           'label': 'Test',
-          'click': {'type': 'tool', 'name': 'test'},
+          'onTap': {'type': 'tool', 'name': 'test'},
         });
-        expect(buttonParams['style'], equals('elevated'));
+        expect(buttonParams['variant'], equals('elevated'));
         expect(buttonParams['disabled'], equals(false));
         expect(buttonParams['loading'], equals(false));
 
@@ -94,8 +94,8 @@ void main() {
         expect(
           () => WidgetSpecRegistry.validateParameters('button', {
             'label': 'Test',
-            'click': {},
-            'style': 'invalid-style',
+            'onTap': {},
+            'variant': 'invalid-style',
           }),
           throwsA(isA<Exception>().having(
             (e) => e.toString(),
@@ -121,7 +121,7 @@ void main() {
         final params = WidgetSpecRegistry.validateParameters('textInput', {
           'label': 'Username',
           'value': 'john',
-          'change': {'type': 'state', 'action': 'set', 'path': 'username'},
+          'onChange': {'type': 'state', 'action': 'set', 'binding': 'username'},
           'placeholder': 'Enter username',
           'maxLength': 20,
         });
@@ -216,11 +216,11 @@ void main() {
         expect(contentParam.required, isTrue);
 
         final buttonSpec = WidgetSpecRegistry.getSpec('button')!;
-        final styleParam = buttonSpec.parameters['style']!;
-        expect(styleParam.type, equals(String));
-        expect(styleParam.defaultValue, equals('elevated'));
-        expect(styleParam.allowedValues, contains('elevated'));
-        expect(styleParam.allowedValues, contains('outlined'));
+        final variantParam = buttonSpec.parameters['variant']!;
+        expect(variantParam.type, equals(String));
+        expect(variantParam.defaultValue, equals('elevated'));
+        expect(variantParam.allowedValues, contains('elevated'));
+        expect(variantParam.allowedValues, contains('outlined'));
 
         final linearSpec = WidgetSpecRegistry.getSpec('linear')!;
         final directionParam = linearSpec.parameters['direction']!;

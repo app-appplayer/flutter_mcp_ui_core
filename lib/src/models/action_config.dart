@@ -1,8 +1,12 @@
 import 'package:meta/meta.dart';
 
 /// Configuration for actions in the MCP UI DSL
-/// 
+///
 /// Represents user interactions and their corresponding actions.
+///
+/// Deprecated: Use [ActionDefinition] sealed class hierarchy for type-safe action handling.
+/// This class is retained for backward compatibility.
+@Deprecated('Use ActionDefinition sealed hierarchy instead. This class uses flat untyped parameters.')
 @immutable
 class ActionConfig {
   /// Type of action (e.g., 'tool', 'state', 'navigation', 'batch', 'conditional')
@@ -163,6 +167,60 @@ class ActionConfig {
     );
   }
 
+  /// Create a dialog action
+  factory ActionConfig.dialog({
+    required String dialogType,
+    String? title,
+    String? content,
+    bool? dismissible,
+    List<Map<String, dynamic>>? actions,
+    Map<String, dynamic>? body,
+  }) {
+    return ActionConfig(
+      type: 'dialog',
+      parameters: {
+        'dialogType': dialogType,
+        if (title != null) 'title': title,
+        if (content != null) 'content': content,
+        if (dismissible != null) 'dismissible': dismissible,
+        if (actions != null) 'actions': actions,
+        if (body != null) 'body': body,
+      },
+    );
+  }
+
+  /// Create a notification action
+  factory ActionConfig.notification({
+    required String message,
+    String? severity,
+    int? duration,
+  }) {
+    return ActionConfig(
+      type: 'notification',
+      parameters: {
+        'message': message,
+        if (severity != null) 'severity': severity,
+        if (duration != null) 'duration': duration,
+      },
+    );
+  }
+
+  /// Create a parallel action
+  factory ActionConfig.parallel(List<ActionConfig> actions) {
+    return ActionConfig(
+      type: 'parallel',
+      actions: actions,
+    );
+  }
+
+  /// Create a sequence action
+  factory ActionConfig.sequence(List<ActionConfig> actions) {
+    return ActionConfig(
+      type: 'sequence',
+      actions: actions,
+    );
+  }
+
   /// Get a parameter value with type safety
   T? getParameter<T>(String key, [T? defaultValue]) {
     final value = parameters[key];
@@ -187,6 +245,18 @@ class ActionConfig {
 
   /// Check if this is a resource action
   bool get isResourceAction => type == 'resource';
+
+  /// Check if this is a dialog action
+  bool get isDialogAction => type == 'dialog';
+
+  /// Check if this is a notification action
+  bool get isNotificationAction => type == 'notification';
+
+  /// Check if this is a parallel action
+  bool get isParallelAction => type == 'parallel';
+
+  /// Check if this is a sequence action
+  bool get isSequenceAction => type == 'sequence';
 
   /// Get the tool name (for tool actions)
   String? get toolName => getParameter<String>('tool');
@@ -240,10 +310,20 @@ class ActionConfig {
       case 'batch':
         return actions != null && actions!.isNotEmpty && actions!.every((action) => action.isValid());
       case 'conditional':
-        return condition != null && 
-               thenAction != null && 
+        return condition != null &&
+               thenAction != null &&
                thenAction!.isValid() &&
                (elseAction == null || elseAction!.isValid());
+      case 'dialog':
+        final dialogType = getParameter<String>('dialogType');
+        return dialogType != null && dialogType.isNotEmpty;
+      case 'notification':
+        final message = getParameter<String>('message');
+        return message != null && message.isNotEmpty;
+      case 'parallel':
+        return actions != null && actions!.isNotEmpty && actions!.every((action) => action.isValid());
+      case 'sequence':
+        return actions != null && actions!.isNotEmpty && actions!.every((action) => action.isValid());
       default:
         return true; // Allow custom action types
     }

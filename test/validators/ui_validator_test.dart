@@ -26,6 +26,11 @@ void main() {
               'textOnBackground': '#000000',
               'textOnSurface': '#000000',
               'textOnError': '#FFFFFF',
+              'onPrimary': '#FFFFFF',
+              'onSecondary': '#FFFFFF',
+              'onBackground': '#000000',
+              'onSurface': '#000000',
+              'onError': '#FFFFFF',
             },
           },
           navigation: {
@@ -115,12 +120,6 @@ void main() {
         );
 
         final result = UIValidator.validatePageConfig(pageConfig);
-        if (!result.isValid) {
-          print('Page validation errors:');
-          for (final error in result.errors) {
-            print('  - ${error.message} (${error.path ?? "no path"})');
-          }
-        }
         expect(result.isValid, isTrue);
         expect(result.errors, isEmpty);
       });
@@ -257,7 +256,7 @@ void main() {
               {'label': 'Option 3', 'value': 'option3'},
             ],
             'orientation': 'vertical',
-            'change': {
+            'onChange': {
               'type': 'state',
               'action': 'set',
               'binding': 'selectedOption',
@@ -281,7 +280,7 @@ void main() {
               {'label': 'Option 3', 'value': 'option3'},
             ],
             'orientation': 'horizontal',
-            'change': {
+            'onChange': {
               'type': 'state',
               'action': 'set',
               'binding': 'selectedOptions',
@@ -304,7 +303,7 @@ void main() {
               {'label': 'Tab 2', 'value': 'tab2'},
               {'label': 'Tab 3', 'value': 'tab3'},
             ],
-            'change': {
+            'onChange': {
               'type': 'state',
               'action': 'set',
               'binding': 'activeTab',
@@ -326,7 +325,7 @@ void main() {
             'format': 'yyyy-MM-dd',
             'firstDate': '2020-01-01',
             'lastDate': '2030-12-31',
-            'change': {
+            'onChange': {
               'type': 'state',
               'action': 'set',
               'binding': 'selectedDate',
@@ -347,7 +346,7 @@ void main() {
             'value': '14:30',
             'format': 'HH:mm',
             'use24HourFormat': true,
-            'change': {
+            'onChange': {
               'type': 'state',
               'action': 'set',
               'binding': 'selectedTime',
@@ -368,7 +367,7 @@ void main() {
             'startDate': '2024-01-01',
             'endDate': '2024-01-31',
             'format': 'yyyy-MM-dd',
-            'change': {
+            'onChange': {
               'type': 'batch',
               'actions': [
                 {
@@ -570,9 +569,14 @@ void main() {
             'textOnBackground': '#000000',
             'textOnSurface': '#000000',
             'textOnError': '#FFFFFF',
+            'onPrimary': '#FFFFFF',
+            'onSecondary': '#000000',
+            'onBackground': '#000000',
+            'onSurface': '#000000',
+            'onError': '#FFFFFF',
           },
         };
-        
+
         final result = UIValidator.validateTheme(theme);
         expect(result.isValid, isTrue);
         expect(result.errors, isEmpty);

@@ -5,8 +5,12 @@ import 'accessibility_config.dart';
 import 'i18n_config.dart';
 
 /// Configuration for a widget in the MCP UI DSL
-/// 
+///
 /// Represents a single widget definition with its type, properties, and children.
+///
+/// Deprecated: Use [WidgetDefinition] for strongly-typed fields (visible, key, testKey, child).
+/// This class is retained for backward compatibility.
+@Deprecated('Use WidgetDefinition instead. This class lacks explicit visible/key/testKey/child fields.')
 @immutable
 class WidgetConfig {
   /// The widget type (e.g., 'container', 'text', 'button')

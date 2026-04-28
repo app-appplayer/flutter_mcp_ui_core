@@ -1,8 +1,12 @@
 import 'package:meta/meta.dart';
 
 /// Page definition for MCP UI DSL v1.0
-/// 
+///
 /// Represents a single page with content, state, and optional theme override.
+///
+/// Deprecated: Use [PageDefinition] for strongly-typed fields.
+/// This class is retained for backward compatibility.
+@Deprecated('Use PageDefinition instead. This class uses untyped Map fields.')
 @immutable
 class PageConfig {
   /// Page type (should be 'page')

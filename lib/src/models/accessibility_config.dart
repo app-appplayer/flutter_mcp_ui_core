@@ -1,44 +1,102 @@
 import 'package:meta/meta.dart';
 
-/// Accessibility configuration for MCP UI DSL v1.0
-/// 
+/// Accessibility configuration for MCP UI DSL v1.0/v1.1
+///
 /// Represents accessibility properties for widgets as defined in the spec.
+/// Field names follow spec conventions (semanticLabel, semanticHint, liveRegion).
+/// fromJson accepts both spec keys and short aliases (label, description, live)
+/// for backward compatibility.
 @immutable
 class AccessibilityConfig {
   /// Semantic role (button, link, heading, etc.)
   final String? role;
-  
-  /// Screen reader label
-  final String? label;
-  
-  /// Additional description for screen readers
-  final String? description;
-  
-  /// Live region behavior (polite, assertive, off)
-  final String? live;
-  
+
+  /// Screen reader label (spec: semanticLabel)
+  final String? semanticLabel;
+
+  /// Additional description for screen readers (spec: semanticHint)
+  final String? semanticHint;
+
+  /// Live region behavior (polite, assertive, off) (spec: liveRegion)
+  final String? liveRegion;
+
+  /// Whether to exclude from semantics tree
+  final bool? excludeFromSemantics;
+
+  /// Whether the widget is focusable
+  final bool? focusable;
+
+  /// Ordered list of widget keys for focus traversal
+  final List<String>? focusOrder;
+
+  /// Whether focus should be trapped within this widget
+  final bool? focusTrap;
+
+  /// Key of widget to receive initial focus
+  final String? initialFocus;
+
+  /// Whether to restore focus when returning to this widget
+  final bool? restoreFocus;
+
+  /// Whether this is an atomic live region
+  final bool? atomic;
+
   /// Accessibility properties
   final AccessibilityProperties? properties;
-  
+
   /// WCAG compliance information
   final WcagCompliance? wcag;
 
   const AccessibilityConfig({
     this.role,
-    this.label,
-    this.description,
-    this.live,
+    this.semanticLabel,
+    this.semanticHint,
+    this.liveRegion,
+    this.excludeFromSemantics,
+    this.focusable,
+    this.focusOrder,
+    this.focusTrap,
+    this.initialFocus,
+    this.restoreFocus,
+    this.atomic,
     this.properties,
     this.wcag,
   });
 
   /// Create from JSON
+  /// Supports both spec keys (semanticLabel, semanticHint, liveRegion)
+  /// and short aliases (label, description, live) for backward compatibility
   factory AccessibilityConfig.fromJson(Map<String, dynamic> json) {
+    // Parse focusOrder: accept both List<String> (spec) and int (legacy)
+    List<String>? focusOrder;
+    final rawFocusOrder = json['focusOrder'];
+    if (rawFocusOrder is List) {
+      focusOrder = rawFocusOrder.cast<String>();
+    } else if (rawFocusOrder is int) {
+      focusOrder = [rawFocusOrder.toString()];
+    }
+
+    // Parse initialFocus: accept both String (spec) and bool (legacy)
+    String? initialFocus;
+    final rawInitialFocus = json['initialFocus'];
+    if (rawInitialFocus is String) {
+      initialFocus = rawInitialFocus;
+    } else if (rawInitialFocus is bool && rawInitialFocus) {
+      initialFocus = '_self';
+    }
+
     return AccessibilityConfig(
       role: json['role'] as String?,
-      label: json['label'] as String?,
-      description: json['description'] as String?,
-      live: json['live'] as String?,
+      semanticLabel: (json['semanticLabel'] ?? json['label']) as String?,
+      semanticHint: (json['semanticHint'] ?? json['description']) as String?,
+      liveRegion: (json['liveRegion'] ?? json['live']) as String?,
+      excludeFromSemantics: json['excludeFromSemantics'] as bool?,
+      focusable: json['focusable'] as bool?,
+      focusOrder: focusOrder,
+      focusTrap: json['focusTrap'] as bool?,
+      initialFocus: initialFocus,
+      restoreFocus: json['restoreFocus'] as bool?,
+      atomic: json['atomic'] as bool?,
       properties: json['properties'] != null
           ? AccessibilityProperties.fromJson(json['properties'] as Map<String, dynamic>)
           : null,
@@ -48,34 +106,55 @@ class AccessibilityConfig {
     );
   }
 
-  /// Convert to JSON
+  /// Convert to JSON using spec-canonical field names
   Map<String, dynamic> toJson() {
     final result = <String, dynamic>{};
-    
+
     if (role != null) result['role'] = role;
-    if (label != null) result['label'] = label;
-    if (description != null) result['description'] = description;
-    if (live != null) result['live'] = live;
+    if (semanticLabel != null) result['semanticLabel'] = semanticLabel;
+    if (semanticHint != null) result['semanticHint'] = semanticHint;
+    if (liveRegion != null) result['liveRegion'] = liveRegion;
+    if (excludeFromSemantics != null) result['excludeFromSemantics'] = excludeFromSemantics;
+    if (focusable != null) result['focusable'] = focusable;
+    if (focusOrder != null) result['focusOrder'] = focusOrder;
+    if (focusTrap != null) result['focusTrap'] = focusTrap;
+    if (initialFocus != null) result['initialFocus'] = initialFocus;
+    if (restoreFocus != null) result['restoreFocus'] = restoreFocus;
+    if (atomic != null) result['atomic'] = atomic;
     if (properties != null) result['properties'] = properties!.toJson();
     if (wcag != null) result['wcag'] = wcag!.toJson();
-    
+
     return result;
   }
 
   /// Create a copy with modified values
   AccessibilityConfig copyWith({
     String? role,
-    String? label,
-    String? description,
-    String? live,
+    String? semanticLabel,
+    String? semanticHint,
+    String? liveRegion,
+    bool? excludeFromSemantics,
+    bool? focusable,
+    List<String>? focusOrder,
+    bool? focusTrap,
+    String? initialFocus,
+    bool? restoreFocus,
+    bool? atomic,
     AccessibilityProperties? properties,
     WcagCompliance? wcag,
   }) {
     return AccessibilityConfig(
       role: role ?? this.role,
-      label: label ?? this.label,
-      description: description ?? this.description,
-      live: live ?? this.live,
+      semanticLabel: semanticLabel ?? this.semanticLabel,
+      semanticHint: semanticHint ?? this.semanticHint,
+      liveRegion: liveRegion ?? this.liveRegion,
+      excludeFromSemantics: excludeFromSemantics ?? this.excludeFromSemantics,
+      focusable: focusable ?? this.focusable,
+      focusOrder: focusOrder ?? this.focusOrder,
+      focusTrap: focusTrap ?? this.focusTrap,
+      initialFocus: initialFocus ?? this.initialFocus,
+      restoreFocus: restoreFocus ?? this.restoreFocus,
+      atomic: atomic ?? this.atomic,
       properties: properties ?? this.properties,
       wcag: wcag ?? this.wcag,
     );
@@ -84,9 +163,16 @@ class AccessibilityConfig {
   /// Check if this configuration has any accessibility settings
   bool get hasAccessibilitySettings =>
       role != null ||
-      label != null ||
-      description != null ||
-      live != null ||
+      semanticLabel != null ||
+      semanticHint != null ||
+      liveRegion != null ||
+      excludeFromSemantics != null ||
+      focusable != null ||
+      focusOrder != null ||
+      focusTrap != null ||
+      initialFocus != null ||
+      restoreFocus != null ||
+      atomic != null ||
       properties != null ||
       wcag != null;
 
@@ -96,24 +182,48 @@ class AccessibilityConfig {
       other is AccessibilityConfig &&
           runtimeType == other.runtimeType &&
           role == other.role &&
-          label == other.label &&
-          description == other.description &&
-          live == other.live &&
+          semanticLabel == other.semanticLabel &&
+          semanticHint == other.semanticHint &&
+          liveRegion == other.liveRegion &&
+          excludeFromSemantics == other.excludeFromSemantics &&
+          focusable == other.focusable &&
+          _listEquals(focusOrder, other.focusOrder) &&
+          focusTrap == other.focusTrap &&
+          initialFocus == other.initialFocus &&
+          restoreFocus == other.restoreFocus &&
+          atomic == other.atomic &&
           properties == other.properties &&
           wcag == other.wcag;
 
   @override
   int get hashCode =>
       role.hashCode ^
-      label.hashCode ^
-      description.hashCode ^
-      live.hashCode ^
+      semanticLabel.hashCode ^
+      semanticHint.hashCode ^
+      liveRegion.hashCode ^
+      excludeFromSemantics.hashCode ^
+      focusable.hashCode ^
+      focusOrder.hashCode ^
+      focusTrap.hashCode ^
+      initialFocus.hashCode ^
+      restoreFocus.hashCode ^
+      atomic.hashCode ^
       properties.hashCode ^
       wcag.hashCode;
 
   @override
   String toString() {
-    return 'AccessibilityConfig(role: $role, label: $label, live: $live)';
+    return 'AccessibilityConfig(role: $role, semanticLabel: $semanticLabel, liveRegion: $liveRegion)';
+  }
+
+  bool _listEquals(List<String>? a, List<String>? b) {
+    if (a == null && b == null) return true;
+    if (a == null || b == null) return false;
+    if (a.length != b.length) return false;
+    for (int i = 0; i < a.length; i++) {
+      if (a[i] != b[i]) return false;
+    }
+    return true;
   }
 }
 
@@ -193,7 +303,7 @@ class AccessibilityProperties {
   /// Convert to JSON
   Map<String, dynamic> toJson() {
     final result = <String, dynamic>{};
-    
+
     if (level != null) result['level'] = level;
     if (expanded != null) result['expanded'] = expanded;
     if (selected != null) result['selected'] = selected;
@@ -214,7 +324,7 @@ class AccessibilityProperties {
     if (invalid != null) result['invalid'] = invalid;
     if (hidden != null) result['hidden'] = hidden;
     if (busy != null) result['busy'] = busy;
-    
+
     return result;
   }
 
@@ -273,7 +383,7 @@ class AccessibilityProperties {
 class WcagCompliance {
   /// Compliance level (A, AA, AAA)
   final String level;
-  
+
   /// Applicable WCAG guidelines
   final List<String> guidelines;
 

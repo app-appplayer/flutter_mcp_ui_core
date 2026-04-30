@@ -37,7 +37,7 @@ void main() {
         'screenshots': ['screenshot1.png', 'screenshot2.png'],
         'templates': {
           'myTemplate': {
-            'body': {'type': 'text', 'content': 'hello'},
+            'content': {'type': 'text', 'content': 'hello'},
           },
         },
         'i18n': {
@@ -167,7 +167,7 @@ void main() {
         },
         'templates': {
           'card': {
-            'body': {'type': 'box'},
+            'content': {'type': 'box'},
             'params': {
               'title': {'type': 'string', 'required': true},
             },

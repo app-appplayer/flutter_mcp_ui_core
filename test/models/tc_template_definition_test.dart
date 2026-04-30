@@ -15,7 +15,7 @@ void main() {
           'title': {'type': 'string', 'required': true},
           'subtitle': {'type': 'string', 'default': ''},
         },
-        'body': {'type': 'box', 'child': {'type': 'text', 'content': '{{title}}'}},
+        'content': {'type': 'box', 'child': {'type': 'text', 'content': '{{title}}'}},
         'slots': ['header', 'footer'],
         'defaults': {'subtitle': 'Default subtitle'},
       };
@@ -27,7 +27,7 @@ void main() {
       expect(def.params!['title']!.type, equals('string'));
       expect(def.params!['title']!.required, isTrue);
       expect(def.params!['subtitle']!.defaultValue, equals(''));
-      expect(def.body['type'], equals('box'));
+      expect(def.content['type'], equals('box'));
       expect(def.slots, equals(['header', 'footer']));
       expect(def.defaults, equals({'subtitle': 'Default subtitle'}));
     });
@@ -35,7 +35,7 @@ void main() {
     test('Boundary: only name and body required', () {
       final json = {
         'name': 'minimal',
-        'body': {'type': 'text', 'content': 'Hello'},
+        'content': {'type': 'text', 'content': 'Hello'},
       };
 
       final def = TemplateDefinition.fromJson(json);
@@ -52,7 +52,7 @@ void main() {
         'params': {
           'title': 'string',
         },
-        'body': {'type': 'text'},
+        'content': {'type': 'text'},
       };
 
       final def = TemplateDefinition.fromJson(json);
@@ -111,7 +111,7 @@ void main() {
           'title': {'type': 'string', 'required': true},
           'count': {'type': 'number'},
         },
-        'body': {'type': 'text'},
+        'content': {'type': 'text'},
       });
 
       final errors = def.validate({'title': 'Hello', 'count': 5});
@@ -125,7 +125,7 @@ void main() {
           'title': {'type': 'string', 'required': true},
           'subtitle': {'type': 'string'},
         },
-        'body': {'type': 'text'},
+        'content': {'type': 'text'},
       });
 
       final errors = def.validate({'title': 'Hello'});
@@ -138,7 +138,7 @@ void main() {
         'params': {
           'title': {'type': 'string', 'required': true},
         },
-        'body': {'type': 'text'},
+        'content': {'type': 'text'},
       });
 
       final errors = def.validate({});
@@ -152,7 +152,7 @@ void main() {
         'params': {
           'count': {'type': 'number', 'required': true},
         },
-        'body': {'type': 'text'},
+        'content': {'type': 'text'},
       });
 
       final errors = def.validate({'count': 'not-a-number'});
@@ -166,7 +166,7 @@ void main() {
         params: {
           'title': TemplateParam(type: 'string', required: true),
         },
-        body: {'type': 'text'},
+        content: {'type': 'text'},
         defaults: {'title': 'Default Title'},
       );
 

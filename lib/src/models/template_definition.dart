@@ -13,11 +13,11 @@ class TemplateDefinition {
   /// Template description
   final String? description;
 
-  /// Template parameters with type and validation info
+  /// Template parameters with type and validation info (DSL key: `params`)
   final Map<String, TemplateParam>? params;
 
-  /// The widget tree that defines the template body
-  final Map<String, dynamic> body;
+  /// The widget tree that defines the template content (DSL key: `content`)
+  final Map<String, dynamic> content;
 
   /// Named content slots that can be filled when using the template
   final List<String>? slots;
@@ -38,7 +38,7 @@ class TemplateDefinition {
     required this.name,
     this.description,
     this.params,
-    required this.body,
+    required this.content,
     this.slots,
     this.defaults,
     this.stateDefaults,
@@ -47,7 +47,6 @@ class TemplateDefinition {
   });
 
   factory TemplateDefinition.fromJson(Map<String, dynamic> json) {
-    // Parse params
     Map<String, TemplateParam>? params;
     if (json['params'] != null) {
       params = {};
@@ -67,7 +66,7 @@ class TemplateDefinition {
       name: json['name'] as String,
       description: json['description'] as String?,
       params: params,
-      body: json['body'] as Map<String, dynamic>,
+      content: json['content'] as Map<String, dynamic>,
       slots: (json['slots'] as List<dynamic>?)?.cast<String>(),
       defaults: json['defaults'] as Map<String, dynamic>?,
       stateDefaults: json['stateDefaults'] as Map<String, dynamic>?,
@@ -86,7 +85,7 @@ class TemplateDefinition {
       if (description != null) 'description': description,
       if (params != null)
         'params': params!.map((k, v) => MapEntry(k, v.toJson())),
-      'body': body,
+      'content': content,
       if (slots != null) 'slots': slots,
       if (defaults != null) 'defaults': defaults,
       if (stateDefaults != null) 'stateDefaults': stateDefaults,
@@ -146,9 +145,10 @@ class TemplateDefinition {
     if (runtimeType != other.runtimeType) return false;
     if (name != other.name) return false;
     if (description != other.description) return false;
-    if (body.length != other.body.length) return false;
-    for (final key in body.keys) {
-      if (!other.body.containsKey(key) || body[key] != other.body[key]) {
+    if (content.length != other.content.length) return false;
+    for (final key in content.keys) {
+      if (!other.content.containsKey(key) ||
+          content[key] != other.content[key]) {
         return false;
       }
     }
@@ -184,7 +184,7 @@ class TemplateDefinition {
   int get hashCode =>
       name.hashCode ^
       description.hashCode ^
-      body.hashCode ^
+      content.hashCode ^
       slots.hashCode ^
       defaults.hashCode ^
       stateDefaults.hashCode ^

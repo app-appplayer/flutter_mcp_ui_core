@@ -461,14 +461,14 @@ void main() {
   // TC-132: Round-trip - TemplateDefinition
   // =========================================================================
   group('TC-132: Round-trip - TemplateDefinition', () {
-    test('Normal: template with params, slots, defaults round-trips', () {
+    test('Normal: template with parameters, slots, defaults round-trips', () {
       final original = TemplateDefinition.fromJson({
         'name': 'card',
         'description': 'A card template',
         'params': {
           'title': {'type': 'string', 'required': true},
         },
-        'body': {'type': 'box', 'child': {'type': 'text'}},
+        'content': {'type': 'box', 'child': {'type': 'text'}},
         'slots': ['header', 'footer'],
         'defaults': {'title': 'Default'},
       });
@@ -486,7 +486,7 @@ void main() {
     test('Boundary: minimal template round-trips', () {
       final original = TemplateDefinition.fromJson({
         'name': 'minimal',
-        'body': {'type': 'text'},
+        'content': {'type': 'text'},
       });
 
       final json = original.toJson();

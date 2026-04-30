@@ -1,3 +1,10 @@
+## [0.3.1] - 2026-04-30 - TemplateDefinition spec alignment
+
+### Changed (breaking — pre-launch spec alignment)
+- `TemplateDefinition` widget tree wrapper field renamed `body` → `content` to align with MCP UI DSL 1.3 §9.2.2 (canonical key per `specs/mcp_ui_dsl/spec/1.3/09_Templates.md`). `params` field name retained — it is canonical at both the definition site and the `use` widget invocation site, keeping the API symmetric. Previous wire format (`body`) is removed; bundles must emit `content`.
+
+---
+
 ## [0.3.0] - 2026-04-28 - MCP UI DSL 1.3 (Material 3 + DTCG)
 
 ### Changed (breaking)

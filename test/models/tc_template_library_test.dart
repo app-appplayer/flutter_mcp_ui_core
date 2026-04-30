@@ -15,11 +15,11 @@ void main() {
         'templates': [
           {
             'name': 'card',
-            'body': {'type': 'box', 'child': {'type': 'text'}},
+            'content': {'type': 'box', 'child': {'type': 'text'}},
           },
           {
             'name': 'header',
-            'body': {'type': 'text', 'properties': {'content': 'Header'}},
+            'content': {'type': 'text', 'properties': {'content': 'Header'}},
           },
         ],
       });
@@ -65,7 +65,7 @@ void main() {
         'templates': [
           {
             'name': 'button',
-            'body': {'type': 'button', 'properties': {'label': 'Click'}},
+            'content': {'type': 'button', 'properties': {'label': 'Click'}},
           },
         ],
       });

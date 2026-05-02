@@ -283,25 +283,9 @@ void main() {
     });
   });
 
-  // TC-068~070: decoration, clipOval, clipRRect, decoratedBox
+  // TC-068~070: decoration / clip widgets (decoratedBox removed —
+  // expressed as `box` with `decoration`).
   group('TC-068~070: decoration/clip widgets', () {
-    // TC-068: decoratedBox
-    test('TC-068: decoratedBox with decoration and child', () {
-      final widget = WidgetDefinition.fromJson({
-        'type': 'decoratedBox',
-        'decoration': {
-          'color': '#EEEEEE',
-          'borderRadius': 12,
-        },
-        'child': simpleChild(),
-      });
-
-      expect(widget.type, equals('decoratedBox'));
-      expect(widget.properties['decoration'], isA<Map>());
-      expect(widget.properties['decoration']['color'], equals('#EEEEEE'));
-      expect(widget.child, isNotNull);
-    });
-
     // TC-069: clipOval
     test('TC-069: clipOval with child', () {
       final widget = WidgetDefinition.fromJson({

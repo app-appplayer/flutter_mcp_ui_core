@@ -574,44 +574,7 @@ class WidgetSpecRegistry {
       description: 'Controls visibility of a child widget',
     ),
 
-    WidgetTypes.constrained: const WidgetSpec(
-      type: WidgetTypes.constrained,
-      category: 'layout',
-      canHaveChild: true,
-      parameters: {
-        'child': ParameterSpec(
-          name: 'child',
-          type: Map,
-          description: 'Child widget to constrain',
-        ),
-        'minWidth': ParameterSpec(
-          name: 'minWidth',
-          type: dynamic,
-          defaultValue: 0.0,
-          description: 'Minimum width constraint',
-        ),
-        'maxWidth': ParameterSpec(
-          name: 'maxWidth',
-          type: dynamic,
-          description: 'Maximum width constraint',
-        ),
-        'minHeight': ParameterSpec(
-          name: 'minHeight',
-          type: dynamic,
-          defaultValue: 0.0,
-          description: 'Minimum height constraint',
-        ),
-        'maxHeight': ParameterSpec(
-          name: 'maxHeight',
-          type: dynamic,
-          description: 'Maximum height constraint',
-        ),
-      },
-      requiredParameters: [],
-      description: 'Applies size constraints to a child widget',
-    ),
-
-    WidgetTypes.aspectRatio: const WidgetSpec(
+WidgetTypes.aspectRatio: const WidgetSpec(
       type: WidgetTypes.aspectRatio,
       category: 'layout',
       canHaveChild: true,
@@ -3105,44 +3068,7 @@ class WidgetSpecRegistry {
       description: 'Sizes its child to the intrinsic width of the child',
     ),
 
-    WidgetTypes.constrainedBox: const WidgetSpec(
-      type: WidgetTypes.constrainedBox,
-      category: 'layout',
-      canHaveChild: true,
-      parameters: {
-        'child': ParameterSpec(
-          name: 'child',
-          type: Map,
-          description: 'Child widget to constrain',
-        ),
-        'minWidth': ParameterSpec(
-          name: 'minWidth',
-          type: dynamic,
-          defaultValue: 0.0,
-          description: 'Minimum width constraint',
-        ),
-        'maxWidth': ParameterSpec(
-          name: 'maxWidth',
-          type: dynamic,
-          description: 'Maximum width constraint',
-        ),
-        'minHeight': ParameterSpec(
-          name: 'minHeight',
-          type: dynamic,
-          defaultValue: 0.0,
-          description: 'Minimum height constraint',
-        ),
-        'maxHeight': ParameterSpec(
-          name: 'maxHeight',
-          type: dynamic,
-          description: 'Maximum height constraint',
-        ),
-      },
-      requiredParameters: [],
-      description: 'Applies box constraints to a child widget (CamelCase alias for constrained)',
-    ),
-
-    WidgetTypes.baseline: const WidgetSpec(
+WidgetTypes.baseline: const WidgetSpec(
       type: WidgetTypes.baseline,
       category: 'layout',
       canHaveChild: true,
@@ -3346,35 +3272,7 @@ class WidgetSpecRegistry {
       description: 'Paints a decoration around or behind a child widget',
     ),
 
-    WidgetTypes.decoratedBox: const WidgetSpec(
-      type: WidgetTypes.decoratedBox,
-      category: 'display',
-      canHaveChild: true,
-      parameters: {
-        'child': ParameterSpec(
-          name: 'child',
-          type: Map,
-          description: 'Child widget to decorate',
-        ),
-        'decoration': ParameterSpec(
-          name: 'decoration',
-          type: Map,
-          required: true,
-          description: 'Box decoration (color, border, borderRadius, shadow, gradient)',
-        ),
-        'position': ParameterSpec(
-          name: 'position',
-          type: String,
-          defaultValue: 'background',
-          allowedValues: ['background', 'foreground'],
-          description: 'Whether decoration is painted behind or in front of child',
-        ),
-      },
-      requiredParameters: ['decoration'],
-      description: 'A box that paints a decoration before or after its child',
-    ),
-
-    // ===== Input Widgets (additional) =====
+// ===== Input Widgets (additional) =====
     WidgetTypes.numberField: const WidgetSpec(
       type: WidgetTypes.numberField,
       category: 'input',

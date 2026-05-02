@@ -370,21 +370,8 @@ void main() {
     });
   });
 
-  // TC-031: constrainedBox
-  group('TC-031: constrainedBox', () {
-    test('TC-031: constrainedBox with min/max constraints', () {
-      final widget = WidgetDefinition.fromJson({
-        'type': 'constrainedBox',
-        'minWidth': 0,
-        'maxWidth': 300,
-        'child': simpleChild(),
-      });
-
-      expect(widget.type, equals('constrainedBox'));
-      expect(widget.properties['minWidth'], equals(0));
-      expect(widget.properties['maxWidth'], equals(300));
-    });
-  });
+  // TC-031 (constrainedBox) removed — `constrainedBox` is no longer a
+  // separate widget. Min/max constraints are properties of `box`.
 
   // TC-032: fittedBox
   group('TC-032: fittedBox', () {

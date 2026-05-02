@@ -1260,7 +1260,7 @@ void main() {
           },
           "onError": {
             "type": "notification",
-            "message": "Error: {{error.message}}"
+            "message": "Error: {{event.message}}"
           }
         };
         

@@ -7,8 +7,8 @@ void main() {
     test('Normal: all widget types defined by category', () {
       final categories = WidgetTypes.categories;
 
-      expect(categories['layout']!.length, equals(31));
-      expect(categories['display']!.length, equals(20));
+      expect(categories['layout']!.length, equals(29));
+      expect(categories['display']!.length, equals(19));
       expect(categories['input']!.length, equals(24));
       expect(categories['list']!.length, equals(4));
       expect(categories['navigation']!.length, equals(8));

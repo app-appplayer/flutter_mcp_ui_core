@@ -27,8 +27,6 @@ class WidgetTypes {
   static const String conditional = 'conditional';
   static const String indexedStack = 'indexedStack'; // CamelCase
   static const String container = 'container'; // legacy alias for box
-  static const String constrained = 'constrained';
-  static const String constrainedBox = 'constrainedBox'; // CamelCase
   static const String baseline = 'baseline';
   static const String fittedBox = 'fittedBox'; // CamelCase
   static const String limitedBox = 'limitedBox'; // CamelCase
@@ -53,7 +51,6 @@ class WidgetTypes {
   static const String loadingIndicator = 'loadingIndicator'; // CamelCase
   static const String placeholder = 'placeholder';
   static const String decoration = 'decoration';
-  static const String decoratedBox = 'decoratedBox'; // CamelCase
   static const String clipOval = 'clipOval'; // CamelCase
   static const String clipRRect = 'clipRRect'; // CamelCase
   static const String progressBar = 'progressBar'; // CamelCase
@@ -170,14 +167,14 @@ class WidgetTypes {
       linear, stack, box, center, align, padding, margin,
       sizedBox, expanded, flexible, spacer, wrap, flow,
       positioned, intrinsicHeight, intrinsicWidth, visibility, conditional, table,
-      indexedStack, container, constrained, constrainedBox, baseline,
+      indexedStack, container, baseline,
       fittedBox, limitedBox, mediaQuery, safeArea, aspectRatio, fractionallySized,
       layoutBuilder,
     ],
     'display': [
       text, richText, image, icon, card, divider, verticalDivider,
       badge, chip, avatar, tooltip, loadingIndicator,
-      placeholder, decoration, decoratedBox, clipOval, clipRRect, progressBar, banner,
+      placeholder, decoration, clipOval, clipRRect, progressBar, banner,
       canvas,
     ],
     'input': [
@@ -276,13 +273,11 @@ class WidgetTypes {
     'layout-builder': layoutBuilder,
     'loading-indicator': loadingIndicator,
     'vertical-divider': verticalDivider,
-    'decorated-box': decoratedBox,
     'clip-oval': clipOval,
     'clip-r-rect': clipRRect,
     'progress-bar': progressBar,
     'intrinsic-height': intrinsicHeight,
     'intrinsic-width': intrinsicWidth,
-    'constrained-box': constrainedBox,
     'aspect-ratio': aspectRatio,
     'fractionally-sized': fractionallySized,
     'fitted-box': fittedBox,

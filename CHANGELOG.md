@@ -1,3 +1,19 @@
+## [0.3.2] - 2026-05-02 - M3 token shorthand + ResponsiveValue schema
+
+Schema additions to support widget-side consumption of the M3 token
+domains declared in 0.3.0. Backward-compatible — existing bundles
+continue to validate.
+
+- M3 token shorthand on `text.variant` / `box.padding` /
+  `card.shape` / `card.elevation` / `button.elevation` / `icon.size` /
+  `icon.sizeToken`.
+- `$defs.ResponsiveValue` formalised for per-form-factor property
+  overrides.
+- `14_Responsive_Events.md` rewritten on M3 5-class
+  (`compact` / `medium` / `expanded` / `large` / `extraLarge` +
+  `embedded`); `xs/sm/md/lg/xl` labels removed.
+- `{{runtime.breakpoint}}` renamed to `{{runtime.formFactor}}`.
+
 ## [0.3.1] - 2026-04-30 - TemplateDefinition spec alignment
 
 ### Changed (breaking — pre-launch spec alignment)

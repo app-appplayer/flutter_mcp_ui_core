@@ -14,7 +14,7 @@ void main() {
         routes: {'/': 'main.json', '/settings': 'settings.json'},
         initialState: {'count': 0, 'name': 'test'},
         defaultLocale: 'en',
-        supportedLocales: ['en', 'ko', 'ja'],
+        locales: ['en', 'ko', 'ja'],
         fallbackLocale: 'en',
       );
 

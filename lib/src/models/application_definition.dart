@@ -79,16 +79,37 @@ class ApplicationDefinition {
   /// Reusable template definitions (v1.1 TM-01)
   final Map<String, TemplateDefinition>? templates;
 
-  // -- i18n fields (spec v1.0 §application.i18n) --
+  // -- i18n fields (spec § 12.1.1) --
 
   /// Default locale for the application (e.g., 'en', 'ko')
   final String? defaultLocale;
 
-  /// List of supported locales
-  final List<String>? supportedLocales;
+  /// Spec § 12.1.1 canonical name for the supported-locales list. Older
+  /// builds emitted `supportedLocales`; both keys are accepted on parse
+  /// and map to this field.
+  final List<String>? locales;
+
+  /// Legacy alias of [locales] retained for backward compatibility with
+  /// pre-1.3.2 bundles.
+  List<String>? get supportedLocales => locales;
 
   /// Fallback locale when translation is missing
   final String? fallbackLocale;
+
+  /// Locale → key → string text bundle (§ 12.1.1).
+  final Map<String, dynamic>? text;
+
+  /// Locale → key → plural-category map (§ 12.3).
+  final Map<String, dynamic>? pluralization;
+
+  /// Locale → format-name → number-format descriptor (§ 12.4).
+  final Map<String, dynamic>? numberFormat;
+
+  /// Locale → format-name → date-format descriptor (§ 12.5).
+  final Map<String, dynamic>? dateFormat;
+
+  /// Locale → `ltr` | `rtl` (§ 12.8).
+  final Map<String, dynamic>? textDirection;
 
   // -- v1.3 --
 
@@ -122,8 +143,13 @@ class ApplicationDefinition {
     this.templates,
     // i18n
     this.defaultLocale,
-    this.supportedLocales,
+    this.locales,
     this.fallbackLocale,
+    this.text,
+    this.pluralization,
+    this.numberFormat,
+    this.dateFormat,
+    this.textDirection,
     // v1.3
     this.templateLibraries,
     this.dashboard,
@@ -199,14 +225,27 @@ class ApplicationDefinition {
               ),
             )
           : null,
-      // i18n
+      // i18n — spec § 12.1.1 canonical key is `locales`; older bundles
+      // may still emit `supportedLocales`, so both are accepted.
       defaultLocale: (json['i18n'] as Map<String, dynamic>?)?['defaultLocale'] as String? ??
           json['defaultLocale'] as String?,
-      supportedLocales: ((json['i18n'] as Map<String, dynamic>?)?['supportedLocales'] as List<dynamic>?)
+      locales: ((json['i18n'] as Map<String, dynamic>?)?['locales'] as List<dynamic>?)
+              ?.cast<String>() ??
+          ((json['i18n'] as Map<String, dynamic>?)?['supportedLocales'] as List<dynamic>?)
               ?.cast<String>() ??
           (json['supportedLocales'] as List<dynamic>?)?.cast<String>(),
       fallbackLocale: (json['i18n'] as Map<String, dynamic>?)?['fallbackLocale'] as String? ??
           json['fallbackLocale'] as String?,
+      text: (json['i18n'] as Map<String, dynamic>?)?['text']
+          as Map<String, dynamic>?,
+      pluralization: (json['i18n'] as Map<String, dynamic>?)?['pluralization']
+          as Map<String, dynamic>?,
+      numberFormat: (json['i18n'] as Map<String, dynamic>?)?['numberFormat']
+          as Map<String, dynamic>?,
+      dateFormat: (json['i18n'] as Map<String, dynamic>?)?['dateFormat']
+          as Map<String, dynamic>?,
+      textDirection: (json['i18n'] as Map<String, dynamic>?)?['textDirection']
+          as Map<String, dynamic>?,
       // v1.3
       templateLibraries: (json['templateLibraries'] as List<dynamic>?)
           ?.map((e) => TemplateLibrary.fromJson(e as Map<String, dynamic>))
@@ -266,12 +305,25 @@ class ApplicationDefinition {
       );
     }
 
-    // i18n fields
-    if (defaultLocale != null || supportedLocales != null || fallbackLocale != null) {
+    // i18n fields — emit canonical `locales` per spec § 12.1.1.
+    final hasI18n = defaultLocale != null ||
+        locales != null ||
+        fallbackLocale != null ||
+        text != null ||
+        pluralization != null ||
+        numberFormat != null ||
+        dateFormat != null ||
+        textDirection != null;
+    if (hasI18n) {
       result['i18n'] = <String, dynamic>{
         if (defaultLocale != null) 'defaultLocale': defaultLocale,
-        if (supportedLocales != null) 'supportedLocales': supportedLocales,
+        if (locales != null) 'locales': locales,
         if (fallbackLocale != null) 'fallbackLocale': fallbackLocale,
+        if (text != null) 'text': text,
+        if (pluralization != null) 'pluralization': pluralization,
+        if (numberFormat != null) 'numberFormat': numberFormat,
+        if (dateFormat != null) 'dateFormat': dateFormat,
+        if (textDirection != null) 'textDirection': textDirection,
       };
     }
 
@@ -360,8 +412,13 @@ class ApplicationDefinition {
     Map<String, TemplateDefinition>? templates,
     // i18n
     String? defaultLocale,
-    List<String>? supportedLocales,
+    List<String>? locales,
     String? fallbackLocale,
+    Map<String, dynamic>? text,
+    Map<String, dynamic>? pluralization,
+    Map<String, dynamic>? numberFormat,
+    Map<String, dynamic>? dateFormat,
+    Map<String, dynamic>? textDirection,
     // v1.3
     List<TemplateLibrary>? templateLibraries,
     DashboardConfig? dashboard,
@@ -390,8 +447,13 @@ class ApplicationDefinition {
       templates: templates ?? this.templates,
       // i18n
       defaultLocale: defaultLocale ?? this.defaultLocale,
-      supportedLocales: supportedLocales ?? this.supportedLocales,
+      locales: locales ?? this.locales,
       fallbackLocale: fallbackLocale ?? this.fallbackLocale,
+      text: text ?? this.text,
+      pluralization: pluralization ?? this.pluralization,
+      numberFormat: numberFormat ?? this.numberFormat,
+      dateFormat: dateFormat ?? this.dateFormat,
+      textDirection: textDirection ?? this.textDirection,
       // v1.3
       templateLibraries: templateLibraries ?? this.templateLibraries,
       dashboard: dashboard ?? this.dashboard,

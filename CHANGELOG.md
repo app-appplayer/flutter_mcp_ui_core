@@ -1,3 +1,8 @@
+## [0.4.0] - 2026-05-03 - Spec ↔ implementation alignment (1.3.3)
+
+- App / page / theme JSON schema mirrored as generated Dart constants alongside the existing widgets schema.
+- `ApplicationDefinition` typed i18n fields, `TemplateLibrary` integrity, `ColorScheme` spec-spelling acceptance — all backward compatible.
+
 ## [0.3.2] - 2026-05-02 - M3 token shorthand + ResponsiveValue schema
 
 Schema additions to support widget-side consumption of the M3 token

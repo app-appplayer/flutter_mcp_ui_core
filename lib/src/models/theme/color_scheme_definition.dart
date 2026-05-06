@@ -37,6 +37,13 @@ class ColorSchemeDefinition {
   final String? surface;
   final String? onSurface;
   final String? onSurfaceVariant;
+  /// Accepted for spec compatibility but no-op since Flutter 3.22+ —
+  /// the post-2024 M3 expressive tonal scale replaced the dedicated
+  /// `surfaceVariant` slot with the 5-step surface containers
+  /// (`surfaceContainerLowest` … `surfaceContainerHighest`). Bundles
+  /// authored against earlier M3 may still emit this field; the
+  /// runtime parses it but does not apply it to the rendered theme.
+  final String? surfaceVariant;
   final String? surfaceTint;
   final String? surfaceBright;
   final String? surfaceDim;
@@ -93,6 +100,7 @@ class ColorSchemeDefinition {
     this.surface,
     this.onSurface,
     this.onSurfaceVariant,
+    this.surfaceVariant,
     this.surfaceTint,
     this.surfaceBright,
     this.surfaceDim,
@@ -139,6 +147,12 @@ class ColorSchemeDefinition {
       surface: json['surface'] as String?,
       onSurface: json['onSurface'] as String?,
       onSurfaceVariant: json['onSurfaceVariant'] as String?,
+      surfaceVariant: json['surfaceVariant'] as String?,
+      // Spec § 5.3.6 documents the slot as `inverseOnSurface`. M3 / Flutter
+      // ColorScheme name it `onInverseSurface`. Accept both keys; the
+      // spec spelling wins when both are present.
+      // Stored under the canonical (spec) name internally and surfaced
+      // back through `onInverseSurface` for Flutter ColorScheme parity.
       surfaceTint: json['surfaceTint'] as String?,
       surfaceBright: json['surfaceBright'] as String?,
       surfaceDim: json['surfaceDim'] as String?,
@@ -150,7 +164,11 @@ class ColorSchemeDefinition {
       outline: json['outline'] as String?,
       outlineVariant: json['outlineVariant'] as String?,
       inverseSurface: json['inverseSurface'] as String?,
-      onInverseSurface: json['onInverseSurface'] as String?,
+      // Accept both spec spelling (`inverseOnSurface`) and Flutter /
+      // Material 3 spelling (`onInverseSurface`). Spec spelling wins
+      // when both are present so spec ↔ runtime stays aligned.
+      onInverseSurface: (json['inverseOnSurface'] ?? json['onInverseSurface'])
+          as String?,
       inversePrimary: json['inversePrimary'] as String?,
       scrim: json['scrim'] as String?,
       shadow: json['shadow'] as String?,
@@ -193,6 +211,7 @@ class ColorSchemeDefinition {
     put('surface', surface);
     put('onSurface', onSurface);
     put('onSurfaceVariant', onSurfaceVariant);
+    put('surfaceVariant', surfaceVariant);
     put('surfaceTint', surfaceTint);
     put('surfaceBright', surfaceBright);
     put('surfaceDim', surfaceDim);
@@ -239,6 +258,7 @@ class ColorSchemeDefinition {
     String? surface,
     String? onSurface,
     String? onSurfaceVariant,
+    String? surfaceVariant,
     String? surfaceTint,
     String? surfaceBright,
     String? surfaceDim,
@@ -284,6 +304,7 @@ class ColorSchemeDefinition {
       surface: surface ?? this.surface,
       onSurface: onSurface ?? this.onSurface,
       onSurfaceVariant: onSurfaceVariant ?? this.onSurfaceVariant,
+      surfaceVariant: surfaceVariant ?? this.surfaceVariant,
       surfaceTint: surfaceTint ?? this.surfaceTint,
       surfaceBright: surfaceBright ?? this.surfaceBright,
       surfaceDim: surfaceDim ?? this.surfaceDim,

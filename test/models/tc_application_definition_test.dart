@@ -208,7 +208,7 @@ void main() {
         routes: {'/': 'main.json'},
         initialState: {'count': 0},
         defaultLocale: 'en',
-        supportedLocales: ['en', 'ko'],
+        locales: ['en', 'ko'],
         fallbackLocale: 'en',
       );
 

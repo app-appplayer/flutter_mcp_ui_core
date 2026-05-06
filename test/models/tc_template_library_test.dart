@@ -9,7 +9,7 @@ void main() {
   group('TemplateLibrary.fromJson', () {
     test('Normal: parse all fields', () {
       final lib = TemplateLibrary.fromJson({
-        'url': 'https://cdn.example.com/templates/material.json',
+        'uri': 'https://cdn.example.com/templates/material.json',
         'name': 'material-components',
         'version': '2.1.0',
         'templates': [
@@ -34,7 +34,7 @@ void main() {
 
     test('Boundary: only url required, optional fields null', () {
       final lib = TemplateLibrary.fromJson({
-        'url': 'https://cdn.example.com/lib.json',
+        'uri': 'https://cdn.example.com/lib.json',
       });
       expect(lib.url, equals('https://cdn.example.com/lib.json'));
       expect(lib.name, isNull);
@@ -44,7 +44,7 @@ void main() {
 
     test('Normal: url with name but no version or templates', () {
       final lib = TemplateLibrary.fromJson({
-        'url': 'https://example.com/widgets.json',
+        'uri': 'https://example.com/widgets.json',
         'name': 'my-lib',
       });
       expect(lib.name, equals('my-lib'));
@@ -59,7 +59,7 @@ void main() {
   group('TemplateLibrary.toJson', () {
     test('Normal: full round-trip', () {
       final original = TemplateLibrary.fromJson({
-        'url': 'https://cdn.example.com/templates.json',
+        'uri': 'https://cdn.example.com/templates.json',
         'name': 'design-system',
         'version': '1.0.0',
         'templates': [
@@ -80,9 +80,9 @@ void main() {
     });
 
     test('Boundary: optional fields omitted from JSON when null', () {
-      final lib = TemplateLibrary(url: 'https://example.com/lib.json');
+      final lib = TemplateLibrary(uri: 'https://example.com/lib.json');
       final json = lib.toJson();
-      expect(json['url'], equals('https://example.com/lib.json'));
+      expect(json['uri'], equals('https://example.com/lib.json'));
       expect(json.containsKey('name'), isFalse);
       expect(json.containsKey('version'), isFalse);
       expect(json.containsKey('templates'), isFalse);
@@ -90,12 +90,12 @@ void main() {
 
     test('Normal: toJson includes all non-null fields', () {
       final lib = TemplateLibrary(
-        url: 'https://example.com/lib.json',
+        uri: 'https://example.com/lib.json',
         name: 'test-lib',
         version: '0.5.0',
       );
       final json = lib.toJson();
-      expect(json['url'], equals('https://example.com/lib.json'));
+      expect(json['uri'], equals('https://example.com/lib.json'));
       expect(json['name'], equals('test-lib'));
       expect(json['version'], equals('0.5.0'));
     });
@@ -107,7 +107,7 @@ void main() {
   group('TemplateLibrary construction and equality', () {
     test('Normal: const constructor', () {
       const lib = TemplateLibrary(
-        url: 'https://example.com/lib.json',
+        uri: 'https://example.com/lib.json',
         name: 'test',
         version: '1.0',
       );
@@ -119,12 +119,12 @@ void main() {
 
     test('Normal: equality based on url, name, version', () {
       final a = TemplateLibrary(
-        url: 'https://example.com/lib.json',
+        uri: 'https://example.com/lib.json',
         name: 'test',
         version: '1.0',
       );
       final b = TemplateLibrary(
-        url: 'https://example.com/lib.json',
+        uri: 'https://example.com/lib.json',
         name: 'test',
         version: '1.0',
       );
@@ -133,14 +133,14 @@ void main() {
     });
 
     test('Boundary: inequality when url differs', () {
-      final a = TemplateLibrary(url: 'https://a.com/lib.json');
-      final b = TemplateLibrary(url: 'https://b.com/lib.json');
+      final a = TemplateLibrary(uri: 'https://a.com/lib.json');
+      final b = TemplateLibrary(uri: 'https://b.com/lib.json');
       expect(a, isNot(equals(b)));
     });
 
     test('Normal: copyWith creates modified copy', () {
       final original = TemplateLibrary(
-        url: 'https://example.com/lib.json',
+        uri: 'https://example.com/lib.json',
         name: 'original',
         version: '1.0',
       );
@@ -152,7 +152,7 @@ void main() {
 
     test('Normal: toString contains url and name', () {
       final lib = TemplateLibrary(
-        url: 'https://example.com/lib.json',
+        uri: 'https://example.com/lib.json',
         name: 'test',
       );
       final str = lib.toString();
@@ -174,12 +174,12 @@ void main() {
         'routes': {'/': 'resource://main'},
         'templateLibraries': [
           {
-            'url': 'https://cdn.example.com/material.json',
+            'uri': 'https://cdn.example.com/material.json',
             'name': 'material',
             'version': '1.0.0',
           },
           {
-            'url': 'https://cdn.example.com/custom.json',
+            'uri': 'https://cdn.example.com/custom.json',
             'name': 'custom',
           },
         ],
@@ -210,7 +210,7 @@ void main() {
         'routes': {'/': 'resource://main'},
         'templateLibraries': [
           {
-            'url': 'https://example.com/lib.json',
+            'uri': 'https://example.com/lib.json',
             'name': 'lib',
             'version': '1.0',
           },

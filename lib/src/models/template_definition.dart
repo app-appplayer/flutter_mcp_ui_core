@@ -109,7 +109,15 @@ class TemplateDefinition {
       }
 
       if (value != null && param.type != null) {
-        if (!_typeMatches(value, param.type!)) {
+        // Binding expressions (`"{{...}}"`) carry their runtime-resolved
+        // value, not the literal String. The declared `type` describes
+        // that resolved value; rejecting the raw expression here would
+        // make every expression-bound parameter fail validation. Spec
+        // §9.3.1 mandates required / default / enum / validator only —
+        // strict type rejection is not required, and expressions must
+        // be exempt regardless.
+        if (!_isBindingExpression(value) &&
+            !_typeMatches(value, param.type!)) {
           errors.add(
               'Parameter "${entry.key}" expected ${param.type}, got ${value.runtimeType}');
         }
@@ -117,6 +125,16 @@ class TemplateDefinition {
     }
 
     return errors;
+  }
+
+  /// `true` when [value] is a String shaped like a binding expression
+  /// (`"{{...}}"`). Such values are placeholders for runtime-resolved
+  /// data and must bypass declared-type checks (see [validate]).
+  bool _isBindingExpression(dynamic value) {
+    if (value is! String) return false;
+    final open = value.indexOf('{{');
+    if (open < 0) return false;
+    return value.indexOf('}}', open + 2) > open;
   }
 
   bool _typeMatches(dynamic value, String type) {

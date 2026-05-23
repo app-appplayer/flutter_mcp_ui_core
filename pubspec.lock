@@ -263,10 +263,10 @@ packages:
     dependency: "direct main"
     description:
       name: mcp_bundle
-      sha256: c9d34b1156f6c9d68664f60b997e2aca6131d1365c360de0de65a245c967e84f
+      sha256: e5d3417c3de3fb788f98c4c3d5564870e9bedad313570d7f8d9d6612ecf66e82
       url: "https://pub.dev"
     source: hosted
-    version: "0.3.0"
+    version: "0.4.0"
   meta:
     dependency: "direct main"
     description:

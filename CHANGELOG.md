@@ -1,3 +1,13 @@
+## [0.4.1] - 2026-05-23 — common widget property fanout (spec 1.3.4) + template validate fix + mcp_bundle 0.4.0 cascade
+
+### Changed
+- `widgets_schema.g.dart` regenerated — every widget def in the embedded `widgets.schema.json` now admits the common `click: Action` and `tooltip: string` properties (spec 1.3.4 §2.2). Sourced from `specs/mcp_ui_dsl/spec/1.3/widgets/_common.yaml` and merged by the codegen into each widget's effective property set; a widget-declared same-named property still wins. Additive — bundles that omit `click` / `tooltip` are unaffected.
+- `mcp_bundle` caret bumped from `^0.3.0` to `^0.4.0`. The downstream bundle package switched its `UiSection.pages` representation from a list to a map (`Map<String, PageDefinition>`) to align with `mcp_ui_dsl 1.3 app.schema.json`. flutter_mcp_ui_core does not call that field directly, so the only consumer change here is the caret bump; consumers of this package should bump to `^0.4.1`.
+- `theme_schema.g.dart` description regenerated to English-only (drift removed from the upstream `theme.schema.json`).
+
+### Fixed
+- `TemplateDefinition.validate` now skips declared-type checks when the supplied argument is a binding expression (`"{{...}}"`). Previously a template param declared `type: boolean` rejected every expression-bound argument (always a String at validate time), causing `use` invocations to fall through `templateRegistry.resolve` and surface the runtime's `Template not found:` placeholder. Spec §9.3.1 mandates only required / default / enum / validator — strict type rejection is not required and expressions must be exempt regardless. Non-expression arguments still take the type path unchanged. Regression: `test/models/tc_template_definition_test.dart` (12/12).
+
 ## [0.4.0] - 2026-05-03 - Spec ↔ implementation alignment (1.3.3)
 
 - App / page / theme JSON schema mirrored as generated Dart constants alongside the existing widgets schema.

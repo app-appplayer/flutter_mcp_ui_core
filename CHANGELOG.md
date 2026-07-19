@@ -1,3 +1,10 @@
+## [0.4.2] - 2026-07-19 — `client.mcpStream` channel type in the embedded page schema (spec 1.3)
+
+### Changed
+- `page_schema.g.dart` regenerated — the `ChannelDefinition.type` enumeration now lists `client.mcpStream` alongside the existing five channel types (`client.watchFile`, `client.watchDirectory`, `client.systemMonitor`, `client.poll`, `client.websocket`). Sourced from `specs/mcp_ui_dsl/spec/1.3/configs/page/ChannelDefinition.yaml` and embedded by the codegen. Additive and version-neutral: `type` stays an open string, so bundles using the prior five types are unaffected, and the `major.minor` DSL-version gate (`MCPUIDSLVersion`) is unchanged.
+- `channel_definition.dart` dartdoc lists the new type. First consumer: the `client.mcpStream` runtime channel (flutter_mcp_ui_runtime) — the first channel that carries an MCP-server-pushed live stream.
+- `mcp_bundle` floor raised `^0.4.0 → ^0.4.8` (floors-at-latest on cut; no new symbol used).
+
 ## [0.4.1] - 2026-05-23 — common widget property fanout (spec 1.3.4) + template validate fix + mcp_bundle 0.4.0 cascade
 
 ### Changed

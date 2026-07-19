@@ -9,7 +9,8 @@ import 'action_definition.dart';
 @immutable
 class ChannelDefinition {
   /// Channel type: 'client.watchFile', 'client.watchDirectory',
-  /// 'client.systemMonitor', 'client.poll', 'client.websocket'
+  /// 'client.systemMonitor', 'client.poll', 'client.websocket',
+  /// 'client.mcpStream'
   final String type;
 
   /// Type-specific parameters

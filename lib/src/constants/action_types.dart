@@ -22,6 +22,12 @@ class ActionTypes {
   static const String cancel = 'cancel';
   static const String permissionRevoke = 'permission.revoke';
 
+  /// Ask the host to identify the current viewer (§8.9.3)
+  static const String identityPromote = 'identity.promote';
+
+  /// Return to guest, or end the session where identification is required
+  static const String identityRelease = 'identity.release';
+
   // Client action types (v1.1)
   static const String clientSelectFile = 'client.selectFile';
   static const String clientReadFile = 'client.readFile';
@@ -61,14 +67,22 @@ class ActionTypes {
     channelToggle, channelSend,
   ];
 
+  /// All v1.4 action types
+  static const List<String> v14Types = [
+    identityPromote, identityRelease,
+  ];
+
   /// All action types combined
-  static List<String> get all => [...coreTypes, ...v11Types];
+  static List<String> get all => [...coreTypes, ...v11Types, ...v14Types];
 
   /// Check if an action type is a client action
   static bool isClientAction(String type) => type.startsWith('client.');
 
   /// Check if an action type is a channel action
   static bool isChannelAction(String type) => type.startsWith('channel.');
+
+  /// Check if an action type is an identity action (§8.9.3)
+  static bool isIdentityAction(String type) => type.startsWith('identity.');
 
   /// Check if an action type is valid
   static bool isValid(String type) => all.contains(type);

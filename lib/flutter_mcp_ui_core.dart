@@ -14,6 +14,7 @@ export 'src/models/action_definition.dart';
 export 'src/models/theme_definition.dart';
 export 'src/models/theme.dart'; // 14 sub models + DTCG codec + seed palette
 export 'src/models/permission_definition.dart';
+export 'src/models/entry_definition.dart';
 export 'src/models/channel_definition.dart';
 export 'src/models/template_definition.dart';
 export 'src/models/template_library.dart';

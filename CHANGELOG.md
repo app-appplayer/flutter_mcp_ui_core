@@ -1,3 +1,35 @@
+## [0.4.3] - 2026-07-28 — Composition Profile in the embedded schemas (spec 1.4)
+
+### Added — entry & identity value types (spec 1.4 §8.9)
+
+- **`EntryContext`, `EntryIssuer`, `EntryNotice`, `IdentityContext`, `IdentityState`, `IdentitySubjectKind`** — how a definition was reached and who is looking at it. They live here, with the other spec value types, so authoring tools, validators and non-runtime consumers can name them without depending on the Flutter runtime; the runtime re-exports them and owns the behaviour (session, binding resolution, launch route).
+- **`IdentityPromotion` / `PromotionOutcome`** — `promoted` · `declined` · `unavailable` · `failed`. A host returning "no identity" for all three would leave a document unable to tell "you declined, try again" from "this host cannot sign you in", which is a distinction every established credential API preserves.
+- **`ActionTypes.identityPromote` / `identityRelease`**, a `v14Types` list, and `isIdentityAction`. This registry mirrors spec §17.2.2 — adding the actions to the runtime without adding them here would leave the canonical name list disagreeing with the spec it claims to mirror.
+
+`EntryNotice.fromWire` folds an unrecognised notice kind onto `advisory` rather than dropping it, so a resolver newer than the runtime never loses a message.
+
+### Fixed
+- `ApplicationDefinition.routes` was typed `Map<String, String>`, and
+  `fromConfig` cast every value with `as String`. Since v1.4 a route target may
+  be a `DefinitionSource` object naming another origin, so an application with
+  a composed route threw during parsing. Routes now keep their declared shape.
+  The same narrowing existed on the runtime side and is fixed there too.
+
+### Changed
+- **`app/page/theme` schemas re-versioned to 1.4.** The 1.4 spec tree was seeded
+  from 1.3 and these three kept 1.3 `$id`s, titles and cross-references, while
+  only the widget schema had moved — so the machine-readable half of the release
+  described the previous version. `configs_codegen` was pinned to `1.3`
+  independently of `spec_codegen`'s `--spec-version`; it now carries a
+  `_specVersion` constant that moves with it.
+- **`RouteValue` widened to a `DefinitionSource`** (`$defs/Origin` added). The
+  1.4 prose widened routes in §1.2.1 but the config that generates the schema
+  was never updated, so a validator would have rejected a valid composed route.
+
+### Changed — widgets schema
+- `widgets_schema.g.dart` regenerated — the embedded `widgets.schema.json` now carries the **`view`** widget (`utility` category, `Composition` profile, `since: v1.4`) with its `source` / `props` / `fallback` / `loading` / `onError` / `theme` properties. Sourced from `specs/mcp_ui_dsl/spec/1.4/widgets/utility/view.yaml` and emitted by `tools/spec_codegen`, whose default `--spec-version` moved to `1.4` in the same change.
+- Additive: every pre-existing widget definition is byte-identical, so bundles that never use `view` are unaffected. A runtime that does not implement the Composition Profile treats `view` as an unknown widget type (error placeholder, no crash) per spec §18.7.3.
+
 ## [0.4.2] - 2026-07-19 — `client.mcpStream` channel type in the embedded page schema (spec 1.3)
 
 ### Changed

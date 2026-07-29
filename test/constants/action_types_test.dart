@@ -117,7 +117,20 @@ void main() {
 
     test('Normal: all combined types', () {
       final all = ActionTypes.all;
-      expect(all.length, equals(ActionTypes.coreTypes.length + ActionTypes.v11Types.length));
+      expect(
+        all.length,
+        equals(ActionTypes.coreTypes.length +
+            ActionTypes.v11Types.length +
+            ActionTypes.v14Types.length),
+      );
+    });
+
+    test('Normal: v1.4 identity types are registered (§8.9.3)', () {
+      expect(ActionTypes.v14Types, contains('identity.promote'));
+      expect(ActionTypes.v14Types, contains('identity.release'));
+      expect(ActionTypes.isValid('identity.promote'), isTrue);
+      expect(ActionTypes.isIdentityAction('identity.release'), isTrue);
+      expect(ActionTypes.isIdentityAction('state'), isFalse);
     });
 
     test('Boundary: no duplicate action type names', () {

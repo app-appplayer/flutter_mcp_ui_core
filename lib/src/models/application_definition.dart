@@ -30,8 +30,15 @@ class ApplicationDefinition {
   /// Initial route to display
   final String initialRoute;
 
-  /// Route definitions mapping paths to resource URIs
-  final Map<String, String> routes;
+  /// Route definitions mapping paths to route targets.
+  ///
+  /// Values are `dynamic`, not `String`: since v1.4 a route target may be a
+  /// `DefinitionSource` object naming another origin (`{$ref, from}`), an
+  /// inline page, or a `{page, transition}` wrapper — not only a `ui://`
+  /// string. Narrowing here throws while the application is still being
+  /// parsed, so a composed app fails to open with a type-cast message that
+  /// names neither routes nor composition.
+  final Map<String, dynamic> routes;
 
   /// Theme configuration
   final ThemeDefinition? theme;
@@ -355,9 +362,10 @@ class ApplicationDefinition {
 
   /// Create from legacy [ApplicationConfig]
   factory ApplicationDefinition.fromConfig(ApplicationConfig config) {
-    // Cast routes from Map<String, dynamic> to Map<String, String>
-    final routes = config.routes.map<String, String>(
-        (key, value) => MapEntry(key, value as String));
+    // Routes keep their declared shape — see the field doc. A v1.4 route may
+    // be an object, and casting each value to String threw before the
+    // application could open.
+    final routes = Map<String, dynamic>.from(config.routes);
 
     // Parse theme map as ThemeDefinition
     final theme = config.theme != null
@@ -393,7 +401,7 @@ class ApplicationDefinition {
     String? title,
     String? version,
     String? initialRoute,
-    Map<String, String>? routes,
+    Map<String, dynamic>? routes,
     ThemeDefinition? theme,
     NavigationConfig? navigation,
     Map<String, dynamic>? initialState,
@@ -469,7 +477,7 @@ class ApplicationDefinition {
           title == other.title &&
           version == other.version &&
           initialRoute == other.initialRoute &&
-          _mapsEqual(routes, other.routes) &&
+          _dynamicMapsEqual(routes, other.routes) &&
           theme == other.theme &&
           navigation == other.navigation &&
           _dynamicMapsEqual(initialState, other.initialState) &&
@@ -521,14 +529,6 @@ class ApplicationDefinition {
   String toString() {
     return 'ApplicationDefinition(title: $title, version: $version, '
         'routes: ${routes.length})';
-  }
-
-  bool _mapsEqual(Map<String, String> a, Map<String, String> b) {
-    if (a.length != b.length) return false;
-    for (final key in a.keys) {
-      if (!b.containsKey(key) || a[key] != b[key]) return false;
-    }
-    return true;
   }
 
   bool _listsEqual(List<String>? a, List<String>? b) {

@@ -1,3 +1,46 @@
+## [0.5.0] - 2026-08-03 — Asset reference axis, 23 widgets, prose enums (spec 1.4)
+
+The embedded schema constant is regenerated from spec 1.4 after the largest
+vocabulary cut since the Composition Profile.
+
+### Changed — narrowing, which is why this is a minor rather than a patch
+
+- **`AssetRef` slots reject a bare string carrying no scheme.** `image.src`
+  (and its `source` / `backgroundImage` aliases), `avatar.src` and
+  `lottieAnimation.src` were typed as plain strings while the prose said
+  `AssetRef`; they now reference the primitive. A document whose source is
+  absent expresses that with a **binding**, not `""` — spec §6.12.2a.
+- **`icon` slots take `IconRef`.** The `icon` widget documented three forms
+  while the eight other icon slots were bare strings, so a codepoint object
+  could not be written outside `icon` at all. `IconRef` states the rule once
+  (name · codepoint · any `AssetRef`) and every slot references it. A bare
+  string carrying no known scheme is still read as a name, so the named form
+  is unchanged.
+- **Thirteen string properties declare their values as `enum`.** They listed
+  them in `description` only, so `text.variant` rejected a typo while
+  `button.variant` accepted one. `linear.distribution` carries its kebab
+  spellings in the enum as well — the runtime has accepted them since v1.0 and
+  no document said so (spec §17.3.1a).
+
+Every widget in this workspace was checked against both the old and the new
+schema before the change landed: 4,476 asset and icon widgets, **zero newly
+invalid**.
+
+### Added
+
+- **`AssetRef` object form** — `{uri, origin?}`, read through MCP
+  `resources/read`. No new scheme was minted for "an asset the server holds":
+  MCP already reads an arbitrary resource uri, and `Origin` already says which
+  server. The scheme pattern also opens from a closed enumeration to any
+  RFC 3986 scheme, matching the openness `Origin` was written with.
+- **23 widget definitions.** Core: `fileInput` `multiSelect` `combobox`
+  `otpInput` `dateTimePicker` `accordion` `popover` `menu` `contextMenu`
+  `breadcrumb` `pagination` `link`. Advanced: `qrCode` `barcode` `pdfViewer`
+  `diffViewer` `richTextEditor` `splitter` `resizable` `kanban` `gantt`
+  `spreadsheet`. Client: `voiceInput`.
+- **20 widget aliases** (§17.3.1) and **21 properties** on existing widgets.
+- **`navigation.openUrl`** — Core had no way out of the application.
+
 ## [0.4.3] - 2026-07-28 — Composition Profile in the embedded schemas (spec 1.4)
 
 ### Added — entry & identity value types (spec 1.4 §8.9)

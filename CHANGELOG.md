@@ -3,6 +3,12 @@
 The embedded schema constant is regenerated from spec 1.4 after the largest
 vocabulary cut since the Composition Profile.
 
+### Changed
+
+- README states 1.4 rather than 1.3, and its example compiles: it called
+  `ThemeDefinition.lightFromSeed` (no such method — `defaultLight(seedHex:)`)
+  and constructed a `UIDefinition` that does not exist.
+
 ### Changed — narrowing, which is why this is a minor rather than a patch
 
 - **`AssetRef` slots reject a bare string carrying no scheme.** `image.src`

@@ -1,6 +1,6 @@
 # flutter_mcp_ui_core
 
-Core models, constants, and utilities for the Flutter MCP UI system. Shared foundation for the renderer and generator packages, implementing the **MCP UI DSL 1.3** specification.
+Core models, constants, and utilities for the Flutter MCP UI system. Shared foundation for the renderer and generator packages, implementing the **MCP UI DSL 1.4** specification.
 
 ## Features
 
@@ -20,18 +20,19 @@ Core models, constants, and utilities for the Flutter MCP UI system. Shared foun
 ```dart
 import 'package:flutter_mcp_ui_core/flutter_mcp_ui_core.dart';
 
-final theme = ThemeDefinition.lightFromSeed(const Color(0xFF6750A4));
+// Themes round-trip through the W3C DTCG interchange format (spec §5b).
+final theme = ThemeDefinition.defaultLight(seedHex: '#6750A4');
 final dtcg = theme.toDtcg();
 final restored = ThemeDefinition.fromDtcg(dtcg);
 
-final ui = UIDefinition(
-  layout: WidgetConfig(
-    type: WidgetTypes.linear,
-    properties: {'direction': 'vertical'},
-    children: [
-      WidgetConfig(type: WidgetTypes.text, properties: {'value': 'Hello'}),
-    ],
-  ),
+// Widget subtrees are built from the canonical type constants, so a typo is
+// a compile error rather than a widget that silently fails to render.
+final layout = WidgetConfig(
+  type: WidgetTypes.linear,
+  properties: {'direction': 'vertical'},
+  children: [
+    WidgetConfig(type: WidgetTypes.text, properties: {'content': 'Hello'}),
+  ],
 );
 ```
 

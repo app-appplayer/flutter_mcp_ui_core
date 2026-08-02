@@ -1,37 +1,57 @@
-## [0.5.1] - 2026-08-03 — schema fixes the prose-type audit surfaced
+## [0.5.1] - 2026-08-03 — the schema now checks what it always declared
 
-**Patch, and deliberately so.** The 1.4 cut already announced that the schema
-narrows — that is what made `0.5.0` a minor. This release does not narrow it a
-second time; it applies that same cut to 51 slots it had missed. Charging a
-second floor bump would make every consumer migrate twice for one change.
+**Patch, deliberately.** The 1.4 cut already announced that the schema narrows;
+that is what made `0.5.0` a minor. This does not narrow it a second time — it
+applies that same cut to the slots it had missed. A second floor bump would
+make every consumer migrate twice for one change.
 
-51 property slots across 45 widgets declared their element type as `X[]`, a form the generator does not parse, so
-they emitted **no constraint at all**: `linear`, `stack`, `form` and 20 others
-accepted `children: "hello"`. Normalized to `array<X>`, which the generator
-does read, and those slots now require an array of the declared element type.
-`graph.data` also became `required`, as its prose always said. A document
-that leaned on either hole no longer validates — but such a document was
-already broken against `0.5.0`'s prose.
+`X[]` is not a notation the generator parses, and **51 property slots across 45
+widgets used it** — `linear`, `stack` and `form` among them. Those slots emitted
+a description and no constraint, so `children: "hello"` validated. The registry
+had been mixing two notations (22 slots on `array<X>`, checked; 51 on `X[]`,
+not) and the emitted schema looks the same either way. Normalized to
+`array<X>`; those slots now require an array of the declared element type.
 
-The hole was invisible because the registry mixed both notations — 22 slots
-used `array<X>` and were constrained, 51 used `X[]` and were not — and the
-drift audit treats them as equivalent when comparing prose to registry, which
-is correct for that comparison and blind to this one.
+Once children were actually checked, a class of contract disagreements surfaced
+underneath — places where a document could be written per the prose and
+rejected by the schema, or accepted by the schema and dropped by the runtime.
+§17.3.1a already settles which way those go: a value the runtime accepts and
+the schema rejects is a contract disagreeing with itself.
 
-Regenerated after three registry defects found by a new audit section that
-compares the prose type column against the widget registry.
-
-- `graph.data` and `markdown.text` were **truncated** by the drafting tool and
-  adopted verbatim: the union's `| binding` had spilled into `default:` and
-  the `required` column into `description:`. Both declared that the property
-  does not accept a binding, when it does.
+- **`Color` is a primitive now, and accepts what the runtime accepts.** It had
+  been `#RRGGBB` only. The runtime also takes all 40 Material 3 scheme slots
+  (`primary`, `onSurfaceVariant`, `error`, …) — the only spelling that follows
+  light/dark mode, and the one the theme chapter tells authors to use — plus
+  ten CSS names and 3-digit hex. Every `color` property was rejecting the
+  adaptive form.
+- **`Alignment`** listed only the directional names; `topLeft` … `bottomRight`
+  are registered aliases the runtime resolves.
+- **`BoxShadow`** required `offset: {dx, dy}` and rejected the flat
+  `offsetX` / `offsetY` pair the resolver reads, along with `blur` / `spread`.
+- **Aliases the factories read and the registry never declared**:
+  `markdown.text` ← `content`, `lottieAnimation.src` ← `source`,
+  and `box` ← `constrained`.
+- **`dataTable.rows`** and **`fileExplorer.items`** take a literal array; both
+  were declared `binding` only. **`codeEditor.code`** was required even though
+  `binding` alone supplies the content.
+- **`graph.data`** and **`markdown.text`** were truncated by the drafting tool
+  and adopted verbatim — the union's `| binding` had spilled into `default:`
+  and the `required` column into `description:`, so both declared that the
+  property does not accept a binding. Eleven more type strings carried markdown
+  backticks the generator emits verbatim.
+- **`box.width` / `height`** are `Dimension`: the runtime accepts
+  `{value, unit}`, so the registry was the narrow side.
 - **`lazy` was defined twice** and the shorter copy won, so the schema carried
   only `child` — `content`, `trigger`, `onLoad` and `onError` were absent
-  despite being documented.
-- `box.width` / `height` are `Dimension`: the runtime accepts `{value, unit}`,
-  so the registry was narrower than the code.
-- Eleven type strings carried markdown backticks that the generator emits
-  verbatim.
+  despite being documented. Restored under its registered Utility category.
+
+**Six action types appeared** when the generator stopped transcribing §17.2.2
+and started reading it: `client.storage.set` / `.get` / `.remove` and
+`client.notification`, all documented in §4.12 with examples, plus
+`identity.promote` / `identity.release`, which nothing had reported because no
+document under test used them. The generator now also cross-checks the register
+against the set it used to emit, so a type disappearing from §17.2.2 is a
+warning rather than a document rejected weeks later.
 
 ## [0.5.0] - 2026-08-03 — Asset reference axis, 23 widgets, prose enums (spec 1.4)
 

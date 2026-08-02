@@ -1,5 +1,17 @@
 ## [0.5.1] - 2026-08-03 — the schema now checks what it always declared
 
+`Color` accepted **every** string. Its CSS-name branch used an inline `(?i:)`
+flag, which ECMA-262 — the regex dialect JSON Schema uses — does not have, so
+the pattern was not a valid regex and the branch constrained nothing.
+`color: "tomato"` validated and then drew nothing, which is worse than being
+rejected. Now spelled as a character class per letter, and pinned by
+`test/schema/color_primitive_test.dart`, which checks both directions: every
+spelling `parseColor` resolves is accepted, and nothing else is.
+
+`dragTarget.builder` is Required=yes in §2.10.4 and was optional in the
+registry, so the runtime threw on a document the schema had accepted.
+
+
 **Patch, deliberately.** The 1.4 cut already announced that the schema narrows;
 that is what made `0.5.0` a minor. This does not narrow it a second time — it
 applies that same cut to the slots it had missed. A second floor bump would

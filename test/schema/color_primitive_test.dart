@@ -39,6 +39,19 @@ void main() {
       }
     });
 
+    test('accepts the legacy spellings §5.3.1 keeps', () {
+      // Material 3 folded the background family into surface and retired
+      // `surfaceVariant`; `inverseOnSurface` is the earlier spelling of
+      // `onInverseSurface`. All four are documented in §5.3.1 and resolved by
+      // `ThemeManager`, so rejecting them would make the schema disagree with
+      // both the prose and the runtime.
+      for (final slot in const ['background', 'onBackground', 'surfaceVariant',
+        'inverseOnSurface']) {
+        expect(validateMcpUiDslWidget(_withColor(slot)).isValid, isTrue,
+            reason: 'legacy slot "$slot" must validate');
+      }
+    });
+
     test('accepts the three hex lengths, in any case', () {
       for (final hex in const ['#fff', '#FFF', '#ff0000', '#FF0000',
         '#80ff0000', '#80FF0000']) {

@@ -1,3 +1,20 @@
+## [0.5.1] - 2026-08-03 — schema fixes the prose-type audit surfaced
+
+Regenerated after three registry defects found by a new audit section that
+compares the prose type column against the widget registry.
+
+- `graph.data` and `markdown.text` were **truncated** by the drafting tool and
+  adopted verbatim: the union's `| binding` had spilled into `default:` and
+  the `required` column into `description:`. Both declared that the property
+  does not accept a binding, when it does.
+- **`lazy` was defined twice** and the shorter copy won, so the schema carried
+  only `child` — `content`, `trigger`, `onLoad` and `onError` were absent
+  despite being documented.
+- `box.width` / `height` are `Dimension`: the runtime accepts `{value, unit}`,
+  so the registry was narrower than the code.
+- Eleven type strings carried markdown backticks that the generator emits
+  verbatim.
+
 ## [0.5.0] - 2026-08-03 — Asset reference axis, 23 widgets, prose enums (spec 1.4)
 
 The embedded schema constant is regenerated from spec 1.4 after the largest

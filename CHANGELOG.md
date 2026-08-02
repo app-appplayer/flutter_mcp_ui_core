@@ -1,5 +1,23 @@
 ## [0.5.1] - 2026-08-03 — schema fixes the prose-type audit surfaced
 
+**Patch, and deliberately so.** The 1.4 cut already announced that the schema
+narrows — that is what made `0.5.0` a minor. This release does not narrow it a
+second time; it applies that same cut to 51 slots it had missed. Charging a
+second floor bump would make every consumer migrate twice for one change.
+
+51 property slots across 45 widgets declared their element type as `X[]`, a form the generator does not parse, so
+they emitted **no constraint at all**: `linear`, `stack`, `form` and 20 others
+accepted `children: "hello"`. Normalized to `array<X>`, which the generator
+does read, and those slots now require an array of the declared element type.
+`graph.data` also became `required`, as its prose always said. A document
+that leaned on either hole no longer validates — but such a document was
+already broken against `0.5.0`'s prose.
+
+The hole was invisible because the registry mixed both notations — 22 slots
+used `array<X>` and were constrained, 51 used `X[]` and were not — and the
+drift audit treats them as equivalent when comparing prose to registry, which
+is correct for that comparison and blind to this one.
+
 Regenerated after three registry defects found by a new audit section that
 compares the prose type column against the widget registry.
 

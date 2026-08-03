@@ -1,5 +1,11 @@
 ## [0.5.1] - 2026-08-03 — the schema now checks what it always declared
 
+`isMcpUiDslWidgetType` / `mcpUiDslWidgetTypes` are exported. A host that
+registers extension widgets needs to tell its own additions apart from the
+spec's set; without that distinction a validator ends up calling a host's own
+widget a malformed document.
+
+
 `Color` accepted **every** string. Its CSS-name branch used an inline `(?i:)`
 flag, which ECMA-262 — the regex dialect JSON Schema uses — does not have, so
 the pattern was not a valid regex and the branch constrained nothing.

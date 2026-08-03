@@ -8,6 +8,8 @@
 /// into their initialisation path so non-conformant DSL is rejected before it
 /// reaches rendering.
 
+import 'dart:convert';
+
 import 'package:json_schema/json_schema.dart';
 
 import 'widgets_schema.g.dart';
@@ -75,4 +77,40 @@ WidgetValidationResult validateMcpUiDslWidget(Object? widget) {
         message: e.message,
       ),
   ]);
+}
+
+/// Every `type` value the spec's widget registry accepts, aliases included.
+///
+/// A host that registers extension widgets needs to tell its own additions
+/// apart from the spec's set — `registerWidget` invites extensions, and a
+/// validator that cannot distinguish them ends up calling a host's own widget
+/// a malformed document.
+Set<String> get mcpUiDslWidgetTypes => _widgetTypes ??= _collectWidgetTypes();
+Set<String>? _widgetTypes;
+
+/// Whether [type] is a widget type this spec defines.
+bool isMcpUiDslWidgetType(String type) => mcpUiDslWidgetTypes.contains(type);
+
+Set<String> _collectWidgetTypes() {
+  final decoded =
+      jsonDecode(mcpUiDslWidgetsSchemaJson) as Map<String, dynamic>;
+  final defs = decoded[r'$defs'] as Map<String, dynamic>? ?? const {};
+  final out = <String>{};
+  for (final entry in defs.entries) {
+    final def = entry.value;
+    if (def is! Map<String, dynamic>) continue;
+    final props = def['properties'];
+    if (props is! Map<String, dynamic>) continue;
+    final typeProp = props['type'];
+    if (typeProp is! Map<String, dynamic>) continue;
+    final values = typeProp['enum'];
+    if (values is! List) continue;
+    // `$defs` also holds primitives whose `type` property is an enum
+    // (`Gradient`, `Action`); a widget's enum always contains its own name.
+    if (!values.contains(entry.key)) continue;
+    for (final v in values) {
+      if (v is String) out.add(v);
+    }
+  }
+  return out;
 }

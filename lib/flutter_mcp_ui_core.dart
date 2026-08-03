@@ -67,4 +67,6 @@ export 'src/schema/widget_validator.dart'
     show
         WidgetValidationError,
         WidgetValidationResult,
+        isMcpUiDslWidgetType,
+        mcpUiDslWidgetTypes,
         validateMcpUiDslWidget;

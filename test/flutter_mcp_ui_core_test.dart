@@ -43,9 +43,14 @@ void main() {
     });
 
     test('should have correct DSL version', () {
-      expect(MCPUIDSLVersion.current, equals('1.3'));
+      expect(MCPUIDSLVersion.current, equals('1.4'),
+          reason: 'the 1.4 cut shipped: registry, schema and the conformance '
+              'gate all say 1.4, and this is what an unstamped document '
+              'collapses to');
       expect(MCPUIDSLVersion.minimum, equals('1.3'));
-      expect(MCPUIDSLVersion.supported, equals(['1.3']));
+      expect(MCPUIDSLVersion.supported, equals(['1.3', '1.4']),
+          reason: '1.3 stays supported so a document stamped 1.3 keeps its '
+              'stamp rather than being relabelled');
       expect(MCPUIDSLVersion.isCompatible('1.3'), isTrue);
       expect(MCPUIDSLVersion.isCompatible('1.3.0'), isTrue);
       expect(MCPUIDSLVersion.isCompatible('1.2.0'), isFalse);

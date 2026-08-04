@@ -73,16 +73,21 @@ void main() {
 
   // MCPUIDSLVersion constants
   group('MCPUIDSLVersion constants', () {
-    test('Normal: current version is 1.3', () {
-      expect(MCPUIDSLVersion.current, equals('1.3'));
+    test('Normal: current version is 1.4', () {
+      expect(MCPUIDSLVersion.current, equals('1.4'),
+          reason: 'the 1.4 cut shipped: registry, schema and the conformance '
+              'gate all say 1.4, and this is what an unstamped document '
+              'collapses to');
     });
 
     test('Normal: minimum version is 1.3', () {
       expect(MCPUIDSLVersion.minimum, equals('1.3'));
     });
 
-    test('Normal: supported list is [1.3]', () {
-      expect(MCPUIDSLVersion.supported, equals(['1.3']));
+    test('Normal: supported list is [1.3, 1.4]', () {
+      expect(MCPUIDSLVersion.supported, equals(['1.3', '1.4']),
+          reason: '1.3 stays supported so a document stamped 1.3 keeps its '
+              'stamp rather than being relabelled');
     });
 
     test('Normal: isCompatible works for 2-part and 3-part 1.3', () {
@@ -98,12 +103,16 @@ void main() {
     });
 
     test('Normal: resolve collapses unknown / missing stamps to current', () {
-      expect(MCPUIDSLVersion.resolve(null), equals('1.3'));
-      expect(MCPUIDSLVersion.resolve(123), equals('1.3'));
-      expect(MCPUIDSLVersion.resolve('9.9'), equals('1.3'));
-      expect(MCPUIDSLVersion.resolve('1.0'), equals('1.3'));
+      // Unknown or missing collapses to current, which is now 1.4.
+      expect(MCPUIDSLVersion.resolve(null), equals('1.4'));
+      expect(MCPUIDSLVersion.resolve(123), equals('1.4'));
+      expect(MCPUIDSLVersion.resolve('9.9'), equals('1.4'));
+      expect(MCPUIDSLVersion.resolve('1.0'), equals('1.4'));
+      // A supported stamp keeps its own value — 1.3 documents are not
+      // relabelled as 1.4 just because the canonical version moved.
       expect(MCPUIDSLVersion.resolve('1.3'), equals('1.3'));
       expect(MCPUIDSLVersion.resolve('1.3.0'), equals('1.3'));
+      expect(MCPUIDSLVersion.resolve('1.4'), equals('1.4'));
     });
 
     test('Normal: getLatestCompatible returns current', () {

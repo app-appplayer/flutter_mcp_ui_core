@@ -4,21 +4,34 @@
 /// generator consume these constants; they do not declare their own.
 class MCPUIDSLVersion {
   /// Current canonical DSL version (2-part `major.minor` form).
-  static const String current = '1.3';
+  ///
+  /// The 1.4 cut shipped — the registry, the schema `$id` and the conformance
+  /// gate all say 1.4 — while this constant still said 1.3. It is the value a
+  /// document with no stamp collapses to and the one a host reports, so it
+  /// named a version of the DSL that is no longer what this package
+  /// implements.
+  static const String current = '1.4';
 
   /// Minimum supported DSL version. Pre-launch the canonical form was
   /// reset at 1.3 — older 1.0/1.1/1.2 shapes are not a supported runtime
-  /// contract and any stamp below [current] is normalised by [resolve].
+  /// contract and any stamp below this is normalised by [resolve].
   static const String minimum = '1.3';
 
   /// All supported DSL versions (2-part `major.minor`).
-  static const List<String> supported = ['1.3'];
+  ///
+  /// 1.3 stays supported: documents stamped 1.3 keep their stamp instead of
+  /// being silently re-labelled 1.4 by [resolve].
+  static const List<String> supported = ['1.3', '1.4'];
 
   /// Version changelog.
   static const Map<String, String> changelog = {
     '1.3': 'Canonical baseline — widgets, actions, state, theming, '
         'permissions, channels, templates, bundle metadata, dashboard '
         'compact rendering.',
+    '1.4': 'Asset and icon references as primitives (AssetRef / IconRef), '
+        'multi-origin composition (`view`, ambient origin), navigation '
+        '`openUrl`, qrCode / barcode / pdfViewer, and a Color primitive that '
+        'is checked wherever a color is taken.',
   };
 
   /// Check if a version is compatible. Accepts both 2-part (`1.3`) and

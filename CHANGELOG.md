@@ -1,3 +1,30 @@
+## Unreleased — `Color` is checked wherever a color is taken
+
+**The primitive was written and then not used.** 0.5.1 fixed `Color` itself —
+the CSS-name branch had an inline `(?i:)` flag that ECMA-262 does not have, so
+it constrained nothing and `tomato` validated. That fix reached 17 of the 55
+slots that take a color. The other 38 were declared as a bare
+`{"type": "string"}`, so the same document that was rejected on `text.color`
+passed on `box.decoration.color`, `avatar.backgroundColor`, `divider.color`,
+`headerBar.backgroundColor`, `markdown.linkColor`, every `NavigationStyle`
+color, and the rest. All 55 reference the primitive now, including the three
+that carry colors inside another shape — `Gradient.colors` (whose own
+description had said "plus Gradient stops" while the items stayed open
+strings), `BackgroundImage.colorFilter.color`, and `heatmap.colorRange`, which
+had no schema at all.
+
+**`rgb()` / `rgba()` are accepted.** §5.3.4 rates functional notation SHOULD
+and the theme parser had always read it, but the primitive had no branch for
+it — so a theme written the way the spec describes failed validation. The
+prose and the primitive are one set again: §5.3.4 now lists all five spellings
+with their ratings, names the ten basic colors it had only alluded to, and
+states that no other CSS keyword is a color here.
+
+Measured before landing: 6,912 documents, 8,008 widget instances carrying a
+color. Two values fail that did not before, both `signature.penColor:
+"textOnSurface"` in a 2026-04 backup tree — a slot name that does not exist
+(`onSurface` does), which is exactly what the narrowing is for.
+
 ## [0.5.1] - 2026-08-03 — the schema now checks what it always declared
 
 `isMcpUiDslWidgetType` / `mcpUiDslWidgetTypes` are exported. A host that

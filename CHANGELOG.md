@@ -1,4 +1,39 @@
-## Unreleased — `Color` is checked wherever a color is taken
+## [0.6.0] - 2026-08-05 — the registry declares what the runtime honours (spec 1.4.1)
+
+The embedded schema is regenerated from spec 1.4.1. Three things changed in it.
+
+**330 properties across 80 widgets were promoted.** They were read by the
+runtime and named nowhere, so an author could not know they existed, an editor
+could not offer them, and a validator was right to reject them. Each was judged
+in order: a variant spelling of a declared property stays out (§17.3.2 governs
+those), a name that breaks §17.1 is corrected rather than declared, a duplicate
+of something the widget already has stays out, and what remains must actually
+be applied by the factory. 15 alias spellings and 6 semantic duplicates were
+rejected on those grounds and are recorded in the spec's changelog.
+
+**Four narrowings — this is why the release is a minor.** A document that
+validated before can now be rejected:
+
+- `linear.distribution` declares `spaceBetween` / `spaceAround` / `spaceEvenly`
+  only. The kebab spellings left the canonical surface (§17.3.1a was rewritten:
+  legacy values are no longer carried in the `enum`, which had made the naming
+  rule unenforceable).
+- `qrCode.errorCorrection` declares `low` / `medium` / `quartile` / `high`; the
+  QR standard's `L`/`M`/`Q`/`H` are runtime-only.
+- `otpInput.autoSubmit` is gone; `onComplete` is the declared name.
+- Option objects require `value`. Without it the runtime falls back to an empty
+  string, so two entries collide and selecting one selects both. Measured
+  first: 278 object-form options in the document corpus, none missing it.
+
+**Named types are defined.** `EdgeInsets` existed under no name at all — it was
+expanded inline at every use, so a consumer resolving types by name could not
+check a `padding` or `margin` slot, and the emptiness looked like a pass. It is
+a primitive now, with a binding branch per edge (`{left: "{{w}}", top: 8}` is
+the shape documents write). Fifteen item shapes (`Option`, `NavItem`, `Column`,
+`Tab`, `Segment`, …) gained definitions too; they declare the keys the runtime
+reads and keep accepting further ones.
+
+### Also in this cut — `Color` is checked wherever a color is taken
 
 **The primitive was written and then not used.** 0.5.1 fixed `Color` itself —
 the CSS-name branch had an inline `(?i:)` flag that ECMA-262 does not have, so

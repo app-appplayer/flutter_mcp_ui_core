@@ -1,3 +1,30 @@
+## [0.6.1] - 2026-08-07 — `BoxSpacing`, and one definition deliberately parked
+
+**`BoxSpacing`** — `box.margin` was declared as a bare `EdgeInsets`, so the M3
+spacing token the widget has resolved since runtime 0.4.4 was rejected at
+authoring time while `padding` accepted it. One type now covers both slots:
+the token, the `{token}` object form, and every `EdgeInsets` spelling.
+
+The string branch stays **open**. `"16px"` is not a token and resolves to no
+inset, so catching it here would be better than catching it on screen — but
+`box.padding` has admitted any string since 1.4, and a runtime validates
+documents at load, so tightening the pattern would stop an already-published
+bundle from opening. The runtime reports the unresolved value instead.
+
+Differential against the published registry: 20 value shapes × 2 slots,
+**0 narrowed, 7 widened, 33 identical**. No bundle that opens today stops.
+
+**`ValidationConfig` is written and parked, not landed.**
+`textInput.validation` emits unconstrained because the type is referenced and
+undefined — so *defining* it constrains a slot that accepted anything, and
+every published bundle carrying a `validation` block the definition did not
+admit would stop opening. The finished definition sits at
+`configs/widget/_ValidationConfig.yaml` (the `_` prefix keeps codegen off it)
+for a release allowed to break bundles. The runtime half of that work needs no
+registry change and shipped separately.
+
+This leaves the 27 named types requested against 1.4.1 at 26 landed, 1 parked.
+
 ## [0.6.0] - 2026-08-05 — the registry declares what the runtime honours (spec 1.4.1)
 
 The embedded schema is regenerated from spec 1.4.1. Three things changed in it.

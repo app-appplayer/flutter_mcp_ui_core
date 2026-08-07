@@ -28,6 +28,21 @@ class ActionTypes {
   /// Return to guest, or end the session where identification is required
   static const String identityRelease = 'identity.release';
 
+  /// Play a short sound (§4.9a). Core Profile: a served application and a
+  /// browser-rendered one need to be heard too, and a sound carries none of
+  /// the user's data.
+  static const String soundPlay = 'sound.play';
+
+  /// Stop a named sound, or every sound this document started
+  static const String soundStop = 'sound.stop';
+
+  /// Drive a mounted `mediaPlayer` by its `id` (§4.9b). Turning the built-in
+  /// transport off must not remove the ability to build one.
+  static const String mediaPlay = 'media.play';
+  static const String mediaPause = 'media.pause';
+  static const String mediaToggle = 'media.toggle';
+  static const String mediaSeek = 'media.seek';
+
   // Client action types (v1.1)
   static const String clientSelectFile = 'client.selectFile';
   static const String clientReadFile = 'client.readFile';
@@ -70,6 +85,8 @@ class ActionTypes {
   /// All v1.4 action types
   static const List<String> v14Types = [
     identityPromote, identityRelease,
+    soundPlay, soundStop,
+    mediaPlay, mediaPause, mediaToggle, mediaSeek,
   ];
 
   /// All action types combined
@@ -83,6 +100,12 @@ class ActionTypes {
 
   /// Check if an action type is an identity action (§8.9.3)
   static bool isIdentityAction(String type) => type.startsWith('identity.');
+
+  /// Check if an action type is a sound action (§4.9a)
+  static bool isSoundAction(String type) => type.startsWith('sound.');
+
+  /// Check if an action type drives a mounted media player (§4.9b)
+  static bool isMediaAction(String type) => type.startsWith('media.');
 
   /// Check if an action type is valid
   static bool isValid(String type) => all.contains(type);

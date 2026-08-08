@@ -3835,7 +3835,9 @@ WidgetTypes.baseline: const WidgetSpec(
           name: 'edges',
           type: List,
           required: true,
-          description: 'List of graph edges ({source, target, label})',
+          description: 'List of graph edges ({from, to, label}). §10.12 spells the\n'
+              'endpoints `from`/`to`; `source`/`target` is a legacy spelling the\n'
+              'runtime still reads, and is not offered to authors.',
         ),
         'directed': ParameterSpec(
           name: 'directed',
@@ -3868,7 +3870,9 @@ WidgetTypes.baseline: const WidgetSpec(
           name: 'edges',
           type: List,
           required: true,
-          description: 'List of connections ({source, target, weight})',
+          description: 'List of connections ({from, to, weight}). §10.13 spells the\n'
+              'endpoints `from`/`to`; `source`/`target` is a legacy spelling the\n'
+              'runtime still reads, and is not offered to authors.',
         ),
         'layout': ParameterSpec(
           name: 'layout',

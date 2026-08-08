@@ -1,3 +1,17 @@
+## [0.6.3] - 2026-08-08 — an edge is `{from, to}`
+
+The widget-spec registry described a graph edge as `{source, target, label}`
+while §10.12 / §10.13 and the generated reference say `{from, to}`. Both
+spellings render — the runtime reads the canonical pair first and falls back to
+the legacy one — so nothing was broken; an author simply could not tell which
+was the standard, and the two documents disagreed in the same package.
+
+The prose now states the standard and names the legacy spelling as legacy,
+which is the rule everywhere else in this spec: the standard is what is
+offered, compatibility is what is kept.
+
+Reported by konpi while measuring the published cut.
+
 ## [0.6.2] - 2026-08-08 — a topology may come from the server
 
 `networkGraph.nodes` / `edges` are typed `array<object> | binding`, matching

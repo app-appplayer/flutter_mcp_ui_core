@@ -1,3 +1,18 @@
+## [0.6.2] - 2026-08-08 — a topology may come from the server
+
+`networkGraph.nodes` / `edges` are typed `array<object> | binding`, matching
+every other data widget in the family (`heatmap.data`, `dataTable.rows`,
+`kanban.columns`). The runtime already resolved a bound value there; the
+property table said literal-only, so an author reading the contract wrote the
+topology into the document by hand — on a platform whose whole shape is "the
+server draws the dashboard", that was the one widget that could not be fed.
+
+Schema only: the generated `widgets_schema.g.dart` widens, nothing narrows, and
+every document that validated before still validates.
+
+Raised by konpi, who read the property table first and asked whether the gap
+was intent or omission rather than filing it as a defect.
+
 ## [0.6.1] - 2026-08-07 — `BoxSpacing`, and one definition deliberately parked
 
 **`BoxSpacing`** — `box.margin` was declared as a bare `EdgeInsets`, so the M3

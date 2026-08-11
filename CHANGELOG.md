@@ -1,3 +1,37 @@
+## [0.6.4] - 2026-08-11
+
+### The constants describe the registry again
+
+`WidgetTypes` was missing **37 canonical widget types** — `view`, `accordion`,
+`fileInput`, `qrCode`, `link`, `menu`, the animation family, the v1.4 advanced
+set. `isValidType` is built from `categories`, and both are exported, so
+`UIValidator` and `DefinitionValidator` rejected valid 1.4 documents and
+`WidgetRegistry` filed those types under no category at all. All 37 are
+declared and categorised.
+
+`ActionTypes` gained the canonical grouped forms §17.3.4 names — `channel`,
+`permission`, `identity` — which existed only in their dotted legacy spellings
+here, plus `submit` (§4.22, resolved by the widget rather than the dispatcher)
+and `event` (§4.23).
+
+### The generated schemas caught up with their source
+
+`widgets_schema.g.dart` and the app / page / theme constants are emitted from
+the yaml registry, and the latter three had not been regenerated since the
+asset-reference work: they still described `AssetRef` as five fixed schemes,
+with no object form, no open scheme set and no `Color` definition. They now
+match `configs/`. Registry-side changes carried in the same regeneration:
+`box` accepts `decoratedBox` / `constrainedBox`, `progressBar` accepts
+`circularProgressIndicator` and defaults `indicatorType` to `circular`, and
+`TableRow` is a named shape.
+
+### Tests
+
+The completeness tests counted category lengths (`layout == 29`,
+`coreTypes == 10`). Any 29 layout widgets satisfied that, which is how 37
+types went missing under a green suite. They now read the registry and
+§17.2.2 and compare against them.
+
 ## [0.6.3] - 2026-08-08 — an edge is `{from, to}`
 
 The widget-spec registry described a graph edge as `{source, target, label}`

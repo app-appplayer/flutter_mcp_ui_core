@@ -186,8 +186,10 @@ void main() {
 
       test('list category should contain correct widgets', () {
         final listWidgets = WidgetTypes.categories['list']!;
-        expect(listWidgets, containsAll(['list', 'grid', 'listItem', 'listTile']));
-        expect(listWidgets.length, equals(4));
+        expect(
+            listWidgets,
+            containsAll(
+                ['list', 'grid', 'listItem', 'listTile', 'carousel', 'staggeredGrid']));
       });
 
       test('navigation category should contain correct widgets', () {

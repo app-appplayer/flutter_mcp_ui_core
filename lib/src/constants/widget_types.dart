@@ -162,6 +162,50 @@ class WidgetTypes {
   static const String use = 'use'; // Template reference widget
 
   /// All widget types grouped by category - MCP UI DSL v1.0/v1.1 spec compliant
+
+  // Types the registry declares that this class did not name. `isValidType`
+  // is built from [categories], and both are public API: a 1.4 document using
+  // one of these was reported invalid by the core validators and landed in no
+  // category in the runtime's registry. Added as their own block so the
+  // grouping above stays as the spec's own categories left it.
+  static const String accordion = 'accordion';
+  static const String animatedAlign = 'animatedAlign';
+  static const String animatedDefaultTextStyle = 'animatedDefaultTextStyle';
+  static const String animatedOpacity = 'animatedOpacity';
+  static const String animatedPositioned = 'animatedPositioned';
+  static const String barcode = 'barcode';
+  static const String breadcrumb = 'breadcrumb';
+  static const String carousel = 'carousel';
+  static const String combobox = 'combobox';
+  static const String contextMenu = 'contextMenu';
+  static const String dashboard = 'dashboard';
+  static const String dateTimePicker = 'dateTimePicker';
+  static const String diffViewer = 'diffViewer';
+  static const String fileInput = 'fileInput';
+  static const String gantt = 'gantt';
+  static const String hero = 'hero';
+  static const String imageFilter = 'imageFilter';
+  static const String kanban = 'kanban';
+  static const String kenBurnsImage = 'kenBurnsImage';
+  static const String lightbox = 'lightbox';
+  static const String link = 'link';
+  static const String menu = 'menu';
+  static const String multiSelect = 'multiSelect';
+  static const String otpInput = 'otpInput';
+  static const String pagination = 'pagination';
+  static const String pdfViewer = 'pdfViewer';
+  static const String popover = 'popover';
+  static const String qrCode = 'qrCode';
+  static const String resizable = 'resizable';
+  static const String richTextEditor = 'richTextEditor';
+  static const String rive = 'rive';
+  static const String scrollAnimated = 'scrollAnimated';
+  static const String splitter = 'splitter';
+  static const String spreadsheet = 'spreadsheet';
+  static const String staggeredGrid = 'staggeredGrid';
+  static const String view = 'view';
+  static const String voiceInput = 'voiceInput';
+
   static const Map<String, List<String>> categories = {
     'layout': [
       linear, stack, box, center, align, padding, margin,
@@ -170,12 +214,17 @@ class WidgetTypes {
       indexedStack, container, baseline,
       fittedBox, limitedBox, mediaQuery, safeArea, aspectRatio, fractionallySized,
       layoutBuilder,
+      accordion,
+      resizable,
+      splitter,
     ],
     'display': [
       text, richText, image, icon, card, divider, verticalDivider,
       badge, chip, avatar, tooltip, loadingIndicator,
       placeholder, decoration, clipOval, clipRRect, progressBar, banner,
       canvas,
+      imageFilter,
+      kenBurnsImage,
     ],
     'input': [
       button, iconButton, textInput, textFormField, checkbox, radio,
@@ -183,29 +232,59 @@ class WidgetTypes {
       numberField, colorPicker, radioGroup, checkboxGroup, segmentedControl,
       dateField, timeField, dateRangePicker,
       datePicker, timePicker, stepper, numberStepper, rating,
+      combobox,
+      dateTimePicker,
+      fileInput,
+      multiSelect,
+      otpInput,
+      voiceInput,
     ],
     'list': [
       list, grid, listItem, listTile,
+      carousel,
+      staggeredGrid,
     ],
     'navigation': [
       headerBar, tabBar, tabBarView, drawer, bottomNavigation,
       navigationRail, floatingActionButton, popupMenuButton,
+      breadcrumb,
+      link,
+      menu,
+      pagination,
     ],
     'scroll': [
       scrollView, singleChildScrollView, scrollBar, pageView,
     ],
     'animation': [
       animatedContainer, lottieAnimation, opacity, transform,
+      animatedAlign,
+      animatedDefaultTextStyle,
+      animatedOpacity,
+      animatedPositioned,
+      hero,
+      rive,
+      scrollAnimated,
     ],
     'interactive': [
       gestureDetector, inkWell, draggable, dragTarget,
+      contextMenu,
     ],
     'dialog': [
       alertDialog, snackBar, bottomSheet, simpleDialog, customDialog,
+      popover,
     ],
     'advanced': [
       chart, map, mediaPlayer, calendar, timeline, gauge, heatmap, tree, graph, networkGraph,
       codeEditor, terminal, fileExplorer, markdown, webView, signature, dataTable,
+      barcode,
+      diffViewer,
+      gantt,
+      kanban,
+      lightbox,
+      pdfViewer,
+      qrCode,
+      richTextEditor,
+      spreadsheet,
     ],
     'performance': [
       lazy,
@@ -217,6 +296,8 @@ class WidgetTypes {
       errorBoundary,
       offlineFallback,
       errorRecovery,
+      dashboard,
+      view,
     ],
     'accessibility': [
       accessibleWrapper,

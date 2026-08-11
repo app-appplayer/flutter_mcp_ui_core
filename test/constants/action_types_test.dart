@@ -1,27 +1,31 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'dart:io';
+
 import 'package:flutter_mcp_ui_core/flutter_mcp_ui_core.dart';
 
 void main() {
   // TC-001: Widget type constants completeness
   group('TC-001: WidgetTypes', () {
-    test('Normal: all widget types defined by category', () {
-      final categories = WidgetTypes.categories;
+    // Counted against the registry rather than against a number written here.
+    // The magic numbers this replaced were satisfied by any 29 layout widgets,
+    // so 37 canonical types could go missing from `WidgetTypes` — and did —
+    // while the test stayed green. `isValidType` is built from this map and is
+    // public API: a type absent here is a valid document the core validators
+    // reject.
+    test('Normal: every canonical widget type is categorised', () {
+      final declared = _registryWidgetTypes();
+      expect(declared.length, greaterThanOrEqualTo(158),
+          reason: 'registry not found or unexpectedly small');
 
-      expect(categories['layout']!.length, equals(29));
-      expect(categories['display']!.length, equals(19));
-      expect(categories['input']!.length, equals(24));
-      expect(categories['list']!.length, equals(4));
-      expect(categories['navigation']!.length, equals(8));
-      expect(categories['scroll']!.length, equals(4));
-      expect(categories['animation']!.length, equals(4));
-      expect(categories['interactive']!.length, equals(4));
-      expect(categories['dialog']!.length, equals(5));
-      expect(categories['advanced']!.length, equals(17));
-      expect(categories['performance']!.length, equals(1));
-      expect(categories['security']!.length, equals(1));
-      expect(categories['utility']!.length, equals(3));
-      expect(categories['accessibility']!.length, equals(1));
-      expect(categories['template']!.length, equals(1));
+      final categorised = <String>{
+        for (final types in WidgetTypes.categories.values) ...types,
+      };
+      expect(declared.difference(categorised), isEmpty,
+          reason: 'canonical types missing from WidgetTypes.categories');
+      for (final type in declared) {
+        expect(WidgetTypes.isValidType(type), isTrue,
+            reason: '`$type` is in the registry and the validators reject it');
+      }
     });
 
     test('Boundary: no duplicate type names across categories', () {
@@ -91,8 +95,21 @@ void main() {
 
   // TC-002: Action type constants completeness
   group('TC-002: ActionTypes', () {
-    test('Normal: all 10 core action types defined', () {
-      expect(ActionTypes.coreTypes.length, equals(10));
+    test('Normal: the Core Profile action types are all declared', () {
+      // §17.2.2's Core list, read from the spec instead of counted here.
+      // Compared against every declared constant rather than `coreTypes`
+      // alone: this class groups by the version a type arrived in, the spec
+      // groups by profile, and `animation` / `cancel` are Core-profile types
+      // that arrived in v1.1.
+      final declared = <String>{
+        ...ActionTypes.coreTypes,
+        ...ActionTypes.v11Types,
+        ...ActionTypes.v14Types,
+      };
+      for (final type in _coreProfileActionTypes()) {
+        expect(declared, contains(type),
+            reason: '§17.2.2 lists `$type` as Core and it has no constant');
+      }
       expect(ActionTypes.coreTypes, contains('state'));
       expect(ActionTypes.coreTypes, contains('navigation'));
       expect(ActionTypes.coreTypes, contains('tool'));
@@ -377,4 +394,46 @@ void main() {
       expect(ValidationRuleTypes.match, equals('match'));
     });
   });
+}
+
+
+/// Canonical widget types declared by the spec registry.
+Set<String> _registryWidgetTypes() {
+  final dir = Directory(
+      '${_repoRoot()}/specs/mcp_ui_dsl/spec/1.4/widgets');
+  final out = <String>{};
+  if (!dir.existsSync()) return out;
+  for (final f in dir.listSync(recursive: true).whereType<File>()) {
+    if (!f.path.endsWith('.yaml')) continue;
+    final m = RegExp(r'^type:\s*(\S+)', multiLine: true)
+        .firstMatch(f.readAsStringSync());
+    if (m != null) out.add(m.group(1)!);
+  }
+  return out;
+}
+
+/// The Core Profile action types listed in §17.2.2.
+List<String> _coreProfileActionTypes() {
+  final f = File('${_repoRoot()}/specs/mcp_ui_dsl/spec/1.4/17_Naming.md');
+  if (!f.existsSync()) return const [];
+  final section = f
+      .readAsStringSync()
+      .split('### 17.2.2 Action Types')[1]
+      .split('#### Client Profile')[0];
+  return RegExp(r'`([a-zA-Z][\w.]*)`')
+      .allMatches(section)
+      .map((m) => m.group(1)!)
+      .where((t) => !t.endsWith('.md'))
+      .toList();
+}
+
+String _repoRoot() {
+  var dir = Directory.current;
+  for (var i = 0; i < 12; i++) {
+    if (Directory('${dir.path}/specs/mcp_ui_dsl').existsSync()) return dir.path;
+    final parent = dir.parent;
+    if (parent.path == dir.path) break;
+    dir = parent;
+  }
+  throw StateError('repo root not found from ${Directory.current.path}');
 }

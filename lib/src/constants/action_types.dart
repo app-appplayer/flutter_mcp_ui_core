@@ -15,6 +15,24 @@ class ActionTypes {
   static const String conditional = 'conditional';
   static const String notification = 'notification';
   static const String parallel = 'parallel';
+
+  /// Validate and submit the enclosing `form` (§4.22). Resolved by the widget
+  /// that carries it, against the nearest `form` ancestor — it never reaches
+  /// the action dispatcher, which is why no executor is registered for it.
+  static const String submit = 'submit';
+
+  /// Emit a named in-document event (§4.23).
+  static const String event = 'event';
+
+  /// The grouped forms of §17.3.4: the subsystem is the type and the operation
+  /// goes in `action`. These are canonical; the dotted spellings below
+  /// (`channel.start`, `permission.revoke`, `identity.promote`) are the v1.1
+  /// legacy shapes, accepted on input and never emitted. Only the dotted ones
+  /// were declared here, so a caller reaching for the canonical form found no
+  /// constant for it.
+  static const String channel = 'channel';
+  static const String permission = 'permission';
+  static const String identity = 'identity';
   static const String sequence = 'sequence';
 
   // Extended action types (v1.1)
@@ -69,11 +87,12 @@ class ActionTypes {
   static const List<String> coreTypes = [
     state, navigation, tool, resource, dialog,
     batch, conditional, notification, parallel, sequence,
+    submit, event,
   ];
 
   /// All v1.1 action types
   static const List<String> v11Types = [
-    animation, cancel, permissionRevoke,
+    animation, cancel, channel, permission, permissionRevoke,
     clientSelectFile, clientReadFile, clientWriteFile,
     clientSaveFile, clientListFiles, clientHttpRequest,
     clientGetSystemInfo, clientClipboard, clientExec, clientNotification,
@@ -84,7 +103,7 @@ class ActionTypes {
 
   /// All v1.4 action types
   static const List<String> v14Types = [
-    identityPromote, identityRelease,
+    identity, identityPromote, identityRelease,
     soundPlay, soundStop,
     mediaPlay, mediaPause, mediaToggle, mediaSeek,
   ];

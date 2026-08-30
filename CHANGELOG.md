@@ -1,3 +1,37 @@
+## [0.6.5] - 2026-08-23
+
+### Added — `location` action type (UI DSL §4.25, Location Profile)
+
+- `ActionTypes.location` and `ActionTypes.locationTypes`, its own list for the
+  same reason as `paymentTypes`: the Profile is not implied by Core, so a
+  runtime that does not claim it fails the action visibly rather than dropping
+  it as an unknown type. It is still in `all`, or a validator built from this
+  class would reject a conformant document.
+- The generated widget schema carries `location` in the action-type enum, so a
+  document using it loads. The enum is derived from §17.2.2 — this is a
+  regeneration, not a hand edit.
+
+
+### `payment` is declared (DSL §4.24, Payment Profile)
+
+`ActionTypes.payment`, carried in its own `paymentTypes` list. The Payment
+Profile is not implied by Core, so grouping it with the version lists would
+have said the wrong thing; it is still in `all`, because a validator built
+from this class has to accept a conformant document.
+
+### `DefinitionValidator` reads the action catalog instead of a copy of it
+
+The known-type set was a literal that stopped at v1.1, so `validateAction`
+reported `submit`, `event`, `identity`, `sound.*` and `media.*` as unknown
+types while the runtime executed all of them. It now reads `ActionTypes.all`,
+which is also why `payment` needed no second edit here.
+
+### Regenerated
+
+`widgets_schema.g.dart` — the action-type enum inside the widget schema is
+what the runtime's load gate checks, so a document carrying `payment` would
+have been rejected before rendering without this.
+
 ## [0.6.4] - 2026-08-11
 
 ### The constants describe the registry again
@@ -44,7 +78,7 @@ The prose now states the standard and names the legacy spelling as legacy,
 which is the rule everywhere else in this spec: the standard is what is
 offered, compatibility is what is kept.
 
-Reported by konpi while measuring the published cut.
+Reported while measuring the published cut.
 
 ## [0.6.2] - 2026-08-08 — a topology may come from the server
 
@@ -58,7 +92,7 @@ server draws the dashboard", that was the one widget that could not be fed.
 Schema only: the generated `widgets_schema.g.dart` widens, nothing narrows, and
 every document that validated before still validates.
 
-Raised by konpi, who read the property table first and asked whether the gap
+Raised by a reader who took the property table first and asked whether the gap
 was intent or omission rather than filing it as a defect.
 
 ## [0.6.1] - 2026-08-07 — `BoxSpacing`, and one definition deliberately parked

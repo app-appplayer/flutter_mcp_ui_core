@@ -1,3 +1,4 @@
+import '../constants/action_types.dart';
 import '../constants/widget_types.dart';
 import '../exceptions/validation_exception.dart';
 
@@ -8,24 +9,14 @@ import '../exceptions/validation_exception.dart';
 /// This is useful for validating JSON input before attempting to parse it
 /// into strongly-typed model objects.
 class DefinitionValidator {
-  /// Known action types supported by the MCP UI DSL
-  static const _knownActionTypes = {
-    // Core action types (v1.0)
-    'state',
-    'navigation',
-    'tool',
-    'resource',
-    'dialog',
-    'batch',
-    'conditional',
-    'notification',
-    'parallel',
-    'sequence',
-    // Extended action types (v1.1)
-    'animation',
-    'cancel',
-    'permission.revoke',
-  };
+  /// Known action types supported by the MCP UI DSL.
+  ///
+  /// Read from [ActionTypes], never transcribed. This validator is exported,
+  /// so a transcribed list here rejects shipped actions for every caller that
+  /// uses it: the previous literal stopped at v1.1 and reported `submit`,
+  /// `event`, `identity`, `sound.*` and `media.*` as unknown types while the
+  /// runtime executed all of them.
+  static final Set<String> _knownActionTypes = ActionTypes.all.toSet();
 
   /// Color format pattern: #RRGGBB or #AARRGGBB
   static final _colorPattern = RegExp(r'^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{8})$');

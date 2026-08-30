@@ -105,6 +105,7 @@ void main() {
         ...ActionTypes.coreTypes,
         ...ActionTypes.v11Types,
         ...ActionTypes.v14Types,
+        ...ActionTypes.paymentTypes,
       };
       for (final type in _coreProfileActionTypes()) {
         expect(declared, contains(type),
@@ -138,7 +139,9 @@ void main() {
         all.length,
         equals(ActionTypes.coreTypes.length +
             ActionTypes.v11Types.length +
-            ActionTypes.v14Types.length),
+            ActionTypes.v14Types.length +
+            ActionTypes.paymentTypes.length +
+            ActionTypes.locationTypes.length),
       );
     });
 
@@ -148,6 +151,27 @@ void main() {
       expect(ActionTypes.isValid('identity.promote'), isTrue);
       expect(ActionTypes.isIdentityAction('identity.release'), isTrue);
       expect(ActionTypes.isIdentityAction('state'), isFalse);
+    });
+
+    test('Normal: location is declared and valid (§4.25, Location Profile)',
+        () {
+      // Same reason as payment: its own Profile, not implied by Core, and
+      // still in `all` — a validator built from this class must not reject a
+      // conformant document.
+      expect(ActionTypes.locationTypes, contains('location'));
+      expect(ActionTypes.all, contains('location'));
+      expect(ActionTypes.isValid('location'), isTrue);
+      // Not a dotted family: there is one question, so there is one name.
+      expect(ActionTypes.isClientAction('location'), isFalse);
+    });
+
+    test('Normal: payment is declared and valid (§4.24, Payment Profile)', () {
+      // Its own list because the Payment Profile is not implied by Core; it
+      // still has to be in `all`, or a validator built from this class
+      // rejects a conformant document.
+      expect(ActionTypes.paymentTypes, contains('payment'));
+      expect(ActionTypes.all, contains('payment'));
+      expect(ActionTypes.isValid('payment'), isTrue);
     });
 
     test('Boundary: no duplicate action type names', () {

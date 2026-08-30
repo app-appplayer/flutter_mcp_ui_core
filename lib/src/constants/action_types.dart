@@ -56,6 +56,14 @@ class ActionTypes {
 
   /// Drive a mounted `mediaPlayer` by its `id` (§4.9b). Turning the built-in
   /// transport off must not remove the ability to build one.
+  /// Payment request (§4.24, Payment Profile, since v1.4.2)
+  static const String payment = 'payment';
+
+  /// Where this device is, once (§4.25, Location Profile). Single-shot on
+  /// purpose: a document that could follow someone is a different thing from
+  /// one that can ask where they are.
+  static const String location = 'location';
+
   static const String mediaPlay = 'media.play';
   static const String mediaPause = 'media.pause';
   static const String mediaToggle = 'media.toggle';
@@ -108,8 +116,33 @@ class ActionTypes {
     mediaPlay, mediaPause, mediaToggle, mediaSeek,
   ];
 
+  /// Payment Profile action types (§4.24, since v1.4.2)
+  ///
+  /// Its own list because the Payment Profile is not implied by Core: a
+  /// runtime that does not claim it fails `payment` through `onError`
+  /// (§18.11.3) rather than dropping it as an unknown type.
+  static const List<String> paymentTypes = [
+    payment,
+  ];
+
+  /// Location Profile action types (§4.25, since v1.4.3)
+  ///
+  /// Its own list for the same reason as [paymentTypes]: a runtime that does
+  /// not claim the Profile fails `location` through `onError` (§18.12.3)
+  /// rather than dropping it as an unknown type. Answering where someone is
+  /// is not something Core implies a runtime can do.
+  static const List<String> locationTypes = [
+    location,
+  ];
+
   /// All action types combined
-  static List<String> get all => [...coreTypes, ...v11Types, ...v14Types];
+  static List<String> get all => [
+        ...coreTypes,
+        ...v11Types,
+        ...v14Types,
+        ...paymentTypes,
+        ...locationTypes,
+      ];
 
   /// Check if an action type is a client action
   static bool isClientAction(String type) => type.startsWith('client.');

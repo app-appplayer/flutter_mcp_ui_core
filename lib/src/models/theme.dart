@@ -6,6 +6,7 @@ library;
 
 export 'theme/color_scheme_definition.dart';
 export 'theme/typography_definition.dart';
+export 'theme/line_height.dart';
 export 'theme/spacing_definition.dart';
 export 'theme/shape_definition.dart';
 export 'theme/elevation_definition.dart';

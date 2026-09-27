@@ -1,3 +1,20 @@
+## [0.6.6] - 2026-09-27
+
+### Fixed — line height under both names the spec gives it (05_Theme §5.4.2)
+
+- `lineHeightMultiplier` resolves a text style's line height to the multiplier
+  a renderer applies. `lineHeight` below 16 is a multiplier and 16 or above is
+  logical px divided by `fontSize`; `height` — the `TextStyle` primitive's
+  name — is always a multiplier; with both set, `lineHeight` wins. It used to
+  treat every `lineHeight` as px, so `1.5` became about `0.03`.
+- `TextStyleDefinition` reads, writes and copies `height`, and exposes the
+  resolved value as `lineHeightMultiplierValue`. A typography role written
+  with `height` — valid against the theme schema — lost its line height.
+- DTCG: export writes line height as `"<n>px"` whichever name the style used
+  (a multiplier with no font size goes out as a bare number, DTCG's own form);
+  import reads `"<n>px"` below 16 as px, where a bare number of the same size
+  would read as a multiplier.
+
 ## [0.6.5] - 2026-08-23
 
 ### Added — `location` action type (UI DSL §4.25, Location Profile)

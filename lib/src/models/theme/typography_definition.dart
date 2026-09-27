@@ -1,5 +1,7 @@
 import 'package:meta/meta.dart';
 
+import 'line_height.dart';
+
 /// MCP UI DSL 1.3 — Typography (Material 3 — 15 role).
 ///
 /// 5 family (display/headline/title/body/label) × 3 size (Large/Medium/Small).
@@ -163,6 +165,10 @@ class TypographyDefinition {
 }
 
 /// Text style — fontFamily / fontSize / fontWeight / lineHeight / letterSpacing / fontFeatureSettings.
+///
+/// Line height is read under both names the spec gives it — `lineHeight` and
+/// the `TextStyle` primitive's `height` — and resolved by
+/// [lineHeightMultiplier].
 @immutable
 class TextStyleDefinition {
   /// `string` or `string[]` (fallback chain).
@@ -172,8 +178,11 @@ class TextStyleDefinition {
   /// `100`-`900` (number) or `'regular' / 'medium' / 'bold'` (alias).
   final Object? fontWeight;
 
-  /// Multiplier (e.g. 1.5) or absolute logical px.
+  /// Multiplier below 16 (e.g. 1.5), absolute logical px at or above.
   final num? lineHeight;
+
+  /// Always a multiplier — the `TextStyle` primitive's name for line height.
+  final num? height;
   final num? letterSpacing;
   final List<String>? fontFeatureSettings;
 
@@ -182,9 +191,17 @@ class TextStyleDefinition {
     this.fontSize,
     this.fontWeight,
     this.lineHeight,
+    this.height,
     this.letterSpacing,
     this.fontFeatureSettings,
   });
+
+  /// Line height as a multiple of [fontSize], or null when none is set.
+  double? get lineHeightMultiplierValue => lineHeightMultiplier(
+        lineHeight: lineHeight,
+        height: height,
+        fontSize: fontSize,
+      );
 
   factory TextStyleDefinition.fromJson(Map<String, dynamic> json) =>
       TextStyleDefinition(
@@ -192,6 +209,7 @@ class TextStyleDefinition {
         fontSize: json['fontSize'] as num?,
         fontWeight: json['fontWeight'],
         lineHeight: json['lineHeight'] as num?,
+        height: json['height'] as num?,
         letterSpacing: json['letterSpacing'] as num?,
         fontFeatureSettings: json['fontFeatureSettings'] is List
             ? List<String>.from(json['fontFeatureSettings'] as List)
@@ -204,6 +222,7 @@ class TextStyleDefinition {
     if (fontSize != null) m['fontSize'] = fontSize;
     if (fontWeight != null) m['fontWeight'] = fontWeight;
     if (lineHeight != null) m['lineHeight'] = lineHeight;
+    if (height != null) m['height'] = height;
     if (letterSpacing != null) m['letterSpacing'] = letterSpacing;
     if (fontFeatureSettings != null) {
       m['fontFeatureSettings'] = fontFeatureSettings;
@@ -216,6 +235,7 @@ class TextStyleDefinition {
     num? fontSize,
     Object? fontWeight,
     num? lineHeight,
+    num? height,
     num? letterSpacing,
     List<String>? fontFeatureSettings,
   }) =>
@@ -224,6 +244,7 @@ class TextStyleDefinition {
         fontSize: fontSize ?? this.fontSize,
         fontWeight: fontWeight ?? this.fontWeight,
         lineHeight: lineHeight ?? this.lineHeight,
+        height: height ?? this.height,
         letterSpacing: letterSpacing ?? this.letterSpacing,
         fontFeatureSettings: fontFeatureSettings ?? this.fontFeatureSettings,
       );

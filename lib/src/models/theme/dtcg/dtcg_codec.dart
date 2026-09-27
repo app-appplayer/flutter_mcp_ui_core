@@ -7,6 +7,7 @@ library;
 
 import '../color_scheme_definition.dart';
 import '../typography_definition.dart';
+import '../line_height.dart';
 import '../spacing_definition.dart';
 import '../shape_definition.dart';
 import '../elevation_definition.dart';
@@ -278,6 +279,27 @@ class DtcgCodec {
 
   // ===== Typography =====
 
+  /// Line height in the 05b export form: logical px as `"<n>px"`.
+  ///
+  /// Whichever name the style used, px is the multiplier times the font
+  /// size. A multiplier with no font size to scale has no px value, so it
+  /// goes out as the plain number DTCG itself uses for line height.
+  static Object? _dtcgLineHeight(TextStyleDefinition s) {
+    final lineHeight = s.lineHeight;
+    final size = s.fontSize;
+    final hasSize = size != null && size > 0;
+    if (lineHeight != null &&
+        lineHeight >= lineHeightPxThreshold &&
+        (hasSize || s.height == null)) {
+      return '${lineHeight}px';
+    }
+    final multiplier = s.lineHeightMultiplierValue;
+    if (multiplier == null) return null;
+    if (!hasSize) return multiplier;
+    final px = double.parse((multiplier * size).toStringAsFixed(2));
+    return '${px == px.roundToDouble() ? px.round() : px}px';
+  }
+
   static Map<String, dynamic> encodeTypography(TypographyDefinition t) {
     final m = <String, dynamic>{};
     for (final role in TypographyDefinition.roles) {
@@ -289,7 +311,7 @@ class DtcgCodec {
           if (s.fontFamily != null) 'fontFamily': s.fontFamily,
           if (s.fontSize != null) 'fontSize': '${s.fontSize}px',
           if (s.fontWeight != null) 'fontWeight': s.fontWeight,
-          if (s.lineHeight != null) 'lineHeight': '${s.lineHeight}px',
+          if (_dtcgLineHeight(s) != null) 'lineHeight': _dtcgLineHeight(s),
           if (s.letterSpacing != null)
             'letterSpacing': '${s.letterSpacing}px',
         },
@@ -308,11 +330,28 @@ class DtcgCodec {
         obj = v;
       }
       if (obj == null) return null;
+      final fontSize = parseDtcgDimension(obj['fontSize']);
+      // A unit written on the value settles what it is. `"12px"` is px even
+      // though a bare 12 reads as a multiplier (§5.4.2), so a px value below
+      // that threshold is stored as the multiplier it means. A bare number is
+      // DTCG's own multiplier form and passes through.
+      final rawLineHeight = obj['lineHeight'];
+      final explicitPx = rawLineHeight is String &&
+          rawLineHeight.trim().toLowerCase().endsWith('px');
+      final lineHeightValue = parseDtcgDimension(rawLineHeight);
+      final pxAsMultiplier = explicitPx &&
+              lineHeightValue != null &&
+              lineHeightValue < lineHeightPxThreshold &&
+              fontSize != null &&
+              fontSize > 0
+          ? lineHeightValue / fontSize
+          : null;
       return TextStyleDefinition(
         fontFamily: obj['fontFamily'],
-        fontSize: parseDtcgDimension(obj['fontSize']),
+        fontSize: fontSize,
         fontWeight: obj['fontWeight'],
-        lineHeight: parseDtcgDimension(obj['lineHeight']),
+        lineHeight: pxAsMultiplier == null ? lineHeightValue : null,
+        height: pxAsMultiplier,
         letterSpacing: parseDtcgDimension(obj['letterSpacing']),
         fontFeatureSettings: obj['fontFeatureSettings'] is List
             ? List<String>.from(obj['fontFeatureSettings'] as List)

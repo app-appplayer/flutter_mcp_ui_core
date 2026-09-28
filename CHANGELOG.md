@@ -1,3 +1,14 @@
+## [0.6.7] - 2026-09-28
+
+### Changed — schemas regenerated: `lineHeight` is the canonical line height
+- The app, page, theme and widget schema constants are regenerated from the
+  1.4 spec. `TextStyle` declares `lineHeight` (§5.4.2: below 16 a multiplier,
+  16 and above px) and marks `height` `deprecated` — its legacy alias,
+  accepted on input and never emitted, losing to `lineHeight` when both are
+  set (§17.3.2, §18.2.10). The object stays open, so nothing that validated
+  before stops validating; `TextStyleDefinition` already reads both names.
+- `mcp_bundle ^0.4.10` (was `^0.4.9`).
+
 ## [0.6.6] - 2026-09-27
 
 ### Fixed — line height under both names the spec gives it (05_Theme §5.4.2)

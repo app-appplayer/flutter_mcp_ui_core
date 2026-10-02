@@ -1,3 +1,16 @@
+## [0.6.8] - 2026-10-02
+
+### Fixed — schemas accept a responsive object where §14.2.2 does
+- Spec 1.4 §14.2.2 accepts a responsive object — one value per form factor,
+  keyed by `compact` / `medium` / `expanded` / `large` / `extraLarge` /
+  `embedded` / `default` — on any numeric, string, enum or token shorthand
+  property. The schemas carried that form on `grid.columns` only, so a
+  document using it anywhere else was refused at load. Every number, integer,
+  string, enum, colour and edge-insets widget property, and the `Dimension`
+  primitive (`fontSize` and other dimension fields), now takes it; each value
+  is checked against the property's own schema. Nothing that validated before
+  stops validating.
+
 ## [0.6.7] - 2026-09-28
 
 ### Changed — schemas regenerated: `lineHeight` is the canonical line height

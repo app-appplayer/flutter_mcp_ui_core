@@ -1,3 +1,23 @@
+## [0.6.9] - 2026-10-03
+
+### Added — `issuer.support` on scan entries
+- `EntryIssuer.support` (`EntrySupport`: `url` · `phone` · `email`) — how a
+  person reaches the issuer's operator when an entry fails (platform spec 19
+  §4.1.3). Resolvers send it; `EntryIssuer` carried only `name` and
+  `verified`, so a host lost it on parse. `EntryIssuer.fromJson` parses the
+  resolver's `issuer` object. A host offers these through the operating
+  system, so a value outside its form is dropped: `url` other than https,
+  `phone` other than E.164, `email` without `@`. Not a document binding —
+  `toBindingMap()` still gives `name` and `verified` only (§8.1).
+
+### Changed — schemas regenerated: one name for scroll response
+- `scrollView` and `pageView` declare `physics` (`bouncing` · `clamping` ·
+  `never` · `always`), the name and values every other scrollable already
+  used. `scrollPhysics` stays accepted as their legacy property name
+  (spec §17.3.2) and `neverScrollable` / `alwaysScrollable` as legacy values
+  (§17.3.1a). Only widening: `never` and `always` are new on these two
+  widgets, and nothing that validated before stops validating.
+
 ## [0.6.8] - 2026-10-02
 
 ### Fixed — schemas accept a responsive object where §14.2.2 does

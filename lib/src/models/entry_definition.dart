@@ -167,20 +167,95 @@ class IdentityPromotion {
 /// Who stands behind the scanned medium.
 @immutable
 class EntryIssuer {
-  const EntryIssuer({required this.name, this.verified = false});
+  const EntryIssuer({required this.name, this.verified = false, this.support});
+
+  /// The resolver answer's `issuer` object (platform spec 19 §4.1).
+  /// A malformed answer still yields an issuer — an empty name, unverified,
+  /// no support — so a host can always render its trust gate.
+  factory EntryIssuer.fromJson(Map<String, dynamic> json) {
+    final name = json['name'];
+    final verified = json['verified'];
+    return EntryIssuer(
+      name: name is String ? name : '',
+      verified: verified is bool && verified,
+      support: EntrySupport.fromJson(json['support']),
+    );
+  }
 
   final String name;
   final bool verified;
+
+  /// How a person reaches the issuer's operator when the entry fails
+  /// (§4.1.3). For the host's failure surfaces; it is not a document binding
+  /// (§8.1 binds `name` and `verified` only).
+  final EntrySupport? support;
 
   Map<String, dynamic> toBindingMap() =>
       <String, dynamic>{'name': name, 'verified': verified};
 
   @override
   bool operator ==(Object other) =>
-      other is EntryIssuer && other.name == name && other.verified == verified;
+      other is EntryIssuer &&
+      other.name == name &&
+      other.verified == verified &&
+      other.support == support;
 
   @override
-  int get hashCode => Object.hash(name, verified);
+  int get hashCode => Object.hash(name, verified, support);
+}
+
+/// The issuer operator's contact (platform spec 19 §4.1.3): `url` (https),
+/// `phone` (E.164), `email`. Each is optional; a support object carries at
+/// least one.
+@immutable
+class EntrySupport {
+  const EntrySupport({this.url, this.phone, this.email});
+
+  /// Parses `issuer.support`. A host offers these through the operating
+  /// system — a browser, `tel:`, `mailto:` — so a value outside its form is
+  /// dropped rather than opened: a `url` that is not https, a `phone` that is
+  /// not E.164, an `email` without `@`. Null when nothing usable is left.
+  static EntrySupport? fromJson(Object? json) {
+    if (json is! Map) return null;
+    String? text(Object? value) =>
+        value is String && value.trim().isNotEmpty ? value.trim() : null;
+    var url = text(json['url']);
+    var phone = text(json['phone']);
+    var email = text(json['email']);
+    if (url != null) {
+      final uri = Uri.tryParse(url);
+      if (uri == null || uri.scheme != 'https' || uri.host.isEmpty) url = null;
+    }
+    if (phone != null && !RegExp(r'^\+[1-9][0-9]{1,14}$').hasMatch(phone)) {
+      phone = null;
+    }
+    if (email != null &&
+        !RegExp(r'^[^@\s]+@[^@\s]+\.[^@\s]+$').hasMatch(email)) {
+      email = null;
+    }
+    if (url == null && phone == null && email == null) return null;
+    return EntrySupport(url: url, phone: phone, email: email);
+  }
+
+  final String? url;
+  final String? phone;
+  final String? email;
+
+  Map<String, dynamic> toJson() => <String, dynamic>{
+        if (url != null) 'url': url,
+        if (phone != null) 'phone': phone,
+        if (email != null) 'email': email,
+      };
+
+  @override
+  bool operator ==(Object other) =>
+      other is EntrySupport &&
+      other.url == url &&
+      other.phone == phone &&
+      other.email == email;
+
+  @override
+  int get hashCode => Object.hash(url, phone, email);
 }
 
 /// A disclosure the host wants rendered before or alongside the document.

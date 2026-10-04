@@ -1,3 +1,11 @@
+## [0.6.10] - 2026-10-04
+
+### Fixed
+- `validateMcpUiDslWidget` compiles against every `json_schema` version the
+  package allows. `ValidationError.instancePath` is `String?` before 5.2.1 and
+  `String` from 5.2.1; the validator read it as non-null, so resolving
+  `json_schema` 5.1.x (for example with `pub downgrade`) failed to compile.
+
 ## [0.6.9] - 2026-10-03
 
 ### Added — `issuer.support` on scan entries

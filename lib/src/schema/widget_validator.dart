@@ -73,11 +73,15 @@ WidgetValidationResult validateMcpUiDslWidget(Object? widget) {
   return WidgetValidationResult([
     for (final e in result.errors)
       WidgetValidationError(
-        path: e.instancePath.isEmpty ? '#' : '#${e.instancePath}',
+        path: _pointer(e.instancePath),
         message: e.message,
       ),
   ]);
 }
+
+// `instancePath` is nullable in json_schema before 5.2.1 and non-null after;
+// reading it through a nullable parameter compiles against both.
+String _pointer(String? path) => path == null || path.isEmpty ? '#' : '#$path';
 
 /// Every `type` value the spec's widget registry accepts, aliases included.
 ///
@@ -92,8 +96,7 @@ Set<String>? _widgetTypes;
 bool isMcpUiDslWidgetType(String type) => mcpUiDslWidgetTypes.contains(type);
 
 Set<String> _collectWidgetTypes() {
-  final decoded =
-      jsonDecode(mcpUiDslWidgetsSchemaJson) as Map<String, dynamic>;
+  final decoded = jsonDecode(mcpUiDslWidgetsSchemaJson) as Map<String, dynamic>;
   final defs = decoded[r'$defs'] as Map<String, dynamic>? ?? const {};
   final out = <String>{};
   for (final entry in defs.entries) {

@@ -1,3 +1,11 @@
+## [0.6.12] - 2026-10-13
+
+### Fixed
+- Theme schema: `color` accepts every role spec 05 §5.3.1 lists —
+  `surfaceBright`, `surfaceDim`, the five `surfaceContainer*` roles and
+  `onInverseSurface` were missing, so a theme that declared them failed
+  validation.
+
 ## [0.6.11] - 2026-10-12
 
 ### Added

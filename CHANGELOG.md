@@ -1,3 +1,20 @@
+## [0.6.11] - 2026-10-12
+
+### Added
+- `ToolActionDefinition.id` — the id a `cancel` action targets (spec §4.4;
+  the tool name when omitted). `timeout` documents `0` as no limit (§4.16).
+
+### Added — placement check
+- `validateMcpUiDslPlacement(widget)` — reports parent-dependent widgets that
+  are not where their parent can lay them out (spec 02 §2.3.1): `expanded` ·
+  `flexible` · `spacer` outside a non-wrapping `linear`, `positioned` ·
+  `animatedPositioned` outside a `stack`. `conditional` and `visibility`
+  (without `maintain*`) are looked through; a widget carried by an action
+  starts a new tree. Returns the same `WidgetValidationResult` as
+  `validateMcpUiDslWidget`, with JSON-pointer paths.
+- `mcpUiDslPlacementRules` / `McpUiDslPlacementRule` — the generated table
+  (`widget_placement.g.dart`) for editors that restrict drops by the same rule.
+
 ## [0.6.10] - 2026-10-04
 
 ### Fixed

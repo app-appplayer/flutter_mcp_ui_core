@@ -70,3 +70,8 @@ export 'src/schema/widget_validator.dart'
         isMcpUiDslWidgetType,
         mcpUiDslWidgetTypes,
         validateMcpUiDslWidget;
+// Placement check (registry `placement`): where parent-dependent widgets may
+// sit. The table is exported for editors that restrict drops by the same rule.
+export 'src/schema/placement_validator.dart' show validateMcpUiDslPlacement;
+export 'src/schema/widget_placement.g.dart'
+    show McpUiDslPlacementRule, mcpUiDslPlacementRules;

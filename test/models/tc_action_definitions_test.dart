@@ -9,11 +9,13 @@ void main() {
   group('TC-024: ActionDefinition factory dispatch', () {
     test('Normal: each known type dispatches to correct subclass', () {
       expect(
-        ActionDefinition.fromJson({'type': 'state', 'action': 'set', 'binding': 'x'}),
+        ActionDefinition.fromJson(
+            {'type': 'state', 'action': 'set', 'binding': 'x'}),
         isA<StateActionDefinition>(),
       );
       expect(
-        ActionDefinition.fromJson({'type': 'navigation', 'action': 'push', 'route': '/x'}),
+        ActionDefinition.fromJson(
+            {'type': 'navigation', 'action': 'push', 'route': '/x'}),
         isA<NavigationActionDefinition>(),
       );
       expect(
@@ -21,7 +23,8 @@ void main() {
         isA<ToolActionDefinition>(),
       );
       expect(
-        ActionDefinition.fromJson({'type': 'resource', 'action': 'subscribe', 'uri': 'data://x'}),
+        ActionDefinition.fromJson(
+            {'type': 'resource', 'action': 'subscribe', 'uri': 'data://x'}),
         isA<ResourceActionDefinition>(),
       );
       expect(
@@ -33,7 +36,11 @@ void main() {
         isA<BatchActionDefinition>(),
       );
       expect(
-        ActionDefinition.fromJson({'type': 'conditional', 'condition': '{{x}}', 'then': {'type': 'state', 'action': 'set', 'binding': 'x'}}),
+        ActionDefinition.fromJson({
+          'type': 'conditional',
+          'condition': '{{x}}',
+          'then': {'type': 'state', 'action': 'set', 'binding': 'x'}
+        }),
         isA<ConditionalActionDefinition>(),
       );
       expect(
@@ -49,7 +56,8 @@ void main() {
         isA<SequenceActionDefinition>(),
       );
       expect(
-        ActionDefinition.fromJson({'type': 'animation', 'action': 'play', 'target': 'a1'}),
+        ActionDefinition.fromJson(
+            {'type': 'animation', 'action': 'play', 'target': 'a1'}),
         isA<AnimationActionDefinition>(),
       );
       expect(
@@ -60,21 +68,30 @@ void main() {
 
     test('Boundary: client.* prefix dispatches to ClientActionDefinition', () {
       expect(
-        ActionDefinition.fromJson({'type': 'client.readFile', 'params': {'path': '/x'}}),
+        ActionDefinition.fromJson({
+          'type': 'client.readFile',
+          'params': {'path': '/x'}
+        }),
         isA<ClientActionDefinition>(),
       );
     });
 
-    test('Boundary: channel.* prefix dispatches to ChannelActionDefinition', () {
+    test('Boundary: channel.* prefix dispatches to ChannelActionDefinition',
+        () {
       expect(
         ActionDefinition.fromJson({'type': 'channel.start', 'channel': 'ch1'}),
         isA<ChannelActionDefinition>(),
       );
     });
 
-    test('Boundary: permission.revoke dispatches to PermissionRevokeActionDefinition', () {
+    test(
+        'Boundary: permission.revoke dispatches to PermissionRevokeActionDefinition',
+        () {
       expect(
-        ActionDefinition.fromJson({'type': 'permission.revoke', 'permissions': ['file.read']}),
+        ActionDefinition.fromJson({
+          'type': 'permission.revoke',
+          'permissions': ['file.read']
+        }),
         isA<PermissionRevokeActionDefinition>(),
       );
     });
@@ -93,7 +110,10 @@ void main() {
   group('TC-025: StateActionDefinition.fromJson', () {
     test('Normal: parse state action', () {
       final def = StateActionDefinition.fromJson({
-        'type': 'state', 'action': 'set', 'binding': 'counter', 'value': 0,
+        'type': 'state',
+        'action': 'set',
+        'binding': 'counter',
+        'value': 0,
       });
       expect(def.action, equals('set'));
       expect(def.binding, equals('counter'));
@@ -101,16 +121,29 @@ void main() {
     });
 
     test('Boundary: parse all 9 operations', () {
-      for (final op in ['set', 'increment', 'decrement', 'toggle', 'append', 'remove', 'push', 'pop', 'removeAt']) {
+      for (final op in [
+        'set',
+        'increment',
+        'decrement',
+        'toggle',
+        'append',
+        'remove',
+        'push',
+        'pop',
+        'removeAt'
+      ]) {
         final def = StateActionDefinition.fromJson({
-          'type': 'state', 'action': op, 'binding': 'x',
+          'type': 'state',
+          'action': op,
+          'binding': 'x',
         });
         expect(def.action, equals(op));
       }
     });
 
     test('Error: missing action defaults to set', () {
-      final def = StateActionDefinition.fromJson({'type': 'state', 'binding': 'x'});
+      final def =
+          StateActionDefinition.fromJson({'type': 'state', 'binding': 'x'});
       expect(def.action, equals('set'));
     });
   });
@@ -121,7 +154,10 @@ void main() {
   group('TC-026: NavigationActionDefinition.fromJson', () {
     test('Normal: parse push navigation', () {
       final def = NavigationActionDefinition.fromJson({
-        'type': 'navigation', 'action': 'push', 'route': '/page', 'params': {'id': '1'},
+        'type': 'navigation',
+        'action': 'push',
+        'route': '/page',
+        'params': {'id': '1'},
       });
       expect(def.action, equals('push'));
       expect(def.route, equals('/page'));
@@ -130,7 +166,8 @@ void main() {
 
     test('Boundary: pop action without route', () {
       final def = NavigationActionDefinition.fromJson({
-        'type': 'navigation', 'action': 'pop',
+        'type': 'navigation',
+        'action': 'pop',
       });
       expect(def.action, equals('pop'));
       expect(def.route, isNull);
@@ -138,7 +175,9 @@ void main() {
 
     test('Boundary: setIndex with dedicated index field', () {
       final def = NavigationActionDefinition.fromJson({
-        'type': 'navigation', 'action': 'setIndex', 'index': 2,
+        'type': 'navigation',
+        'action': 'setIndex',
+        'index': 2,
       });
       expect(def.action, equals('setIndex'));
       expect(def.index, equals(2));
@@ -179,7 +218,8 @@ void main() {
 
     test('Boundary: parse with no params, defaults', () {
       final def = ToolActionDefinition.fromJson({
-        'type': 'tool', 'tool': 'simple',
+        'type': 'tool',
+        'tool': 'simple',
       });
       expect(def.tool, equals('simple'));
       expect(def.params, isNull);
@@ -191,6 +231,26 @@ void main() {
       final def = ToolActionDefinition.fromJson({'type': 'tool'});
       expect(def.tool, equals(''));
     });
+
+    test('id and timeout 0 survive every path (spec §4.4, §4.16)', () {
+      final json = {
+        'type': 'tool',
+        'tool': 'openAsHolder',
+        'id': 'holderOpen',
+        'timeout': 0,
+        'cancellable': true,
+      };
+      final def = ToolActionDefinition.fromJson(json);
+      expect(def.id, 'holderOpen');
+      expect(def.timeout, 0);
+      expect(def.toJson()['id'], 'holderOpen');
+      expect(def.toJson()['timeout'], 0);
+      expect(def.toConfig().parameters['id'], 'holderOpen');
+      final viaConfig = ActionDefinition.fromConfig(def.toConfig());
+      expect(viaConfig, equals(def));
+      expect(ToolActionDefinition.fromJson(json..['id'] = 'other'),
+          isNot(equals(def)));
+    });
   });
 
   // =========================================================================
@@ -199,8 +259,12 @@ void main() {
   group('TC-028: RetryStrategy parsing', () {
     test('Normal: parse full retry strategy', () {
       final rs = RetryStrategy.fromJson({
-        'maxAttempts': 3, 'delay': 1000, 'backoff': 'exponential',
-        'multiplier': 2, 'maxDelay': 30000, 'retryOn': ['NETWORK_ERROR'],
+        'maxAttempts': 3,
+        'delay': 1000,
+        'backoff': 'exponential',
+        'multiplier': 2,
+        'maxDelay': 30000,
+        'retryOn': ['NETWORK_ERROR'],
       });
       expect(rs.maxAttempts, equals(3));
       expect(rs.delay, equals(1000));
@@ -223,7 +287,8 @@ void main() {
   // =========================================================================
   group('TC-029: LoadingConfig parsing', () {
     test('Normal: parse loading config', () {
-      final lc = LoadingConfig.fromJson({'binding': 'isLoading', 'indicator': 'spinner'});
+      final lc = LoadingConfig.fromJson(
+          {'binding': 'isLoading', 'indicator': 'spinner'});
       expect(lc.binding, equals('isLoading'));
       expect(lc.indicator, equals('spinner'));
     });
@@ -241,7 +306,8 @@ void main() {
   group('TC-030: CancelActionDefinition.fromJson', () {
     test('Normal: parse cancel action', () {
       final def = CancelActionDefinition.fromJson({
-        'type': 'cancel', 'target': 'myToolCall',
+        'type': 'cancel',
+        'target': 'myToolCall',
       });
       expect(def.target, equals('myToolCall'));
     });
@@ -279,9 +345,15 @@ void main() {
   group('TC-032: ResourceActionDefinition.fromJson', () {
     test('Normal: parse resource action with all fields', () {
       final def = ResourceActionDefinition.fromJson({
-        'type': 'resource', 'action': 'subscribe', 'uri': 'data://temp',
-        'binding': 'temp', 'scope': 'page', 'method': 'GET',
-        'target': '/api', 'data': {'key': 'val'}, 'bindResult': 'result',
+        'type': 'resource',
+        'action': 'subscribe',
+        'uri': 'data://temp',
+        'binding': 'temp',
+        'scope': 'page',
+        'method': 'GET',
+        'target': '/api',
+        'data': {'key': 'val'},
+        'bindResult': 'result',
       });
       expect(def.action, equals('subscribe'));
       expect(def.uri, equals('data://temp'));
@@ -295,7 +367,9 @@ void main() {
 
     test('Boundary: unsubscribe without binding', () {
       final def = ResourceActionDefinition.fromJson({
-        'type': 'resource', 'action': 'unsubscribe', 'uri': 'data://temp',
+        'type': 'resource',
+        'action': 'unsubscribe',
+        'uri': 'data://temp',
       });
       expect(def.action, equals('unsubscribe'));
       expect(def.binding, isNull);
@@ -303,7 +377,9 @@ void main() {
 
     test('Boundary: optional fields null by default', () {
       final def = ResourceActionDefinition.fromJson({
-        'type': 'resource', 'action': 'read', 'uri': 'data://x',
+        'type': 'resource',
+        'action': 'read',
+        'uri': 'data://x',
       });
       expect(def.scope, isNull);
       expect(def.method, isNull);
@@ -326,7 +402,16 @@ void main() {
         'dismissible': true,
         'actions': [
           {'label': 'Cancel', 'action': 'close'},
-          {'label': 'OK', 'action': {'type': 'state', 'action': 'set', 'binding': 'confirmed', 'value': true}, 'primary': true},
+          {
+            'label': 'OK',
+            'action': {
+              'type': 'state',
+              'action': 'set',
+              'binding': 'confirmed',
+              'value': true
+            },
+            'primary': true
+          },
         ],
       });
       expect(def.dialogType, equals('alert'));
@@ -374,9 +459,11 @@ void main() {
       expect(def.stopOnError, isFalse);
     });
 
-    test('Boundary: sequential defaults to true, stopOnError defaults to false', () {
+    test('Boundary: sequential defaults to true, stopOnError defaults to false',
+        () {
       final def = BatchActionDefinition.fromJson({
-        'type': 'batch', 'actions': [],
+        'type': 'batch',
+        'actions': [],
       });
       expect(def.sequential, isTrue);
       expect(def.stopOnError, isFalse);
@@ -384,7 +471,8 @@ void main() {
 
     test('Error: empty actions list — valid', () {
       final def = BatchActionDefinition.fromJson({
-        'type': 'batch', 'actions': [],
+        'type': 'batch',
+        'actions': [],
       });
       expect(def.actions, isEmpty);
     });
@@ -398,8 +486,18 @@ void main() {
       final def = ConditionalActionDefinition.fromJson({
         'type': 'conditional',
         'condition': '{{x > 0}}',
-        'then': {'type': 'state', 'action': 'set', 'binding': 'positive', 'value': true},
-        'else': {'type': 'state', 'action': 'set', 'binding': 'positive', 'value': false},
+        'then': {
+          'type': 'state',
+          'action': 'set',
+          'binding': 'positive',
+          'value': true
+        },
+        'else': {
+          'type': 'state',
+          'action': 'set',
+          'binding': 'positive',
+          'value': false
+        },
       });
       expect(def.condition, equals('{{x > 0}}'));
       expect(def.thenAction, isA<StateActionDefinition>());
@@ -429,7 +527,12 @@ void main() {
         'position': 'top',
         'action': {
           'label': 'Undo',
-          'click': {'type': 'state', 'action': 'set', 'binding': 'undone', 'value': true},
+          'click': {
+            'type': 'state',
+            'action': 'set',
+            'binding': 'undone',
+            'value': true
+          },
         },
       });
       expect(def.message, equals('Success!'));
@@ -443,7 +546,8 @@ void main() {
 
     test('Boundary: defaults', () {
       final def = NotificationActionDefinition.fromJson({
-        'type': 'notification', 'message': 'Info',
+        'type': 'notification',
+        'message': 'Info',
       });
       expect(def.severity, isNull);
       expect(def.duration, isNull);
@@ -473,7 +577,8 @@ void main() {
 
     test('Boundary: callbacks optional', () {
       final def = ParallelActionDefinition.fromJson({
-        'type': 'parallel', 'actions': [],
+        'type': 'parallel',
+        'actions': [],
       });
       expect(def.onAllComplete, isNull);
       expect(def.onAnyError, isNull);
@@ -500,7 +605,8 @@ void main() {
 
     test('Boundary: stopOnError defaults to true', () {
       final def = SequenceActionDefinition.fromJson({
-        'type': 'sequence', 'actions': [],
+        'type': 'sequence',
+        'actions': [],
       });
       expect(def.stopOnError, isTrue);
       expect(def.onComplete, isNull);
@@ -513,8 +619,11 @@ void main() {
   group('TC-039: AnimationActionDefinition.fromJson', () {
     test('Normal: parse animation action', () {
       final def = AnimationActionDefinition.fromJson({
-        'type': 'animation', 'action': 'play', 'target': 'anim1',
-        'duration': 300, 'curve': 'easeIn',
+        'type': 'animation',
+        'action': 'play',
+        'target': 'anim1',
+        'duration': 300,
+        'curve': 'easeIn',
       });
       expect(def.action, equals('play'));
       expect(def.target, equals('anim1'));
@@ -523,9 +632,18 @@ void main() {
     });
 
     test('Boundary: all 6 animation actions', () {
-      for (final act in ['play', 'reverse', 'pause', 'resume', 'reset', 'stop']) {
+      for (final act in [
+        'play',
+        'reverse',
+        'pause',
+        'resume',
+        'reset',
+        'stop'
+      ]) {
         final def = AnimationActionDefinition.fromJson({
-          'type': 'animation', 'action': act, 'target': 'a1',
+          'type': 'animation',
+          'action': act,
+          'target': 'a1',
         });
         expect(def.action, equals(act));
       }
@@ -533,7 +651,9 @@ void main() {
 
     test('Boundary: duration and curve optional', () {
       final def = AnimationActionDefinition.fromJson({
-        'type': 'animation', 'action': 'play', 'target': 'a1',
+        'type': 'animation',
+        'action': 'play',
+        'target': 'a1',
       });
       expect(def.duration, isNull);
       expect(def.curve, isNull);
@@ -564,13 +684,20 @@ void main() {
 
     test('Boundary: all 10 client action types parse', () {
       final clientTypes = [
-        'client.selectFile', 'client.readFile', 'client.writeFile',
-        'client.saveFile', 'client.listFiles', 'client.httpRequest',
-        'client.getSystemInfo', 'client.clipboard', 'client.exec',
+        'client.selectFile',
+        'client.readFile',
+        'client.writeFile',
+        'client.saveFile',
+        'client.listFiles',
+        'client.httpRequest',
+        'client.getSystemInfo',
+        'client.clipboard',
+        'client.exec',
         'client.notification',
       ];
       for (final t in clientTypes) {
-        final def = ActionDefinition.fromJson({'type': t}) as ClientActionDefinition;
+        final def =
+            ActionDefinition.fromJson({'type': t}) as ClientActionDefinition;
         expect(def.action, equals(t));
       }
     });
@@ -764,9 +891,15 @@ void main() {
 
     test('Normal: all 10 client action types can be constructed', () {
       final clientTypes = [
-        'client.selectFile', 'client.readFile', 'client.writeFile',
-        'client.saveFile', 'client.listFiles', 'client.httpRequest',
-        'client.getSystemInfo', 'client.clipboard', 'client.exec',
+        'client.selectFile',
+        'client.readFile',
+        'client.writeFile',
+        'client.saveFile',
+        'client.listFiles',
+        'client.httpRequest',
+        'client.getSystemInfo',
+        'client.clipboard',
+        'client.exec',
         'client.notification',
       ];
       for (final t in clientTypes) {
@@ -783,7 +916,8 @@ void main() {
   group('TC-042: ChannelActionDefinition.fromJson', () {
     test('Normal: parse channel.start', () {
       final def = ChannelActionDefinition.fromJson({
-        'type': 'channel.start', 'channel': 'systemMonitor',
+        'type': 'channel.start',
+        'channel': 'systemMonitor',
       });
       expect(def.action, equals('start'));
       expect(def.channel, equals('systemMonitor'));
@@ -792,7 +926,9 @@ void main() {
 
     test('Boundary: channel.send with data', () {
       final def = ChannelActionDefinition.fromJson({
-        'type': 'channel.send', 'channel': 'chat', 'data': {'message': 'hello'},
+        'type': 'channel.send',
+        'channel': 'chat',
+        'data': {'message': 'hello'},
       });
       expect(def.action, equals('send'));
       expect(def.data, equals({'message': 'hello'}));
@@ -801,7 +937,8 @@ void main() {
     test('Boundary: all 5 channel action types', () {
       for (final act in ['start', 'stop', 'restart', 'toggle', 'send']) {
         final def = ChannelActionDefinition.fromJson({
-          'type': 'channel.$act', 'channel': 'ch1',
+          'type': 'channel.$act',
+          'channel': 'ch1',
         });
         expect(def.action, equals(act));
         expect(def.type, equals('channel.$act'));

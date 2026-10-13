@@ -56,8 +56,7 @@ sealed class ActionDefinition {
       'sequence' => SequenceActionDefinition.fromJson(json),
       'animation' => AnimationActionDefinition.fromJson(json),
       'cancel' => CancelActionDefinition.fromJson(json),
-      _ => throw ArgumentError(
-          'Unknown ActionDefinition type "$type". '
+      _ => throw ArgumentError('Unknown ActionDefinition type "$type". '
           'Supported types: state, navigation, tool, resource, dialog, '
           'batch, conditional, notification, parallel, sequence, '
           'animation, cancel, permission.*, client.*, channel.*'),
@@ -113,6 +112,7 @@ sealed class ActionDefinition {
           timeout: config.getParameter<int>('timeout'),
           onTimeout: _parseConfigSingleAction(
               config.getParameter<Map<String, dynamic>>('onTimeout')),
+          id: config.getParameter<String>('id'),
           cancellable: config.getParameter<bool>('cancellable'),
           onCancel: _parseConfigSingleAction(
               config.getParameter<Map<String, dynamic>>('onCancel')),
@@ -143,9 +143,7 @@ sealed class ActionDefinition {
                   : null,
         ),
       'batch' => BatchActionDefinition(
-          actions: config.actions
-                  ?.map(ActionDefinition.fromConfig)
-                  .toList() ??
+          actions: config.actions?.map(ActionDefinition.fromConfig).toList() ??
               const [],
         ),
       'conditional' => ConditionalActionDefinition(
@@ -169,15 +167,11 @@ sealed class ActionDefinition {
               : null,
         ),
       'parallel' => ParallelActionDefinition(
-          actions: config.actions
-                  ?.map(ActionDefinition.fromConfig)
-                  .toList() ??
+          actions: config.actions?.map(ActionDefinition.fromConfig).toList() ??
               const [],
         ),
       'sequence' => SequenceActionDefinition(
-          actions: config.actions
-                  ?.map(ActionDefinition.fromConfig)
-                  .toList() ??
+          actions: config.actions?.map(ActionDefinition.fromConfig).toList() ??
               const [],
         ),
       'animation' => AnimationActionDefinition(
@@ -189,8 +183,7 @@ sealed class ActionDefinition {
       'cancel' => CancelActionDefinition(
           target: config.getParameter<String>('target') ?? '',
         ),
-      _ => throw ArgumentError(
-          'Unknown ActionConfig type "${config.type}". '
+      _ => throw ArgumentError('Unknown ActionConfig type "${config.type}". '
           'Cannot convert to ActionDefinition.'),
     };
   }
@@ -404,13 +397,17 @@ class ToolActionDefinition extends ActionDefinition {
   /// State binding path to store the tool result
   final String? bindResult;
 
-  /// Timeout in milliseconds for the tool call
+  /// Milliseconds to wait for the result (spec §4.16): omitted is 30000,
+  /// `0` is no limit.
   final int? timeout;
 
   /// Action to execute when the tool call times out
   final ActionDefinition? onTimeout;
 
-  /// Whether this tool action can be cancelled
+  /// Id a `cancel` action targets (spec §4.4); the tool name when omitted.
+  final String? id;
+
+  /// Whether an explicit `cancel` may end the wait (spec §4.15)
   final bool? cancellable;
 
   /// Action to execute when the tool call is cancelled
@@ -428,6 +425,7 @@ class ToolActionDefinition extends ActionDefinition {
     this.bindResult,
     this.timeout,
     this.onTimeout,
+    this.id,
     this.cancellable,
     this.onCancel,
     this.loading,
@@ -444,12 +442,10 @@ class ToolActionDefinition extends ActionDefinition {
           ? Map<String, dynamic>.from(json['params'] as Map)
           : null,
       onSuccess: json['onSuccess'] != null
-          ? ActionDefinition.fromJson(
-              json['onSuccess'] as Map<String, dynamic>)
+          ? ActionDefinition.fromJson(json['onSuccess'] as Map<String, dynamic>)
           : null,
       onError: json['onError'] != null
-          ? ActionDefinition.fromJson(
-              json['onError'] as Map<String, dynamic>)
+          ? ActionDefinition.fromJson(json['onError'] as Map<String, dynamic>)
           : null,
       retry: json['retry'] != null
           ? RetryStrategy.fromJson(json['retry'] as Map<String, dynamic>)
@@ -457,13 +453,12 @@ class ToolActionDefinition extends ActionDefinition {
       bindResult: json['bindResult'] as String?,
       timeout: json['timeout'] as int?,
       onTimeout: json['onTimeout'] != null
-          ? ActionDefinition.fromJson(
-              json['onTimeout'] as Map<String, dynamic>)
+          ? ActionDefinition.fromJson(json['onTimeout'] as Map<String, dynamic>)
           : null,
+      id: json['id'] as String?,
       cancellable: json['cancellable'] as bool?,
       onCancel: json['onCancel'] != null
-          ? ActionDefinition.fromJson(
-              json['onCancel'] as Map<String, dynamic>)
+          ? ActionDefinition.fromJson(json['onCancel'] as Map<String, dynamic>)
           : null,
       // Accept string binding or map with binding+text
       loading: json['loading'] is String
@@ -486,6 +481,7 @@ class ToolActionDefinition extends ActionDefinition {
       if (bindResult != null) 'bindResult': bindResult,
       if (timeout != null) 'timeout': timeout,
       if (onTimeout != null) 'onTimeout': onTimeout!.toJson(),
+      if (id != null) 'id': id,
       if (cancellable != null) 'cancellable': cancellable,
       if (onCancel != null) 'onCancel': onCancel!.toJson(),
       if (loading != null) 'loading': loading!.toJson(),
@@ -505,6 +501,7 @@ class ToolActionDefinition extends ActionDefinition {
         if (bindResult != null) 'bindResult': bindResult!,
         if (timeout != null) 'timeout': timeout!,
         if (onTimeout != null) 'onTimeout': onTimeout!.toJson(),
+        if (id != null) 'id': id!,
         if (cancellable != null) 'cancellable': cancellable!,
         if (onCancel != null) 'onCancel': onCancel!.toJson(),
         if (loading != null) 'loading': loading!.toJson(),
@@ -525,6 +522,7 @@ class ToolActionDefinition extends ActionDefinition {
           bindResult == other.bindResult &&
           timeout == other.timeout &&
           onTimeout == other.onTimeout &&
+          id == other.id &&
           cancellable == other.cancellable &&
           onCancel == other.onCancel &&
           loading == other.loading;
@@ -539,16 +537,16 @@ class ToolActionDefinition extends ActionDefinition {
       bindResult.hashCode ^
       timeout.hashCode ^
       onTimeout.hashCode ^
+      id.hashCode ^
       cancellable.hashCode ^
       onCancel.hashCode ^
       loading.hashCode;
 
   @override
-  String toString() =>
-      'ToolActionDefinition(tool: $tool, params: $params, '
+  String toString() => 'ToolActionDefinition(tool: $tool, params: $params, '
       'onSuccess: $onSuccess, onError: $onError, '
       'retry: $retry, timeout: $timeout, '
-      'cancellable: $cancellable, loading: $loading)';
+      'id: $id, cancellable: $cancellable, loading: $loading)';
 }
 
 // ---------------------------------------------------------------------------
@@ -730,14 +728,15 @@ class DialogActionDefinition extends ActionDefinition {
       dismissible: source['dismissible'] as bool?,
       actions: source['actions'] != null
           ? (source['actions'] as List)
-              .map((e) => DialogButton.fromJson(
-                  Map<String, dynamic>.from(e as Map)))
+              .map((e) =>
+                  DialogButton.fromJson(Map<String, dynamic>.from(e as Map)))
               .toList()
           : null,
       child: source['child'] != null
           ? WidgetDefinition.fromJson(source['child'] as Map<String, dynamic>)
           : source['body'] != null
-              ? WidgetDefinition.fromJson(source['body'] as Map<String, dynamic>)
+              ? WidgetDefinition.fromJson(
+                  source['body'] as Map<String, dynamic>)
               : null,
     );
   }
@@ -847,9 +846,7 @@ class DialogButton {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is DialogButton &&
-          label == other.label &&
-          primary == other.primary;
+      other is DialogButton && label == other.label && primary == other.primary;
 
   @override
   int get hashCode => label.hashCode ^ primary.hashCode;
@@ -885,8 +882,7 @@ class BatchActionDefinition extends ActionDefinition {
     return BatchActionDefinition(
       actions: json['actions'] != null
           ? (json['actions'] as List)
-              .map((e) =>
-                  ActionDefinition.fromJson(e as Map<String, dynamic>))
+              .map((e) => ActionDefinition.fromJson(e as Map<String, dynamic>))
               .toList()
           : const [],
       sequential: json['sequential'] as bool? ?? true,
@@ -1000,8 +996,7 @@ class ConditionalActionDefinition extends ActionDefinition {
       condition.hashCode ^ thenAction.hashCode ^ elseAction.hashCode;
 
   @override
-  String toString() =>
-      'ConditionalActionDefinition(condition: $condition, '
+  String toString() => 'ConditionalActionDefinition(condition: $condition, '
       'thenAction: $thenAction, elseAction: $elseAction)';
 }
 
@@ -1046,8 +1041,7 @@ class NotificationActionDefinition extends ActionDefinition {
       duration: json['duration'] as int?,
       position: json['position'] as String?,
       action: json['action'] != null
-          ? NotificationAction.fromJson(
-              json['action'] as Map<String, dynamic>)
+          ? NotificationAction.fromJson(json['action'] as Map<String, dynamic>)
           : null,
     );
   }
@@ -1133,8 +1127,7 @@ class ParallelActionDefinition extends ActionDefinition {
     return ParallelActionDefinition(
       actions: json['actions'] != null
           ? (json['actions'] as List)
-              .map((e) =>
-                  ActionDefinition.fromJson(e as Map<String, dynamic>))
+              .map((e) => ActionDefinition.fromJson(e as Map<String, dynamic>))
               .toList()
           : const [],
       onAllComplete: json['onAllComplete'] != null
@@ -1213,8 +1206,7 @@ class SequenceActionDefinition extends ActionDefinition {
     return SequenceActionDefinition(
       actions: json['actions'] != null
           ? (json['actions'] as List)
-              .map((e) =>
-                  ActionDefinition.fromJson(e as Map<String, dynamic>))
+              .map((e) => ActionDefinition.fromJson(e as Map<String, dynamic>))
               .toList()
           : const [],
       stopOnError: json['stopOnError'] as bool? ?? true,
@@ -1310,12 +1302,10 @@ class ClientActionDefinition extends ActionDefinition {
           ? Map<String, dynamic>.from(json['params'] as Map)
           : null,
       onSuccess: json['onSuccess'] != null
-          ? ActionDefinition.fromJson(
-              json['onSuccess'] as Map<String, dynamic>)
+          ? ActionDefinition.fromJson(json['onSuccess'] as Map<String, dynamic>)
           : null,
       onError: json['onError'] != null
-          ? ActionDefinition.fromJson(
-              json['onError'] as Map<String, dynamic>)
+          ? ActionDefinition.fromJson(json['onError'] as Map<String, dynamic>)
           : null,
       confirmMessage: json['confirmMessage'] as String?,
       requireConfirmation: json['requireConfirmation'] as bool?,
@@ -1852,8 +1842,7 @@ bool _mapsEqual(Map<String, dynamic>? a, Map<String, dynamic>? b) {
 }
 
 /// Compare two nullable lists of [ActionDefinition] for equality
-bool _actionListsEqual(
-    List<ActionDefinition>? a, List<ActionDefinition>? b) {
+bool _actionListsEqual(List<ActionDefinition>? a, List<ActionDefinition>? b) {
   if (identical(a, b)) return true;
   if (a == null && b == null) return true;
   if (a == null || b == null) return false;
@@ -1878,8 +1867,7 @@ bool _dialogButtonListsEqual(List<DialogButton>? a, List<DialogButton>? b) {
 
 /// Deep equality check for lists of maps
 // ignore: unused_element
-bool _deepEquals(
-    List<Map<String, dynamic>>? a, List<Map<String, dynamic>>? b) {
+bool _deepEquals(List<Map<String, dynamic>>? a, List<Map<String, dynamic>>? b) {
   if (identical(a, b)) return true;
   if (a == null && b == null) return true;
   if (a == null || b == null) return false;

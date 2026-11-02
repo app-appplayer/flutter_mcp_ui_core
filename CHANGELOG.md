@@ -1,3 +1,12 @@
+## [0.6.13] - 2026-11-02
+
+### Fixed
+- App and page schemas: `state` accepts `computed` and `watchers` (spec 03
+  §3.8, §3.9). The runtime executed them but the closed `StateBlock` rejected
+  them.
+- `TemplateDefinition.fromJson` reads `slots` as the spec's object keyed by slot
+  name (09 §9.2), as well as a list of names.
+
 ## [0.6.12] - 2026-10-13
 
 ### Fixed

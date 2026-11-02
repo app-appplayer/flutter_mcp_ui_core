@@ -67,7 +67,7 @@ class TemplateDefinition {
       description: json['description'] as String?,
       params: params,
       content: json['content'] as Map<String, dynamic>,
-      slots: (json['slots'] as List<dynamic>?)?.cast<String>(),
+      slots: _slotNames(json['slots']),
       defaults: json['defaults'] as Map<String, dynamic>?,
       stateDefaults: json['stateDefaults'] as Map<String, dynamic>?,
       onMount: (json['onMount'] as List<dynamic>?)
@@ -77,6 +77,14 @@ class TemplateDefinition {
           ?.map((e) => e as Map<String, dynamic>)
           .toList(),
     );
+  }
+
+  /// Slot names from a `slots` declaration. The spec (09 §9.2) declares slots
+  /// as an object keyed by slot name; a plain list of names is also accepted.
+  static List<String>? _slotNames(Object? raw) {
+    if (raw is Map) return raw.keys.map((k) => k.toString()).toList();
+    if (raw is List) return raw.map((e) => e.toString()).toList();
+    return null;
   }
 
   Map<String, dynamic> toJson() {

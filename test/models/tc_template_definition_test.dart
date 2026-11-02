@@ -29,6 +29,17 @@ void main() {
       expect(def.params!['subtitle']!.defaultValue, equals(''));
       expect(def.content['type'], equals('box'));
       expect(def.slots, equals(['header', 'footer']));
+
+      // Spec 09 §9.2 declares slots as an object keyed by slot name.
+      final fromObject = TemplateDefinition.fromJson({
+        'name': 'card',
+        'slots': {
+          'header': {'required': true},
+          'footer': {'required': false},
+        },
+        'content': {'type': 'text'},
+      });
+      expect(fromObject.slots, equals(['header', 'footer']));
       expect(def.defaults, equals({'subtitle': 'Default subtitle'}));
     });
 
